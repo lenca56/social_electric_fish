@@ -10,9 +10,6 @@ figures/**
 data/**
 models/**
 logs/**
-Herbert_Wu_Data/**
-Neural_data/**
-Keypoint_Moseq/**
 *.pkl
 *.pickle
 **/__pycache__
