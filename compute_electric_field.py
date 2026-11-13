@@ -199,16 +199,18 @@ def potential_solver(A, pin=0):
     if real: M = M.real
     keep = np.ones(M.shape[0]); keep[pin] = 0
     lu = splu((sp.diags(keep) @ M + sp.csr_matrix(([1.0], ([pin], [pin])), shape=M.shape)).tocsc())
-    def solve(b):
-        rhs = np.asarray(b).ravel()
-        if cut.any(): assert not np.any(rhs[cut]), 'current injected on nodes cut off by the walls (use confine_sources)'
-        if real and np.any(np.imag(rhs)):                                 # complex currents on a real medium: solve both parts
-            phi = solve(np.real(rhs)) + 1j * solve(np.imag(rhs)); return phi
+    def one(rhs):                                                         # one real (or complex) right-hand side
         rhs = (np.real(rhs).astype(float) if real else rhs.astype(complex)).copy(); rhs[pin] = 0
         phi = lu.solve(rhs)
         if cut.any():
             phi = phi - phi[~cut].mean(); phi[cut] = np.nan; return phi
         return phi - phi.mean()
+    def solve(b):           # must not call itself: a self-referencing closure is a reference cycle that keeps lu (several MB)
+        rhs = np.asarray(b).ravel()                                       # alive until Python's cycle collector runs
+        if cut.any(): assert not np.any(rhs[cut]), 'current injected on nodes cut off by the walls (use confine_sources)'
+        if real and np.any(np.imag(rhs)):                                 # complex currents on a real medium: solve both parts
+            return one(np.real(rhs)) + 1j * one(np.imag(rhs))
+        return one(rhs)
     return solve
 
 def solve_potential(A, b, pin=0):
