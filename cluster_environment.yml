@@ -1,12 +1,14 @@
 # conda environment for cluster_kaden_4fish_voltage_rule.py
 #   conda env create -f cluster_environment.yml
-# numpy >= 2 is required: Kaden's mask pickles reference numpy._core and do not load with numpy 1.x.
+# numpy >= 2.4 is required: Kaden's mask pickles (protocol 5) call numpy._core.numeric._frombuffer with 5 arguments, which
+# numpy 1.x and 2.2 cannot read. Install from conda-forge (not pip): on an old Linux (glibc 2.17, e.g. CentOS 7) pip has no
+# numpy >= 2.3 wheels, but conda-forge does.
 name: electric_fish
 channels:
   - conda-forge
 dependencies:
   - python=3.11
-  - numpy>=2.0
+  - numpy>=2.4
   - pandas>=2.0
   - scipy>=1.11
   - matplotlib

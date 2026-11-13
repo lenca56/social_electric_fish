@@ -27,7 +27,7 @@ By default a task recomputes and replaces its files; OVERWRITE=0 skips tasks who
 interrupted array). Files are written to .tmp and renamed when complete, so a half-written file never looks finished.
 
 FILES IT READS (relative to the repository root, the folder of this script)
-  code     compute_electric_field.py, eod_assign.py, io_utils.py, midline_methods.py (needs numpy >= 2, pandas, scipy, matplotlib)
+  code     compute_electric_field.py, eod_assign.py, io_utils.py, midline_methods.py (needs numpy >= 2.4, pandas, scipy, matplotlib)
   EODs     data/4 fish/Data_4fish_2024-02-20T<video>.csv                                         (rsync from the SSD)
   masks    data/track_Kaden/results_<video>_full/video2024-02-20T<video>/outputs/video2024-02-20T<video>.pkl, or the
            2024-02-20T<video>_R2-*.pkl name of 5 recordings in the same folder                     (rsync from the SSD)
@@ -108,6 +108,7 @@ for video in VIDEOS:
         df.loc[z, 'chunk'] = chunk
         z += 1
 ORDER = [f'{p}{s}' for p in range(1, 11) for s in ('+', '-')]
+NUMPY_VERSION = tuple(int(x) for x in np.__version__.split('.')[:2])
 
 
 # ===================================================================================================================== helpers
@@ -126,7 +127,7 @@ def out_base(video, chunk):
 def check_inputs():
     '''Every input of every task present? Prints a table and the missing files; exit code 1 if anything required is missing.'''
     bad = []
-    if int(np.__version__.split('.')[0]) < 2: bad.append(f'numpy {np.__version__} (Kaden pickles need numpy >= 2)')
+    if NUMPY_VERSION < (2, 4): bad.append(f'numpy {np.__version__} (Kaden pickles need numpy >= 2.4, from conda-forge)')
     for f in (TANK_OUTLINE, ELECTRODES, FACTORS_FILE) + ((BARRIERS,) if USE_BARRIERS else ()):
         if not os.path.exists(f): bad.append(f)
     rows = []
@@ -232,7 +233,7 @@ print(f'task {idx}: video {video}, chunk {chunk + 1}/{N_CHUNKS}, {N_WORKERS} wor
 print('hyperparameters: ' + json.dumps(HYPER), flush=True)
 if not OVERWRITE and os.path.exists(base + '.npz') and os.path.exists(base + '.csv'):
     print('  already done, skipped (OVERWRITE=0)'); sys.exit(0)
-assert int(np.__version__.split('.')[0]) >= 2, f'numpy {np.__version__}: Kaden pickles need numpy >= 2'
+assert NUMPY_VERSION >= (2, 4), f'numpy {np.__version__}: Kaden pickles need numpy >= 2.4 (install it from conda-forge)'
 for f in (EOD_TABLE.format(video=video), TANK_OUTLINE, ELECTRODES, FACTORS_FILE) + ((BARRIERS,) if USE_BARRIERS else ()):
     if not os.path.exists(f): raise FileNotFoundError(f'missing input {os.path.join(ROOT, f)} (python {sys.argv[0]} --check lists all)')
 

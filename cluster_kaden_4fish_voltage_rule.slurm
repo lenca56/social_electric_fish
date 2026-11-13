@@ -23,7 +23,7 @@ echo "Executing on the machine:" $(hostname)
 # conda: batch jobs do not read your interactive shell setup, so load conda explicitly
 source ~/.bashrc 2>/dev/null
 eval "$(conda shell.bash hook)"
-conda activate electric_fish     # needs python 3.11, numpy >= 2, pandas, scipy, matplotlib (cluster_environment.yml)
+conda activate electric_fish     # needs python 3.11, numpy >= 2.4, pandas, scipy, matplotlib (cluster_environment.yml)
 
 export OMP_NUM_THREADS=1         # one thread per worker process (the sparse solves are single-threaded)
 export PROJECT_DIR=$SLURM_SUBMIT_DIR
