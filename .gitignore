@@ -18,3 +18,12 @@ __pycache__/**
 */.ipynb_checkpoints/*
 *.pyc
 .DS_Store
+
+# kept for cluster_kaden_4fish_voltage_rule.py: the small tank geometry and factor files and the per-recording mask-QC lists
+# (EOD tables, Kaden mask pickles and midlines stay out: every file > 100 MB; copy them to the cluster separately)
+!data/electrodes/
+!data/electrodes/tank_outline_updated_4-fish.csv
+!data/electrodes/electrode_locations_updated_4-fish.csv
+!data/electrodes/tank_barriers_4-fish.csv
+!results/eod_assign_4fish_kaden/clean_emitter_set_71/gain_mine_tank_int4/voltage_rule_factors_median.csv
+!results/eod_assign_4fish_kaden/*/mask_qc_good_frames.csv
