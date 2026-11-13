@@ -6,12 +6,13 @@
 #SBATCH --mem-per-cpu=4G         # memory per cpu-core (one task peaks at ~3-4 GB in total)
 #SBATCH --time=03:00:59          # total run time limit (HH:MM:SS); ~8-12k frames per task, ~0.4 s per frame per core
 #SBATCH --array=0-283            # 71 videos x 4 chunks (python cluster_kaden_4fish_voltage_rule.py --list)
-#SBATCH --output=slurm_logs/%x_%A_%a.out       # the folder must exist before sbatch: mkdir -p slurm_logs
+#SBATCH --output=slurm_logs/%x_%A_%a.out       # slurm_logs/ is in the repo; without it every task fails at once with no log
 #SBATCH --mail-type=all          # send email on job start, end and fault
 #SBATCH --mail-user=cuturela@princeton.edu   # from your template: change if you want mail elsewhere
 ##SBATCH --partition=<name>      # if Axon needs a partition (or --account) for CPU jobs, set it here
 
-# Submit from the repository root:   mkdir -p slurm_logs && sbatch cluster_kaden_4fish_voltage_rule.slurm
+# Submit from the repository root, on the login node:   sbatch cluster_kaden_4fish_voltage_rule.slurm
+# (a folder created seconds before sbatch may not yet be visible on other nodes: their NFS cache still says it is missing)
 # Check the inputs first:            python cluster_kaden_4fish_voltage_rule.py --check
 # Every task recomputes and replaces its outputs. To resume an interrupted array without redoing finished tasks:
 #   OVERWRITE=0 sbatch cluster_kaden_4fish_voltage_rule.slurm

@@ -1,0 +1,2 @@
+# Keeps this folder in the repository. SLURM writes its logs here (cluster_kaden_4fish_voltage_rule.slurm, --output);
+# if the folder is missing, every task fails at once without a log.
