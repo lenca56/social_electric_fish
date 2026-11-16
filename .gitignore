@@ -27,6 +27,9 @@ __pycache__/**
 !data/electrodes/tank_barriers_4-fish.csv
 !results/eod_assign_4fish_kaden/clean_emitter_set_71/gain_mine_tank_int4/voltage_rule_factors_median.csv
 !results/eod_assign_4fish_kaden/*/mask_qc_good_frames.csv
+# kept for cluster_kaden_4fish_assign.py MODEL=denis: his electrode layout and the Denis voltage-rule factors
+!data/electrodes/electrodes_signed_px_coord_4-fish.csv
+!results/eod_assign_4fish_kaden/l2_distributions/denis_71/denis_voltage_rule_factors_median.csv
 
 # SLURM output of cluster_kaden_4fish_voltage_rule.slurm
 slurm_logs/*

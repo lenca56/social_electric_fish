@@ -12,3 +12,4 @@ dependencies:
   - pandas>=2.0
   - scipy>=1.11
   - matplotlib
+  - numba>=0.64                # Denis' pipeline (cluster_kaden_4fish_assign.py MODEL=denis); 0.64+ supports numpy 2.4
