@@ -1,0 +1,25 @@
+06_52_55 midlines: 38885 frames, every fish in 30388, 14.8 min
+06_52_55 model: 38885 frames, 0 cached, 38885 to solve
+  06_52_55: 2000/38885 frames, 13.3 min, ~246 min left
+  06_52_55: 4000/38885 frames, 19.9 min, ~174 min left
+  06_52_55: 6000/38885 frames, 28.0 min, ~153 min left
+  06_52_55: 8000/38885 frames, 38.0 min, ~147 min left
+  06_52_55: 10000/38885 frames, 44.7 min, ~129 min left
+  06_52_55: 12000/38885 frames, 52.8 min, ~118 min left
+  06_52_55: 14000/38885 frames, 60.6 min, ~108 min left
+  06_52_55: 16000/38885 frames, 67.9 min, ~97 min left
+  06_52_55: 18000/38885 frames, 74.5 min, ~86 min left
+  06_52_55: 20000/38885 frames, 82.0 min, ~77 min left
+  06_52_55: 22000/38885 frames, 89.4 min, ~69 min left
+  06_52_55: 24000/38885 frames, 96.5 min, ~60 min left
+  06_52_55: 26000/38885 frames, 104.3 min, ~52 min left
+  06_52_55: 28000/38885 frames, 112.1 min, ~44 min left
+  06_52_55: 30000/38885 frames, 119.5 min, ~35 min left
+  06_52_55: 32000/38885 frames, 125.5 min, ~27 min left
+  06_52_55: 34000/38885 frames, 132.1 min, ~19 min left
+  06_52_55: 36000/38885 frames, 138.8 min, ~11 min left
+  06_52_55: 38000/38885 frames, 145.8 min, ~3 min left
+  06_52_55: 38885/38885 frames, 148.6 min, ~0 min left
+06_52_55 model done
+06_52_55 tables: 53817 EODs; shares {'fish | mine, shape': {'A': 0.265, 'B': 0.242, 'C': 0.273, 'D': 0.22, '': 0.0}, 'fish | Denis, mask midline': {'A': 0.206, 'B': 0.137, 'C': 0.213, 'D': 0.221, '': 0.223}}
+06_52_55 finished (exit 0)

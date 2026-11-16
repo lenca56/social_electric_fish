@@ -1,0 +1,21 @@
+11_12_57 midlines: 30347 frames, every fish in 25785, 10.8 min
+11_12_57 model: 30347 frames, 0 cached, 30347 to solve
+  11_12_57: 2000/30347 frames, 12.2 min, ~173 min left
+  11_12_57: 4000/30347 frames, 22.2 min, ~146 min left
+  11_12_57: 6000/30347 frames, 29.6 min, ~120 min left
+  11_12_57: 8000/30347 frames, 38.6 min, ~108 min left
+  11_12_57: 10000/30347 frames, 47.4 min, ~97 min left
+  11_12_57: 12000/30347 frames, 55.9 min, ~85 min left
+  11_12_57: 14000/30347 frames, 62.3 min, ~73 min left
+  11_12_57: 16000/30347 frames, 69.5 min, ~62 min left
+  11_12_57: 18000/30347 frames, 76.6 min, ~53 min left
+  11_12_57: 20000/30347 frames, 84.2 min, ~44 min left
+  11_12_57: 22000/30347 frames, 91.9 min, ~35 min left
+  11_12_57: 24000/30347 frames, 99.6 min, ~26 min left
+  11_12_57: 26000/30347 frames, 107.2 min, ~18 min left
+  11_12_57: 28000/30347 frames, 114.8 min, ~10 min left
+  11_12_57: 30000/30347 frames, 122.6 min, ~1 min left
+  11_12_57: 30347/30347 frames, 123.9 min, ~0 min left
+11_12_57 model done
+11_12_57 tables: 39141 EODs; shares {'fish | mine, shape': {'A': 0.232, 'B': 0.279, 'C': 0.275, 'D': 0.214, '': 0.0}, 'fish | Denis, mask midline': {'A': 0.192, 'B': 0.231, 'C': 0.229, 'D': 0.2, '': 0.147}}
+11_12_57 finished (exit 0)

@@ -36,6 +36,8 @@ import numpy as np
 import pandas as pd
 from scipy import ndimage
 
+from io_utils import rle_counts, rle_crop, unpack_crop   # mask decoding (kept importable from here)
+
 DATA_DIR = "data"
 OUT_DIR = os.path.join("figures", "mask_metrics")
 
@@ -74,54 +76,6 @@ plt.rcParams.update({
 
 
 # --------------------------------------------------------------------------- sources
-
-def unpack_crop(packed, box):
-    y0, y1, x0, x1 = box
-    h, w = y1 - y0, x1 - x0
-    return np.unpackbits(packed)[: h * w].reshape(h, w).astype(bool)
-
-
-def rle_counts(s):
-    """Run lengths of a compressed COCO RLE string (port of pycocotools rleFrString)."""
-    if isinstance(s, str):
-        s = s.encode()
-    cnts, p = [], 0
-    while p < len(s):
-        x = k = 0
-        more = True
-        while more:
-            c = s[p] - 48
-            x |= (c & 0x1F) << (5 * k)
-            more = c & 0x20
-            p += 1
-            k += 1
-            if not more and (c & 0x10):
-                x |= -1 << (5 * k)
-        if len(cnts) > 2:
-            x += cnts[-2]
-        cnts.append(x)
-    return cnts
-
-
-def rle_crop(rle):
-    """Bounding box (y0, y1, x0, x1) and boolean crop of a COCO RLE mask."""
-    h = rle["size"][0]
-    cnts = np.asarray(rle_counts(rle["counts"]), np.int64)
-    starts = np.cumsum(cnts) - cnts
-    on_s, on_l = starts[1::2], cnts[1::2]           # runs alternate 0s, 1s
-    keep = on_l > 0
-    on_s, on_l = on_s[keep], on_l[keep]
-    if on_l.size == 0:
-        return None, None
-    offs = np.cumsum(on_l) - on_l
-    idx = np.repeat(on_s - offs, on_l) + np.arange(on_l.sum())
-    xs, ys = np.divmod(idx, h)                      # column-major order
-    y0, x0 = ys.min(), xs.min()
-    box = (int(y0), int(ys.max()) + 1, int(x0), int(xs.max()) + 1)
-    crop = np.zeros((box[1] - y0, box[3] - x0), bool)
-    crop[ys - y0, xs - x0] = True
-    return box, crop
-
 
 def load_zeus(path, mask_kind=None):
     """Frames of a ZEUS tracking_final.pkl as generic per-frame records."""

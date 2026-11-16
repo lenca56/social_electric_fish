@@ -1,0 +1,21 @@
+3-fish, offset -4: mask midline for every fish in 19736 / 19796 EODs (1.3 min)
+Loading data... 1.03 seconds.
+Data loaded. Estimating point currents location for 3 fish and 101 currents per fish... 7.86 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 97.43
+        Data shape before filtering based on boundaries margin: (19736, 336)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.32 seconds.
+Boundaries checked. Computing field model predictions... 5.94 seconds.
+Field model predictions computed. Computing similarities... 0.11 seconds.
+Similarities computed. Assigning discharging fish... 0.04 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 0.93 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 0.40 seconds.
+Distances between fish pairs computed. Saving data... 6.29 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.887
+    Average similarity of best assignment:                 0.887
+    Average similarity of random fish assignment:          0.243
+3-fish, offset -4: % correct 90.61 on all 19796 EODs (no result counts as wrong), 1.8 min

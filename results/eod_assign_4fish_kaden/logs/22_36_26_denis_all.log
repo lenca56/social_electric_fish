@@ -1,0 +1,26 @@
+/Volumes/Lenca_SSD/github/social_electric_fish/midline_methods.py:173: RuntimeWarning: invalid value encountered in divide
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+/Volumes/Lenca_SSD/github/social_electric_fish/midline_methods.py:173: RuntimeWarning: invalid value encountered in divide
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+22_36_26 midlines: 33258 frames, every fish in 31191, 9.7 min
+Loading data... 3.38 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 54.04 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.82
+        Data shape before filtering based on boundaries margin: (39752, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    1.31 seconds.
+Boundaries checked. Computing field model predictions... 69.47 seconds.
+Field model predictions computed. Computing similarities... 0.68 seconds.
+Similarities computed. Assigning discharging fish... 0.11 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.22 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 2.02 seconds.
+Distances between fish pairs computed. Saving data... 21.72 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.941
+    Average similarity of best assignment:                 0.941
+    Average similarity of random fish assignment:          0.252
+22_36_26 Denis: 39752 / 42361 EODs with every fish midline, 2.7 min
+22_36_26 denis table: 42361 EODs, 39752 with every fish midline; same pick (similarity vs L2) 99.5%; shares {'fish | Denis, similarity': {'A': 0.308, 'B': 0.251, 'C': 0.22, 'D': 0.22}, 'fish | Denis, L2 (max |v| = 1)': {'A': 0.307, 'B': 0.251, 'C': 0.222, 'D': 0.219}}

@@ -1,0 +1,28 @@
+/Volumes/Lenca_SSD/github/social_electric_fish/midline_methods.py:173: RuntimeWarning: invalid value encountered in divide
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+15_16_23 midlines: 41199 frames, every fish in 41124, 18.1 min
+15_16_23 model: 41199 frames, 0 cached, 41199 to solve
+  15_16_23: 2000/41199 frames, 12.5 min, ~245 min left
+  15_16_23: 4000/41199 frames, 20.2 min, ~188 min left
+  15_16_23: 6000/41199 frames, 29.2 min, ~171 min left
+  15_16_23: 8000/41199 frames, 38.4 min, ~159 min left
+  15_16_23: 10000/41199 frames, 47.5 min, ~148 min left
+  15_16_23: 12000/41199 frames, 55.2 min, ~134 min left
+  15_16_23: 14000/41199 frames, 63.1 min, ~123 min left
+  15_16_23: 16000/41199 frames, 70.9 min, ~112 min left
+  15_16_23: 18000/41199 frames, 78.6 min, ~101 min left
+  15_16_23: 20000/41199 frames, 86.4 min, ~92 min left
+  15_16_23: 22000/41199 frames, 94.2 min, ~82 min left
+  15_16_23: 24000/41199 frames, 102.0 min, ~73 min left
+  15_16_23: 26000/41199 frames, 109.7 min, ~64 min left
+  15_16_23: 28000/41199 frames, 117.3 min, ~55 min left
+  15_16_23: 30000/41199 frames, 123.7 min, ~46 min left
+  15_16_23: 32000/41199 frames, 130.5 min, ~38 min left
+  15_16_23: 34000/41199 frames, 137.5 min, ~29 min left
+  15_16_23: 36000/41199 frames, 144.1 min, ~21 min left
+  15_16_23: 38000/41199 frames, 149.7 min, ~13 min left
+  15_16_23: 40000/41199 frames, 153.8 min, ~5 min left
+  15_16_23: 41199/41199 frames, 156.1 min, ~0 min left
+15_16_23 model done
+15_16_23 tables: 59496 EODs; shares {'fish | mine, shape': {'A': 0.279, 'B': 0.172, 'C': 0.245, 'D': 0.304, '': 0.0}, 'fish | Denis, mask midline': {'A': 0.277, 'B': 0.17, 'C': 0.246, 'D': 0.305, '': 0.002}}
+15_16_23 finished (exit 0)

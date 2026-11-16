@@ -1,0 +1,44 @@
+2-fish: 18801 EODs on 18681 frames, versions ['N150_tank_int2_none', 'N150_tank_int20_none', 'N150_tank_int40_none', 'N150_tank_int100_none']; 0 frames cached, 18681 to solve (3 workers)
+  500/18681 frames, 1.9 min, ~70 min left
+  1000/18681 frames, 3.9 min, ~69 min left
+  1500/18681 frames, 5.9 min, ~67 min left
+  2000/18681 frames, 7.8 min, ~65 min left
+  2500/18681 frames, 9.6 min, ~62 min left
+  3000/18681 frames, 11.5 min, ~60 min left
+  3500/18681 frames, 13.4 min, ~58 min left
+  4000/18681 frames, 15.4 min, ~57 min left
+  4500/18681 frames, 17.4 min, ~55 min left
+  5000/18681 frames, 19.3 min, ~53 min left
+  5500/18681 frames, 21.2 min, ~51 min left
+  6000/18681 frames, 23.1 min, ~49 min left
+  6500/18681 frames, 25.0 min, ~47 min left
+  7000/18681 frames, 26.8 min, ~45 min left
+  7500/18681 frames, 28.7 min, ~43 min left
+  8000/18681 frames, 30.7 min, ~41 min left
+  8500/18681 frames, 32.6 min, ~39 min left
+  9000/18681 frames, 34.5 min, ~37 min left
+  9500/18681 frames, 36.3 min, ~35 min left
+  10000/18681 frames, 38.1 min, ~33 min left
+  10500/18681 frames, 40.0 min, ~31 min left
+  11000/18681 frames, 41.8 min, ~29 min left
+  11500/18681 frames, 43.7 min, ~27 min left
+  12000/18681 frames, 45.6 min, ~25 min left
+  12500/18681 frames, 47.5 min, ~24 min left
+  13000/18681 frames, 49.5 min, ~22 min left
+  13500/18681 frames, 51.4 min, ~20 min left
+  14000/18681 frames, 53.2 min, ~18 min left
+  14500/18681 frames, 55.0 min, ~16 min left
+  15000/18681 frames, 56.9 min, ~14 min left
+  15500/18681 frames, 58.8 min, ~12 min left
+  16000/18681 frames, 60.7 min, ~10 min left
+  16500/18681 frames, 62.6 min, ~8 min left
+  17000/18681 frames, 64.5 min, ~6 min left
+  17500/18681 frames, 66.3 min, ~4 min left
+  18000/18681 frames, 68.2 min, ~3 min left
+  18500/18681 frames, 70.2 min, ~1 min left
+  18681/18681 frames, 70.8 min, ~0 min left
+2-fish N150_tank_int2_none: % correct 97.95 (L2), 98.28 (cosine) on 18801 EODs (no pick counts as wrong)
+2-fish N150_tank_int20_none: % correct 97.77 (L2), 98.21 (cosine) on 18801 EODs (no pick counts as wrong)
+2-fish N150_tank_int40_none: % correct 97.76 (L2), 98.20 (cosine) on 18801 EODs (no pick counts as wrong)
+2-fish N150_tank_int100_none: % correct 97.71 (L2), 98.19 (cosine) on 18801 EODs (no pick counts as wrong)
+2-fish: done, 70.9 min

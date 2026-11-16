@@ -1,0 +1,47 @@
+3-fish: 19796 EODs on 19590 frames, versions ['N150_tank_int2_skin0_none', 'N150_tank_int2_skin0.03_none', 'N150_tank_int2_skin0.3_none', 'N150_tank_int2_skin1_none', 'N150_tank_int2_skin3_none']; 0 frames cached, 19590 to solve (4 workers)
+  500/19590 frames, 2.9 min, ~112 min left
+  1000/19590 frames, 6.4 min, ~120 min left
+  1500/19590 frames, 9.2 min, ~111 min left
+  2000/19590 frames, 12.6 min, ~110 min left
+  2500/19590 frames, 16.0 min, ~109 min left
+  3000/19590 frames, 19.2 min, ~106 min left
+  3500/19590 frames, 22.4 min, ~103 min left
+  4000/19590 frames, 25.9 min, ~101 min left
+  4500/19590 frames, 29.2 min, ~98 min left
+  5000/19590 frames, 32.8 min, ~96 min left
+  5500/19590 frames, 36.3 min, ~93 min left
+  6000/19590 frames, 40.0 min, ~91 min left
+  6500/19590 frames, 43.5 min, ~88 min left
+  7000/19590 frames, 47.0 min, ~85 min left
+  7500/19590 frames, 50.5 min, ~81 min left
+  8000/19590 frames, 53.9 min, ~78 min left
+  8500/19590 frames, 57.4 min, ~75 min left
+  9000/19590 frames, 60.9 min, ~72 min left
+  9500/19590 frames, 64.3 min, ~68 min left
+  10000/19590 frames, 67.1 min, ~64 min left
+  10500/19590 frames, 69.6 min, ~60 min left
+  11000/19590 frames, 72.2 min, ~56 min left
+  11500/19590 frames, 74.8 min, ~53 min left
+  12000/19590 frames, 77.3 min, ~49 min left
+  12500/19590 frames, 79.8 min, ~45 min left
+  13000/19590 frames, 82.4 min, ~42 min left
+  13500/19590 frames, 84.9 min, ~38 min left
+  14000/19590 frames, 87.4 min, ~35 min left
+  14500/19590 frames, 90.0 min, ~32 min left
+  15000/19590 frames, 92.5 min, ~28 min left
+  15500/19590 frames, 95.0 min, ~25 min left
+  16000/19590 frames, 97.6 min, ~22 min left
+  16500/19590 frames, 100.1 min, ~19 min left
+  17000/19590 frames, 102.7 min, ~16 min left
+  17500/19590 frames, 104.7 min, ~13 min left
+  18000/19590 frames, 106.4 min, ~9 min left
+  18500/19590 frames, 108.0 min, ~6 min left
+  19000/19590 frames, 109.6 min, ~3 min left
+  19500/19590 frames, 111.3 min, ~1 min left
+  19590/19590 frames, 111.6 min, ~0 min left
+3-fish N150_tank_int2_skin0_none: % correct 85.84 (L2), 85.64 (cosine) on 19796 EODs (no pick counts as wrong)
+3-fish N150_tank_int2_skin0.03_none: % correct 85.83 (L2), 85.63 (cosine) on 19796 EODs (no pick counts as wrong)
+3-fish N150_tank_int2_skin0.3_none: % correct 85.82 (L2), 85.62 (cosine) on 19796 EODs (no pick counts as wrong)
+3-fish N150_tank_int2_skin1_none: % correct 85.75 (L2), 85.58 (cosine) on 19796 EODs (no pick counts as wrong)
+3-fish N150_tank_int2_skin3_none: % correct 85.79 (L2), 85.56 (cosine) on 19796 EODs (no pick counts as wrong)
+3-fish: done, 111.7 min

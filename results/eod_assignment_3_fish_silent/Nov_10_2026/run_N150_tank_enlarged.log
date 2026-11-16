@@ -1,0 +1,44 @@
+3-fish: 19796 EODs on 19590 frames, versions ['N150_tank_enlarged_none', 'N150_tank_enlarged_r0.5_s1e7']; 0 frames cached, 19590 to solve (4 workers)
+  500/19590 frames, 1.5 min, ~57 min left
+  1000/19590 frames, 2.7 min, ~50 min left
+  1500/19590 frames, 4.0 min, ~48 min left
+  2000/19590 frames, 5.2 min, ~46 min left
+  2500/19590 frames, 6.6 min, ~45 min left
+  3000/19590 frames, 7.9 min, ~44 min left
+  3500/19590 frames, 9.2 min, ~42 min left
+  4000/19590 frames, 10.5 min, ~41 min left
+  4500/19590 frames, 11.9 min, ~40 min left
+  5000/19590 frames, 13.4 min, ~39 min left
+  5500/19590 frames, 14.7 min, ~38 min left
+  6000/19590 frames, 16.0 min, ~36 min left
+  6500/19590 frames, 17.4 min, ~35 min left
+  7000/19590 frames, 18.9 min, ~34 min left
+  7500/19590 frames, 20.4 min, ~33 min left
+  8000/19590 frames, 21.8 min, ~32 min left
+  8500/19590 frames, 23.3 min, ~30 min left
+  9000/19590 frames, 24.9 min, ~29 min left
+  9500/19590 frames, 26.4 min, ~28 min left
+  10000/19590 frames, 27.7 min, ~27 min left
+  10500/19590 frames, 29.2 min, ~25 min left
+  11000/19590 frames, 30.8 min, ~24 min left
+  11500/19590 frames, 32.6 min, ~23 min left
+  12000/19590 frames, 33.9 min, ~21 min left
+  12500/19590 frames, 35.1 min, ~20 min left
+  13000/19590 frames, 36.6 min, ~19 min left
+  13500/19590 frames, 38.2 min, ~17 min left
+  14000/19590 frames, 39.6 min, ~16 min left
+  14500/19590 frames, 41.0 min, ~14 min left
+  15000/19590 frames, 42.1 min, ~13 min left
+  15500/19590 frames, 43.1 min, ~11 min left
+  16000/19590 frames, 44.0 min, ~10 min left
+  16500/19590 frames, 44.9 min, ~8 min left
+  17000/19590 frames, 45.9 min, ~7 min left
+  17500/19590 frames, 46.8 min, ~6 min left
+  18000/19590 frames, 47.7 min, ~4 min left
+  18500/19590 frames, 48.5 min, ~3 min left
+  19000/19590 frames, 49.4 min, ~2 min left
+  19500/19590 frames, 50.2 min, ~0 min left
+  19590/19590 frames, 50.3 min, ~0 min left
+3-fish N150_tank_enlarged_none: % correct 89.93 on 19796 EODs (no pick counts as wrong)
+3-fish N150_tank_enlarged_r0.5_s1e7: % correct 89.73 on 19796 EODs (no pick counts as wrong)
+3-fish: done, 50.4 min

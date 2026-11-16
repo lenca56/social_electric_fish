@@ -1,5 +1,5 @@
 """Per-pair L2 error of Denis' mask-midline prediction on the 4-fish Kaden recordings, each pair as wired in the 4-fish
-electrode file vs flipped (denis_mask_midline_kaden_4fish.py output). Patterns max-normalized over the 10 pairs.
+electrode file vs flipped (EODAssignment/analysis/social_electric_fish_runners/denis_mask_midline_kaden_4fish.py output). Patterns max-normalized over the 10 pairs.
 
 1. Per pair p, leave one pair out: emitter = fish with the highest cosine similarity on the other 9 pairs (clear: best >= 0.9,
    best - second >= 0.1); error of pair p |r_p - u_p| (as wired) vs |r_p + u_p| (flipped), on EODs where |u_p| > 0.2.

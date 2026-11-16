@@ -1,0 +1,574 @@
+  12_32_58: 23346 frames of mask midlines in 0.4 min
+Loading data... 0.72 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 6.62 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (20815, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.32 seconds.
+Boundaries checked. Computing field model predictions... 5.95 seconds.
+Field model predictions computed. Computing similarities... 0.09 seconds.
+Similarities computed. Assigning discharging fish... 0.02 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 0.93 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 0.40 seconds.
+Distances between fish pairs computed. Saving data... 5.45 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.911
+    Average similarity of best assignment:                 0.911
+    Average similarity of random fish assignment:          0.219
+12_32_58, offset +0: 20815 / 21810 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(5615), 'B': np.int64(5149), 'C': np.int64(5204), 'D': np.int64(4847)}, 0.6 min -> denis_mask_midline_12_32_58_offset+0.csv
+Loading data... 0.72 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 5.03 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (20802, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.29 seconds.
+Boundaries checked. Computing field model predictions... 6.25 seconds.
+Field model predictions computed. Computing similarities... 0.10 seconds.
+Similarities computed. Assigning discharging fish... 0.02 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 1.09 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 0.41 seconds.
+Distances between fish pairs computed. Saving data... 5.86 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.924
+    Average similarity of best assignment:                 0.924
+    Average similarity of random fish assignment:          0.228
+12_32_58, offset -5: 20802 / 21810 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(5595), 'B': np.int64(5094), 'C': np.int64(5241), 'D': np.int64(4872)}, 0.6 min -> denis_mask_midline_12_32_58_offset-5.csv
+  12_56_22: 55836 frames of mask midlines in 0.9 min
+Loading data... 2.41 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 15.71 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.96
+        Data shape before filtering based on boundaries margin: (66612, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    1.17 seconds.
+Boundaries checked. Computing field model predictions... 35.78 seconds.
+Field model predictions computed. Computing similarities... 0.64 seconds.
+Similarities computed. Assigning discharging fish... 0.08 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.33 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.43 seconds.
+Distances between fish pairs computed. Saving data... 19.01 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.857
+    Average similarity of best assignment:                 0.857
+    Average similarity of random fish assignment:          0.155
+12_56_22, offset +0: 66612 / 67720 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(23001), 'B': np.int64(10826), 'C': np.int64(11744), 'D': np.int64(21041)}, 2.0 min -> denis_mask_midline_12_56_22_offset+0.csv
+Loading data... 2.31 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 15.44 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.96
+        Data shape before filtering based on boundaries margin: (66606, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.93 seconds.
+Boundaries checked. Computing field model predictions... 37.47 seconds.
+Field model predictions computed. Computing similarities... 0.81 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.38 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.43 seconds.
+Distances between fish pairs computed. Saving data... 20.61 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.912
+    Average similarity of best assignment:                 0.912
+    Average similarity of random fish assignment:          0.177
+12_56_22, offset -5: 66606 / 67720 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(22585), 'B': np.int64(10222), 'C': np.int64(11916), 'D': np.int64(21883)}, 2.1 min -> denis_mask_midline_12_56_22_offset-5.csv
+  13_16_22: 54234 frames of mask midlines in 0.9 min
+Loading data... 2.15 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 15.53 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (60999, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.88 seconds.
+Boundaries checked. Computing field model predictions... 33.90 seconds.
+Field model predictions computed. Computing similarities... 0.67 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.16 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.35 seconds.
+Distances between fish pairs computed. Saving data... 17.53 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.856
+    Average similarity of best assignment:                 0.856
+    Average similarity of random fish assignment:          0.146
+13_16_22, offset +0: 60999 / 61165 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(19561), 'B': np.int64(10274), 'C': np.int64(10547), 'D': np.int64(20617)}, 1.9 min -> denis_mask_midline_13_16_22_offset+0.csv
+Loading data... 2.30 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 15.13 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (60939, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.89 seconds.
+Boundaries checked. Computing field model predictions... 31.90 seconds.
+Field model predictions computed. Computing similarities... 0.69 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.36 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.24 seconds.
+Distances between fish pairs computed. Saving data... 17.46 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.901
+    Average similarity of best assignment:                 0.901
+    Average similarity of random fish assignment:          0.165
+13_16_22, offset -5: 60939 / 61165 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(19359), 'B': np.int64(9716), 'C': np.int64(10529), 'D': np.int64(21335)}, 1.9 min -> denis_mask_midline_13_16_22_offset-5.csv
+  14_56_23: 51067 frames of mask midlines in 0.8 min
+Loading data... 1.97 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.97 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (57911, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.80 seconds.
+Boundaries checked. Computing field model predictions... 25.02 seconds.
+Field model predictions computed. Computing similarities... 0.56 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.81 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.14 seconds.
+Distances between fish pairs computed. Saving data... 14.90 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.915
+    Average similarity of best assignment:                 0.915
+    Average similarity of random fish assignment:          0.143
+14_56_23, offset +0: 57911 / 59975 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(12759), 'B': np.int64(13019), 'C': np.int64(17739), 'D': np.int64(14394)}, 1.6 min -> denis_mask_midline_14_56_23_offset+0.csv
+Loading data... 2.03 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 14.86 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (57877, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.78 seconds.
+Boundaries checked. Computing field model predictions... 29.41 seconds.
+Field model predictions computed. Computing similarities... 0.54 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.09 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.16 seconds.
+Distances between fish pairs computed. Saving data... 17.36 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.945
+    Average similarity of best assignment:                 0.945
+    Average similarity of random fish assignment:          0.153
+14_56_23, offset -5: 57877 / 59975 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(12657), 'B': np.int64(12355), 'C': np.int64(18288), 'D': np.int64(14577)}, 1.8 min -> denis_mask_midline_14_56_23_offset-5.csv
+  15_16_23: 52630 frames of mask midlines in 0.8 min
+Loading data... 1.95 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 14.38 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (59333, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.81 seconds.
+Boundaries checked. Computing field model predictions... 28.84 seconds.
+Field model predictions computed. Computing similarities... 0.74 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.94 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.17 seconds.
+Distances between fish pairs computed. Saving data... 15.40 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.897
+    Average similarity of best assignment:                 0.897
+    Average similarity of random fish assignment:          0.156
+15_16_23, offset +0: 59333 / 59496 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(16574), 'B': np.int64(10722), 'C': np.int64(14335), 'D': np.int64(17702)}, 1.7 min -> denis_mask_midline_15_16_23_offset+0.csv
+Loading data... 1.97 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 14.73 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (59290, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.80 seconds.
+Boundaries checked. Computing field model predictions... 28.05 seconds.
+Field model predictions computed. Computing similarities... 0.70 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.18 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.21 seconds.
+Distances between fish pairs computed. Saving data... 16.92 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.933
+    Average similarity of best assignment:                 0.933
+    Average similarity of random fish assignment:          0.166
+15_16_23, offset -5: 59290 / 59496 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(16508), 'B': np.int64(10242), 'C': np.int64(14521), 'D': np.int64(18019)}, 1.8 min -> denis_mask_midline_15_16_23_offset-5.csv
+  15_36_23: 52172 frames of mask midlines in 0.8 min
+Loading data... 2.04 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.18 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (59624, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.81 seconds.
+Boundaries checked. Computing field model predictions... 29.02 seconds.
+Field model predictions computed. Computing similarities... 0.59 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.83 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.21 seconds.
+Distances between fish pairs computed. Saving data... 15.44 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.907
+    Average similarity of best assignment:                 0.907
+    Average similarity of random fish assignment:          0.142
+15_36_23, offset +0: 59624 / 59746 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(15705), 'B': np.int64(11602), 'C': np.int64(16685), 'D': np.int64(15632)}, 1.7 min -> denis_mask_midline_15_36_23_offset+0.csv
+Loading data... 2.02 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.56 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.99
+        Data shape before filtering based on boundaries margin: (59572, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.78 seconds.
+Boundaries checked. Computing field model predictions... 29.12 seconds.
+Field model predictions computed. Computing similarities... 0.69 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.99 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.23 seconds.
+Distances between fish pairs computed. Saving data... 16.65 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.940
+    Average similarity of best assignment:                 0.940
+    Average similarity of random fish assignment:          0.149
+15_36_23, offset -5: 59572 / 59746 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(15628), 'B': np.int64(11084), 'C': np.int64(17090), 'D': np.int64(15770)}, 1.8 min -> denis_mask_midline_15_36_23_offset-5.csv
+  15_56_23: 50941 frames of mask midlines in 0.8 min
+Loading data... 1.99 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.67 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (58508, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.80 seconds.
+Boundaries checked. Computing field model predictions... 28.53 seconds.
+Field model predictions computed. Computing similarities... 0.57 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.70 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.13 seconds.
+Distances between fish pairs computed. Saving data... 14.98 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.914
+    Average similarity of best assignment:                 0.914
+    Average similarity of random fish assignment:          0.144
+15_56_23, offset +0: 58508 / 58676 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(15182), 'B': np.int64(11480), 'C': np.int64(17370), 'D': np.int64(14476)}, 1.7 min -> denis_mask_midline_15_56_23_offset+0.csv
+Loading data... 2.00 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.36 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (58449, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.77 seconds.
+Boundaries checked. Computing field model predictions... 28.69 seconds.
+Field model predictions computed. Computing similarities... 0.60 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.93 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.14 seconds.
+Distances between fish pairs computed. Saving data... 15.95 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.945
+    Average similarity of best assignment:                 0.945
+    Average similarity of random fish assignment:          0.158
+15_56_23, offset -5: 58449 / 58676 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(14975), 'B': np.int64(10894), 'C': np.int64(17865), 'D': np.int64(14715)}, 1.7 min -> denis_mask_midline_15_56_23_offset-5.csv
+  16_16_23: 52754 frames of mask midlines in 0.8 min
+Loading data... 2.00 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.60 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (59856, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.83 seconds.
+Boundaries checked. Computing field model predictions... 28.39 seconds.
+Field model predictions computed. Computing similarities... 0.59 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.71 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.20 seconds.
+Distances between fish pairs computed. Saving data... 15.60 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.917
+    Average similarity of best assignment:                 0.917
+    Average similarity of random fish assignment:          0.172
+16_16_23, offset +0: 59856 / 60316 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(16148), 'B': np.int64(10842), 'C': np.int64(16661), 'D': np.int64(16205)}, 1.7 min -> denis_mask_midline_16_16_23_offset+0.csv
+Loading data... 2.04 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.70 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (59832, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.79 seconds.
+Boundaries checked. Computing field model predictions... 30.82 seconds.
+Field model predictions computed. Computing similarities... 0.68 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.02 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.20 seconds.
+Distances between fish pairs computed. Saving data... 16.65 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.948
+    Average similarity of best assignment:                 0.948
+    Average similarity of random fish assignment:          0.192
+16_16_23, offset -5: 59832 / 60316 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(16060), 'B': np.int64(10464), 'C': np.int64(16915), 'D': np.int64(16393)}, 1.8 min -> denis_mask_midline_16_16_23_offset-5.csv
+  16_36_24: 50726 frames of mask midlines in 0.8 min
+Loading data... 1.89 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 12.74 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (55994, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.75 seconds.
+Boundaries checked. Computing field model predictions... 26.97 seconds.
+Field model predictions computed. Computing similarities... 0.55 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.61 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.10 seconds.
+Distances between fish pairs computed. Saving data... 14.64 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.916
+    Average similarity of best assignment:                 0.916
+    Average similarity of random fish assignment:          0.184
+16_36_24, offset +0: 55994 / 56048 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(14296), 'B': np.int64(11397), 'C': np.int64(16415), 'D': np.int64(13886)}, 1.6 min -> denis_mask_midline_16_36_24_offset+0.csv
+Loading data... 1.82 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 12.41 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (55958, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.76 seconds.
+Boundaries checked. Computing field model predictions... 28.20 seconds.
+Field model predictions computed. Computing similarities... 0.58 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.80 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.19 seconds.
+Distances between fish pairs computed. Saving data... 15.51 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.945
+    Average similarity of best assignment:                 0.945
+    Average similarity of random fish assignment:          0.197
+16_36_24, offset -5: 55958 / 56048 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(14205), 'B': np.int64(11055), 'C': np.int64(16867), 'D': np.int64(13831)}, 1.6 min -> denis_mask_midline_16_36_24_offset-5.csv
+  16_56_24: 48698 frames of mask midlines in 0.7 min
+Loading data... 1.75 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 11.37 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (51235, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.67 seconds.
+Boundaries checked. Computing field model predictions... 21.10 seconds.
+Field model predictions computed. Computing similarities... 0.21 seconds.
+Similarities computed. Assigning discharging fish... 0.05 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.14 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 0.98 seconds.
+Distances between fish pairs computed. Saving data... 13.20 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.925
+    Average similarity of best assignment:                 0.925
+    Average similarity of random fish assignment:          0.154
+16_56_24, offset +0: 51235 / 51687 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(11592), 'B': np.int64(12086), 'C': np.int64(15777), 'D': np.int64(11780)}, 1.4 min -> denis_mask_midline_16_56_24_offset+0.csv
+Loading data... 1.73 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 11.70 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (51230, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.68 seconds.
+Boundaries checked. Computing field model predictions... 24.81 seconds.
+Field model predictions computed. Computing similarities... 0.25 seconds.
+Similarities computed. Assigning discharging fish... 0.05 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.29 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 0.99 seconds.
+Distances between fish pairs computed. Saving data... 14.08 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.948
+    Average similarity of best assignment:                 0.948
+    Average similarity of random fish assignment:          0.163
+16_56_24, offset -5: 51230 / 51687 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(11519), 'B': np.int64(11720), 'C': np.int64(16320), 'D': np.int64(11671)}, 1.5 min -> denis_mask_midline_16_56_24_offset-5.csv
+  17_16_24: 49946 frames of mask midlines in 0.7 min
+Loading data... 1.86 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 12.90 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (54720, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.70 seconds.
+Boundaries checked. Computing field model predictions... 24.95 seconds.
+Field model predictions computed. Computing similarities... 0.23 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.57 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.07 seconds.
+Distances between fish pairs computed. Saving data... 14.21 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.914
+    Average similarity of best assignment:                 0.914
+    Average similarity of random fish assignment:          0.136
+17_16_24, offset +0: 54720 / 56083 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(13775), 'B': np.int64(11260), 'C': np.int64(16847), 'D': np.int64(12838)}, 1.5 min -> denis_mask_midline_17_16_24_offset+0.csv
+Loading data... 1.81 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 12.38 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (54714, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.71 seconds.
+Boundaries checked. Computing field model predictions... 25.73 seconds.
+Field model predictions computed. Computing similarities... 0.26 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.57 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.05 seconds.
+Distances between fish pairs computed. Saving data... 15.06 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.942
+    Average similarity of best assignment:                 0.942
+    Average similarity of random fish assignment:          0.149
+17_16_24, offset -5: 54714 / 56083 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(13621), 'B': np.int64(10802), 'C': np.int64(17400), 'D': np.int64(12891)}, 1.6 min -> denis_mask_midline_17_16_24_offset-5.csv
+  17_36_24: 52897 frames of mask midlines in 0.8 min
+Loading data... 2.05 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.90 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (62809, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.83 seconds.
+Boundaries checked. Computing field model predictions... 31.30 seconds.
+Field model predictions computed. Computing similarities... 0.62 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.94 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.24 seconds.
+Distances between fish pairs computed. Saving data... 16.19 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.900
+    Average similarity of best assignment:                 0.900
+    Average similarity of random fish assignment:          0.173
+17_36_24, offset +0: 62809 / 63127 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(18023), 'B': np.int64(11264), 'C': np.int64(17058), 'D': np.int64(16464)}, 1.8 min -> denis_mask_midline_17_36_24_offset+0.csv
+Loading data... 2.07 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 13.82 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.98
+        Data shape before filtering based on boundaries margin: (62774, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.84 seconds.
+Boundaries checked. Computing field model predictions... 30.86 seconds.
+Field model predictions computed. Computing similarities... 2.34 seconds.
+Similarities computed. Assigning discharging fish... 0.06 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.08 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.25 seconds.
+Distances between fish pairs computed. Saving data... 16.81 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.936
+    Average similarity of best assignment:                 0.936
+    Average similarity of random fish assignment:          0.183
+17_36_24, offset -5: 62774 / 63127 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(17861), 'B': np.int64(10568), 'C': np.int64(17618), 'D': np.int64(16727)}, 1.9 min -> denis_mask_midline_17_36_24_offset-5.csv
+  17_56_24: 55505 frames of mask midlines in 0.9 min
+Loading data... 2.30 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 15.23 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.10
+        Data shape before filtering based on boundaries margin: (68047, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.93 seconds.
+Boundaries checked. Computing field model predictions... 32.84 seconds.
+Field model predictions computed. Computing similarities... 0.75 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.28 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.34 seconds.
+Distances between fish pairs computed. Saving data... 17.84 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.888
+    Average similarity of best assignment:                 0.888
+    Average similarity of random fish assignment:          0.175
+17_56_24, offset +0: 68047 / 70971 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(21541), 'B': np.int64(7963), 'C': np.int64(19052), 'D': np.int64(19491)}, 2.0 min -> denis_mask_midline_17_56_24_offset+0.csv
+Loading data... 2.26 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 15.72 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.05
+        Data shape before filtering based on boundaries margin: (67973, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.93 seconds.
+Boundaries checked. Computing field model predictions... 32.92 seconds.
+Field model predictions computed. Computing similarities... 0.85 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.44 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.37 seconds.
+Distances between fish pairs computed. Saving data... 18.36 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.936
+    Average similarity of best assignment:                 0.936
+    Average similarity of random fish assignment:          0.192
+17_56_24, offset -5: 67973 / 70971 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(21480), 'B': np.int64(7343), 'C': np.int64(19256), 'D': np.int64(19894)}, 2.0 min -> denis_mask_midline_17_56_24_offset-5.csv
+  18_36_24: 53797 frames of mask midlines in 0.8 min
+Loading data... 2.24 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 14.42 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.99
+        Data shape before filtering based on boundaries margin: (66108, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.86 seconds.
+Boundaries checked. Computing field model predictions... 31.70 seconds.
+Field model predictions computed. Computing similarities... 0.61 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.21 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.29 seconds.
+Distances between fish pairs computed. Saving data... 16.83 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.902
+    Average similarity of best assignment:                 0.902
+    Average similarity of random fish assignment:          0.203
+18_36_24, offset +0: 66108 / 66826 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(18499), 'B': np.int64(12423), 'C': np.int64(16938), 'D': np.int64(18248)}, 1.9 min -> denis_mask_midline_18_36_24_offset+0.csv
+Loading data... 2.22 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 14.56 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.99
+        Data shape before filtering based on boundaries margin: (66074, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.89 seconds.
+Boundaries checked. Computing field model predictions... 32.22 seconds.
+Field model predictions computed. Computing similarities... 0.68 seconds.
+Similarities computed. Assigning discharging fish... 0.07 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 3.17 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.33 seconds.
+Distances between fish pairs computed. Saving data... 18.12 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.943
+    Average similarity of best assignment:                 0.943
+    Average similarity of random fish assignment:          0.221
+18_36_24, offset -5: 66074 / 66826 EODs assigned (all 4 fish with a mask midline), per fish {'A': np.int64(18547), 'B': np.int64(11990), 'C': np.int64(16933), 'D': np.int64(18604)}, 1.9 min -> denis_mask_midline_18_36_24_offset-5.csv

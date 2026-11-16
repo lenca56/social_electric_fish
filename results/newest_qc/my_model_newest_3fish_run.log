@@ -1,0 +1,23 @@
+3-fish: 19796 EODs on 19590 frames; 0 frames cached, 19590 to solve (6 workers)
+1000/19590 frames, 2.2 min, ~41 min left
+2000/19590 frames, 4.1 min, ~36 min left
+3000/19590 frames, 6.8 min, ~38 min left
+4000/19590 frames, 14.6 min, ~57 min left
+5000/19590 frames, 25.6 min, ~75 min left
+3-fish: 19796 EODs on 19590 frames; 5000 frames cached, 14590 to solve (6 workers)
+1000/14590 frames, 3.5 min, ~47 min left
+2000/14590 frames, 6.6 min, ~41 min left
+3000/14590 frames, 8.8 min, ~34 min left
+4000/14590 frames, 11.3 min, ~30 min left
+5000/14590 frames, 14.1 min, ~27 min left
+6000/14590 frames, 16.5 min, ~24 min left
+7000/14590 frames, 18.5 min, ~20 min left
+8000/14590 frames, 20.8 min, ~17 min left
+9000/14590 frames, 23.5 min, ~15 min left
+10000/14590 frames, 26.3 min, ~12 min left
+11000/14590 frames, 29.0 min, ~9 min left
+12000/14590 frames, 31.6 min, ~7 min left
+13000/14590 frames, 34.5 min, ~4 min left
+14000/14590 frames, 37.4 min, ~2 min left
+14590/14590 frames, 39.3 min, ~0 min left
+3-fish: % correct 89.78 on all 19796 EODs (no pick counts as wrong); 39.3 min

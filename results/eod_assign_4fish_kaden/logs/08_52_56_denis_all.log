@@ -1,0 +1,22 @@
+08_52_56 midlines: 32838 frames, every fish in 31605, 9.4 min
+Loading data... 3.42 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 56.59 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 100.00
+        Data shape before filtering based on boundaries margin: (41698, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    1.48 seconds.
+Boundaries checked. Computing field model predictions... 78.33 seconds.
+Field model predictions computed. Computing similarities... 0.65 seconds.
+Similarities computed. Assigning discharging fish... 0.10 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 2.74 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 1.89 seconds.
+Distances between fish pairs computed. Saving data... 19.96 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.932
+    Average similarity of best assignment:                 0.932
+    Average similarity of random fish assignment:          0.261
+08_52_56 Denis: 41698 / 43406 EODs with every fish midline, 2.8 min
+08_52_56 denis table: 43406 EODs, 41698 with every fish midline; same pick (similarity vs L2) 99.6%; shares {'fish | Denis, similarity': {'A': 0.236, 'B': 0.251, 'C': 0.271, 'D': 0.242}, 'fish | Denis, L2 (max |v| = 1)': {'A': 0.235, 'B': 0.251, 'C': 0.27, 'D': 0.243}}

@@ -1,0 +1,43 @@
+3-fish: 19796 EODs on 19590 frames, versions ['N200_image_none']; 0 frames cached, 19590 to solve (7 workers)
+  500/19590 frames, 0.8 min, ~29 min left
+  1000/19590 frames, 1.6 min, ~29 min left
+  1500/19590 frames, 2.4 min, ~29 min left
+  2000/19590 frames, 3.3 min, ~29 min left
+  2500/19590 frames, 4.3 min, ~30 min left
+  3000/19590 frames, 5.2 min, ~29 min left
+  3500/19590 frames, 5.8 min, ~27 min left
+  4000/19590 frames, 6.4 min, ~25 min left
+  4500/19590 frames, 7.0 min, ~24 min left
+  5000/19590 frames, 7.6 min, ~22 min left
+  5500/19590 frames, 8.2 min, ~21 min left
+  6000/19590 frames, 8.8 min, ~20 min left
+  6500/19590 frames, 9.4 min, ~19 min left
+  7000/19590 frames, 10.0 min, ~18 min left
+  7500/19590 frames, 10.6 min, ~17 min left
+  8000/19590 frames, 11.1 min, ~16 min left
+  8500/19590 frames, 11.9 min, ~15 min left
+  9000/19590 frames, 12.7 min, ~15 min left
+  9500/19590 frames, 13.4 min, ~14 min left
+  10000/19590 frames, 14.1 min, ~13 min left
+  10500/19590 frames, 14.8 min, ~13 min left
+  11000/19590 frames, 15.3 min, ~12 min left
+  11500/19590 frames, 16.0 min, ~11 min left
+  12000/19590 frames, 16.7 min, ~11 min left
+  12500/19590 frames, 17.5 min, ~10 min left
+  13000/19590 frames, 18.7 min, ~9 min left
+  13500/19590 frames, 19.4 min, ~9 min left
+  14000/19590 frames, 20.3 min, ~8 min left
+  14500/19590 frames, 21.5 min, ~8 min left
+  15000/19590 frames, 22.7 min, ~7 min left
+  15500/19590 frames, 23.7 min, ~6 min left
+  16000/19590 frames, 24.6 min, ~6 min left
+  16500/19590 frames, 25.5 min, ~5 min left
+  17000/19590 frames, 26.4 min, ~4 min left
+  17500/19590 frames, 27.3 min, ~3 min left
+  18000/19590 frames, 28.4 min, ~3 min left
+  18500/19590 frames, 29.3 min, ~2 min left
+  19000/19590 frames, 30.1 min, ~1 min left
+  19500/19590 frames, 30.9 min, ~0 min left
+  19590/19590 frames, 31.1 min, ~0 min left
+3-fish N200_image_none: % correct 89.79 on 19796 EODs (no pick counts as wrong)
+3-fish: done, 31.1 min

@@ -1,0 +1,24 @@
+/Volumes/Lenca_SSD/github/social_electric_fish/midline_methods.py:173: RuntimeWarning: invalid value encountered in divide
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+13_56_22 midlines: 42920 frames, every fish in 42410, 13.1 min
+Loading data... 6.87 seconds.
+Data loaded. Estimating point currents location for 4 fish and 101 currents per fish... 82.62 seconds.
+Currents location estimated. Assigning identity based on total length... 0.07 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.97
+        Data shape before filtering based on boundaries margin: (61544, 362)
+        Not filtering frames outside boundaries (using clipped values instead)
+    33.59 seconds.
+Boundaries checked. Computing field model predictions... 412.02 seconds.
+Field model predictions computed. Computing similarities... 2.53 seconds.
+Similarities computed. Assigning discharging fish... 0.24 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 9.03 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 3.55 seconds.
+Distances between fish pairs computed. Saving data... 34.62 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.951
+    Average similarity of best assignment:                 0.951
+    Average similarity of random fish assignment:          0.142
+13_56_22 Denis: 61544 / 62256 EODs with every fish midline, 9.9 min
+13_56_22 denis table: 62256 EODs, 61544 with every fish midline; same pick (similarity vs L2) 99.4%; shares {'fish | Denis, similarity': {'A': 0.282, 'B': 0.154, 'C': 0.265, 'D': 0.3}, 'fish | Denis, L2 (max |v| = 1)': {'A': 0.281, 'B': 0.154, 'C': 0.264, 'D': 0.3}}

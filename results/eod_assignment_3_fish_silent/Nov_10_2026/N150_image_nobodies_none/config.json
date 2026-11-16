@@ -1,0 +1,29 @@
+{
+ "rec": "3-fish",
+ "eod_table": "data/3_fish_silent/Data_3fish_2024-10-15T14_12_25_synch_fix_newest.csv",
+ "geometry": "image",
+ "tank_outline": null,
+ "electrodes_file": "data/electrodes/electrodes_signed_px_coord_3-fish.csv",
+ "px_per_cm": 15.2,
+ "N": 150,
+ "cell_cm": 0.40224302366654896,
+ "sigma_water": 1.0,
+ "sigma_interior": 100.0,
+ "sigma_skin": 0.04997501249375312,
+ "skin_cm": 0.005,
+ "skin_lambda_cm": 0.1,
+ "sink_frac": 0.0,
+ "model_sign": -1,
+ "electrode_radius_cm": null,
+ "electrode_sigma": null,
+ "electrode_readout": "potential at the electrode centre",
+ "n_eods": 19796,
+ "random_eods_seed0": null,
+ "rule": "shape only: pick = smallest L2 of MODEL_SIGN u / max|u| vs r / max|r|; pick_cosine = largest cosine of MODEL_SIGN u vs r",
+ "other_fish_bodies": false,
+ "n_no_model": {
+  "fish 0": 29,
+  "fish 1": 0,
+  "fish 2": 19
+ }
+}

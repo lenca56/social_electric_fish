@@ -1,0 +1,25 @@
+19_16_25 midlines: 39985 frames, every fish in 39901, 18.3 min
+19_16_25 model: 39985 frames, 0 cached, 39985 to solve
+  19_16_25: 2000/39985 frames, 12.5 min, ~238 min left
+  19_16_25: 4000/39985 frames, 20.2 min, ~182 min left
+  19_16_25: 6000/39985 frames, 29.3 min, ~166 min left
+  19_16_25: 8000/39985 frames, 38.5 min, ~154 min left
+  19_16_25: 10000/39985 frames, 47.7 min, ~143 min left
+  19_16_25: 12000/39985 frames, 55.5 min, ~129 min left
+  19_16_25: 14000/39985 frames, 63.5 min, ~118 min left
+  19_16_25: 16000/39985 frames, 71.3 min, ~107 min left
+  19_16_25: 18000/39985 frames, 79.2 min, ~97 min left
+  19_16_25: 20000/39985 frames, 87.0 min, ~87 min left
+  19_16_25: 22000/39985 frames, 94.8 min, ~78 min left
+  19_16_25: 24000/39985 frames, 102.6 min, ~68 min left
+  19_16_25: 26000/39985 frames, 110.4 min, ~59 min left
+  19_16_25: 28000/39985 frames, 117.9 min, ~50 min left
+  19_16_25: 30000/39985 frames, 124.4 min, ~41 min left
+  19_16_25: 32000/39985 frames, 131.2 min, ~33 min left
+  19_16_25: 34000/39985 frames, 138.4 min, ~24 min left
+  19_16_25: 36000/39985 frames, 144.8 min, ~16 min left
+  19_16_25: 38000/39985 frames, 150.1 min, ~8 min left
+  19_16_25: 39985/39985 frames, 154.2 min, ~0 min left
+19_16_25 model done
+19_16_25 tables: 60238 EODs; shares {'fish | mine, shape': {'A': 0.265, 'B': 0.191, 'C': 0.286, 'D': 0.258, '': 0.0}, 'fish | Denis, mask midline': {'A': 0.257, 'B': 0.186, 'C': 0.293, 'D': 0.261, '': 0.002}}
+19_16_25 finished (exit 0)

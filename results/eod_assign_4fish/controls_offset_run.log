@@ -1,0 +1,35 @@
+d_-10    0.407
+d_-9     0.394
+d_-8     0.362
+d_-7     0.361
+d_-6     0.354
+d_-5     0.347
+d_-4     0.355
+d_-3     0.375
+d_-2     0.387
+d_-1     0.394
+d_0      0.409
+d_1      0.412
+d_2      0.445
+d_3      0.444
+d_4      0.444
+2-fish best offset: -5
+2-fish, offset -5: 18653 frames to solve, 0 cached
+  3000/18653 frames, 1.4 min
+  6000/18653 frames, 2.7 min
+  9000/18653 frames, 4.0 min
+  12000/18653 frames, 5.2 min
+  15000/18653 frames, 6.4 min
+  18000/18653 frames, 7.6 min
+  18653/18653 frames, 7.9 min
+done results/eod_ground_truth/conductivities/model_voltages_N150_sink0_bem_offset-5.pkl
+3-fish, offset -4: 19583 frames to solve, 0 cached
+  3000/19583 frames, 1.9 min
+  6000/19583 frames, 3.7 min
+  9000/19583 frames, 5.5 min
+  12000/19583 frames, 7.3 min
+  15000/19583 frames, 9.1 min
+  18000/19583 frames, 10.9 min
+  19583/19583 frames, 11.9 min
+done results/eod_ground_truth_3fish/conductivities/model_voltages_N150_sink0_bem_offset-4.pkl
+controls finished

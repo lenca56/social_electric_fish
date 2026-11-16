@@ -1,0 +1,43 @@
+3-fish: 19796 EODs on 19590 frames, versions ['N200_tank_none']; 0 frames cached, 19590 to solve (4 workers)
+  500/19590 frames, 1.3 min, ~49 min left
+  1000/19590 frames, 3.1 min, ~58 min left
+  1500/19590 frames, 5.1 min, ~61 min left
+  2000/19590 frames, 6.8 min, ~60 min left
+  2500/19590 frames, 8.7 min, ~60 min left
+  3000/19590 frames, 10.6 min, ~59 min left
+  3500/19590 frames, 12.2 min, ~56 min left
+  4000/19590 frames, 14.3 min, ~56 min left
+  4500/19590 frames, 16.3 min, ~55 min left
+  5000/19590 frames, 18.2 min, ~53 min left
+  5500/19590 frames, 20.1 min, ~52 min left
+  6000/19590 frames, 22.1 min, ~50 min left
+  6500/19590 frames, 24.2 min, ~49 min left
+  7000/19590 frames, 26.1 min, ~47 min left
+  7500/19590 frames, 28.0 min, ~45 min left
+  8000/19590 frames, 30.2 min, ~44 min left
+  8500/19590 frames, 32.2 min, ~42 min left
+  9000/19590 frames, 34.0 min, ~40 min left
+  9500/19590 frames, 36.2 min, ~38 min left
+  10000/19590 frames, 38.1 min, ~36 min left
+  10500/19590 frames, 39.7 min, ~34 min left
+  11000/19590 frames, 41.6 min, ~32 min left
+  11500/19590 frames, 43.7 min, ~31 min left
+  12000/19590 frames, 45.6 min, ~29 min left
+  12500/19590 frames, 47.6 min, ~27 min left
+  13000/19590 frames, 49.5 min, ~25 min left
+  13500/19590 frames, 51.6 min, ~23 min left
+  14000/19590 frames, 53.5 min, ~21 min left
+  14500/19590 frames, 55.7 min, ~20 min left
+  15000/19590 frames, 57.5 min, ~18 min left
+  15500/19590 frames, 59.4 min, ~16 min left
+  16000/19590 frames, 61.3 min, ~14 min left
+  16500/19590 frames, 63.4 min, ~12 min left
+  17000/19590 frames, 65.3 min, ~10 min left
+  17500/19590 frames, 66.4 min, ~8 min left
+  18000/19590 frames, 67.3 min, ~6 min left
+  18500/19590 frames, 68.0 min, ~4 min left
+  19000/19590 frames, 68.8 min, ~2 min left
+  19500/19590 frames, 69.6 min, ~0 min left
+  19590/19590 frames, 69.7 min, ~0 min left
+3-fish N200_tank_none: % correct 85.68 (L2), 85.40 (cosine) on 19796 EODs (no pick counts as wrong)
+3-fish: done, 69.8 min

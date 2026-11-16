@@ -1,0 +1,21 @@
+2-fish, synch_fix: 18801 EODs, 0 outside the video, mask midline for every fish in 18642 (0.5 min)
+Loading data... 0.85 seconds.
+Data loaded. Estimating point currents location for 2 fish and 101 currents per fish... 6.21 seconds.
+Currents location estimated. Assigning identity based on total length... 0.00 seconds.
+Identities assigned. Checking boundaries...
+    Percentage of frames within set boundaries: 99.88
+        Data shape before filtering based on boundaries margin: (18642, 310)
+        Not filtering frames outside boundaries (using clipped values instead)
+    0.21 seconds.
+Boundaries checked. Computing field model predictions... 5.09 seconds.
+Field model predictions computed. Computing similarities... 0.09 seconds.
+Similarities computed. Assigning discharging fish... 0.03 seconds.
+Discharging fish assigned. Reorganizing DataFrame and extracting single fish coordinates... 0.70 seconds.
+DataFrame reorganized. Computing distance between fish pairs... 0.12 seconds.
+Distances between fish pairs computed. Saving data... 5.33 seconds.
+Data saved.
+Printing some statistics...
+    Average similarity of refractory optimized assignment: 0.860
+    Average similarity of best assignment:                 0.860
+    Average similarity of random fish assignment:          0.377
+2-fish, synch_fix: % correct 92.71 on all 18801 EODs (no result counts as wrong), 0.9 min

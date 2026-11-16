@@ -1,0 +1,68 @@
+
+2-fish: fish lengths {0: np.float64(12.14), 1: np.float64(16.87)}; 10804 good-mask EODs of 18798
+  N150 square: done
+  N200 tank: done
+  N200 tank, no bodies: done
+  N150 square, no bodies: done
+  N150 tank, interior 2: done
+  N150 tank, interior 20: done
+  N150 tank, interior 40: done
+  N150 tank, interior 100: done
+2-fish, good mask EODs
+rule                     shape L2, peak sample  shape cosine, peak sample  shape L2, peak-to-peak  shape cosine, peak-to-peak  voltage L2, peak sample  voltage cosine, peak sample  voltage L2, peak sample, no length law  voltage L2, peak-to-peak  voltage cosine, peak-to-peak
+model                                                                                                                                                                                                                                                                              
+N150 square                              98.40                      99.00                   98.36                       98.99                    99.24                        99.01                                   99.34                     99.20                         99.02
+N200 tank                                98.79                      99.25                   98.77                       99.22                    99.74                        99.33                                   99.73                     99.72                         99.36
+N200 tank, no bodies                     98.93                      99.29                   98.92                       99.26                    99.69                        99.36                                   99.65                     99.68                         99.36
+N150 square, no bodies                   98.46                      99.09                   98.45                       99.08                    99.25                        99.11                                   99.32                     99.21                         99.11
+N150 tank, interior 2                    98.88                      99.29                   98.86                       99.28                    99.67                        99.35                                   99.69                     99.68                         99.36
+N150 tank, interior 20                   98.79                      99.23                   98.76                       99.22                    99.69                        99.33                                   99.69                     99.71                         99.34
+N150 tank, interior 40                   98.77                      99.22                   98.72                       99.22                    99.68                        99.33                                   99.71                     99.70                         99.35
+N150 tank, interior 100                  98.74                      99.21                   98.69                       99.21                    99.69                        99.33                                   99.72                     99.69                         99.34
+Denis analytic                             NaN                        NaN                   99.20                       99.38                      NaN                          NaN                                     NaN                     99.46                         99.50
+2-fish, all EODs
+rule                     shape L2, peak sample  shape cosine, peak sample  shape L2, peak-to-peak  shape cosine, peak-to-peak  voltage L2, peak sample  voltage cosine, peak sample  voltage L2, peak sample, no length law  voltage L2, peak-to-peak  voltage cosine, peak-to-peak
+model                                                                                                                                                                                                                                                                              
+N150 square                              97.38                      97.93                   97.34                       97.90                    97.82                        97.93                                   97.98                     97.81                         97.90
+N200 tank                                97.71                      98.23                   97.70                       98.19                    98.19                        98.24                                   98.27                     98.19                         98.21
+N200 tank, no bodies                     97.99                      98.29                   97.95                       98.23                    98.35                        98.31                                   98.40                     98.36                         98.29
+N150 square, no bodies                   97.56                      98.05                   97.50                       98.01                    98.00                        98.06                                   98.11                     97.97                         98.04
+N150 tank, interior 2                    97.95                      98.28                   97.90                       98.23                    98.33                        98.32                                   98.40                     98.35                         98.29
+N150 tank, interior 20                   97.77                      98.21                   97.77                       98.17                    98.22                        98.25                                   98.29                     98.26                         98.21
+N150 tank, interior 40                   97.76                      98.20                   97.72                       98.16                    98.21                        98.23                                   98.29                     98.22                         98.20
+N150 tank, interior 100                  97.71                      98.19                   97.68                       98.15                    98.18                        98.22                                   98.28                     98.19                         98.17
+Denis analytic                             NaN                        NaN                   97.87                       98.03                      NaN                          NaN                                     NaN                     97.90                         98.16
+
+3-fish: fish lengths {0: np.float64(12.15), 1: np.float64(16.99), 2: np.float64(14.59)}; 8250 good-mask EODs of 19780
+  N150 square: done
+  N200 tank: done
+  N200 tank, no bodies: done
+  N150 square, no bodies: done
+  N150 tank, interior 2: done
+  N150 tank, interior 20: done
+  N150 tank, interior 40: done
+  N150 tank, interior 100: done
+3-fish, good mask EODs
+rule                     shape L2, peak sample  shape cosine, peak sample  shape L2, peak-to-peak  shape cosine, peak-to-peak  voltage L2, peak sample  voltage cosine, peak sample  voltage L2, peak sample, no length law  voltage L2, peak-to-peak  voltage cosine, peak-to-peak
+model                                                                                                                                                                                                                                                                              
+N150 square                              98.59                      98.73                   98.56                       98.62                    99.37                        98.88                                   99.31                     99.36                         98.84
+N200 tank                                98.55                      98.67                   98.47                       98.57                    99.36                        98.74                                   99.24                     99.35                         98.69
+N200 tank, no bodies                     98.81                      98.82                   98.75                       98.78                    99.66                        99.03                                   99.59                     99.62                         98.98
+N150 square, no bodies                   98.85                      98.92                   98.78                       98.85                    99.67                        99.01                                   99.61                     99.66                         98.92
+N150 tank, interior 2                    98.86                      98.87                   98.76                       98.80                    99.68                        99.02                                   99.59                     99.61                         98.97
+N150 tank, interior 20                   98.76                      98.78                   98.74                       98.73                    99.52                        98.98                                   99.42                     99.44                         98.93
+N150 tank, interior 40                   98.65                      98.69                   98.61                       98.65                    99.44                        98.93                                   99.35                     99.37                         98.87
+N150 tank, interior 100                  98.62                      98.63                   98.61                       98.61                    99.38                        98.84                                   99.32                     99.36                         98.79
+Denis analytic                             NaN                        NaN                   98.93                       99.01                      NaN                          NaN                                     NaN                     99.35                         98.91
+3-fish, all EODs
+rule                     shape L2, peak sample  shape cosine, peak sample  shape L2, peak-to-peak  shape cosine, peak-to-peak  voltage L2, peak sample  voltage cosine, peak sample  voltage L2, peak sample, no length law  voltage L2, peak-to-peak  voltage cosine, peak-to-peak
+model                                                                                                                                                                                                                                                                              
+N150 square                              85.71                      85.54                   85.64                       85.40                    87.35                        85.58                                   87.09                     87.35                         85.48
+N200 tank                                85.74                      85.45                   85.63                       85.31                    86.79                        85.45                                   86.46                     86.81                         85.37
+N200 tank, no bodies                     85.86                      85.65                   85.79                       85.55                    86.87                        85.75                                   86.40                     86.87                         85.62
+N150 square, no bodies                   85.96                      85.80                   85.84                       85.70                    87.49                        85.78                                   87.21                     87.52                         85.67
+N150 tank, interior 2                    85.89                      85.69                   85.81                       85.58                    87.06                        85.75                                   86.56                     87.03                         85.66
+N150 tank, interior 20                   85.83                      85.58                   85.78                       85.48                    86.91                        85.68                                   86.59                     86.93                         85.59
+N150 tank, interior 40                   85.76                      85.49                   85.67                       85.42                    86.87                        85.58                                   86.54                     86.84                         85.48
+N150 tank, interior 100                  85.66                      85.40                   85.60                       85.32                    86.78                        85.52                                   86.48                     86.79                         85.40
+Denis analytic                             NaN                        NaN                   85.92                       85.65                      NaN                          NaN                                     NaN                     84.53                         85.48

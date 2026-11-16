@@ -1,0 +1,101 @@
+2024-02-20T21_16_26: 38930 EOD frames, 0 cached, 38930 to solve
+  3000/38930 frames, 3.8 min, ~46 min left
+  6000/38930 frames, 8.1 min, ~44 min left
+  9000/38930 frames, 12.2 min, ~41 min left
+  12000/38930 frames, 16.4 min, ~37 min left
+  15000/38930 frames, 20.5 min, ~33 min left
+  18000/38930 frames, 24.3 min, ~28 min left
+  21000/38930 frames, 28.8 min, ~25 min left
+  24000/38930 frames, 33.3 min, ~21 min left
+  27000/38930 frames, 36.8 min, ~16 min left
+  30000/38930 frames, 40.2 min, ~12 min left
+  33000/38930 frames, 43.6 min, ~8 min left
+  36000/38930 frames, 46.6 min, ~4 min left
+  38930/38930 frames, 49.4 min, ~0 min left
+done results/eod_assign_4fish/2024-02-20T21_16_26/model_voltages_N150_sink0_bem_by_frame.pkl
+2024-02-20T12_32_58: 16518 EOD frames, 0 cached, 16518 to solve
+  3000/16518 frames, 2.9 min, ~13 min left
+  6000/16518 frames, 5.8 min, ~10 min left
+  9000/16518 frames, 8.7 min, ~7 min left
+  12000/16518 frames, 11.6 min, ~4 min left
+  15000/16518 frames, 14.5 min, ~1 min left
+  16518/16518 frames, 16.0 min, ~0 min left
+done results/eod_assign_4fish/2024-02-20T12_32_58/model_voltages_N150_sink0_bem_by_frame.pkl
+2024-02-20T18_16_24: 46413 EOD frames, 0 cached, 46413 to solve
+  3000/46413 frames, 2.9 min, ~42 min left
+  6000/46413 frames, 5.7 min, ~39 min left
+  9000/46413 frames, 8.6 min, ~36 min left
+  12000/46413 frames, 11.5 min, ~33 min left
+  15000/46413 frames, 14.3 min, ~30 min left
+  18000/46413 frames, 17.2 min, ~27 min left
+  21000/46413 frames, 20.0 min, ~24 min left
+  24000/46413 frames, 22.9 min, ~21 min left
+  27000/46413 frames, 25.8 min, ~19 min left
+  30000/46413 frames, 28.7 min, ~16 min left
+  33000/46413 frames, 31.5 min, ~13 min left
+  36000/46413 frames, 34.3 min, ~10 min left
+  39000/46413 frames, 37.1 min, ~7 min left
+  42000/46413 frames, 39.9 min, ~4 min left
+  45000/46413 frames, 42.6 min, ~1 min left
+  46413/46413 frames, 43.8 min, ~0 min left
+done results/eod_assign_4fish/2024-02-20T18_16_24/model_voltages_N150_sink0_bem_by_frame.pkl
+2024-02-20T15_16_23: 41341 EOD frames, 0 cached, 41341 to solve
+  3000/41341 frames, 2.9 min, ~37 min left
+  6000/41341 frames, 5.7 min, ~34 min left
+  9000/41341 frames, 8.6 min, ~31 min left
+  12000/41341 frames, 11.4 min, ~28 min left
+  15000/41341 frames, 14.3 min, ~25 min left
+  18000/41341 frames, 17.1 min, ~22 min left
+  21000/41341 frames, 20.0 min, ~19 min left
+  24000/41341 frames, 22.8 min, ~16 min left
+  27000/41341 frames, 25.6 min, ~14 min left
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+  30000/41341 frames, 28.4 min, ~11 min left
+  33000/41341 frames, 31.3 min, ~8 min left
+  36000/41341 frames, 34.1 min, ~5 min left
+  39000/41341 frames, 37.0 min, ~2 min left
+  41341/41341 frames, 39.1 min, ~0 min left
+done results/eod_assign_4fish/2024-02-20T15_16_23/model_voltages_N150_sink0_bem_by_frame.pkl
+2024-02-20T17_56_24: 45711 EOD frames, 0 cached, 45711 to solve
+  3000/45711 frames, 2.9 min, ~41 min left
+  6000/45711 frames, 5.7 min, ~38 min left
+  9000/45711 frames, 8.5 min, ~35 min left
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+  12000/45711 frames, 11.4 min, ~32 min left
+  15000/45711 frames, 14.2 min, ~29 min left
+  18000/45711 frames, 16.9 min, ~26 min left
+  21000/45711 frames, 19.7 min, ~23 min left
+  24000/45711 frames, 22.6 min, ~20 min left
+  27000/45711 frames, 25.3 min, ~18 min left
+  30000/45711 frames, 28.1 min, ~15 min left
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+  33000/45711 frames, 30.9 min, ~12 min left
+  36000/45711 frames, 33.7 min, ~9 min left
+  39000/45711 frames, 36.5 min, ~6 min left
+  s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(curve, axis=0), axis=1))]; u = s / s[-1]
+  42000/45711 frames, 39.1 min, ~3 min left
+  45000/45711 frames, 41.6 min, ~1 min left
+  45711/45711 frames, 42.3 min, ~0 min left
+done results/eod_assign_4fish/2024-02-20T17_56_24/model_voltages_N150_sink0_bem_by_frame.pkl
+2024-10-23T15_18_28: 57181 EOD frames, 0 cached, 57181 to solve
+  3000/57181 frames, 2.6 min, ~47 min left
+  6000/57181 frames, 5.2 min, ~44 min left
+  9000/57181 frames, 7.8 min, ~42 min left
+  12000/57181 frames, 10.4 min, ~39 min left
+  15000/57181 frames, 13.0 min, ~37 min left
+  18000/57181 frames, 15.6 min, ~34 min left
+  21000/57181 frames, 18.2 min, ~31 min left
+  24000/57181 frames, 20.8 min, ~29 min left
+  27000/57181 frames, 23.4 min, ~26 min left
+  30000/57181 frames, 26.0 min, ~24 min left
+  33000/57181 frames, 28.6 min, ~21 min left
+  36000/57181 frames, 31.3 min, ~18 min left
+  39000/57181 frames, 33.9 min, ~16 min left
+  42000/57181 frames, 36.5 min, ~13 min left
+  45000/57181 frames, 39.1 min, ~11 min left
+  48000/57181 frames, 41.7 min, ~8 min left
+  51000/57181 frames, 44.3 min, ~5 min left
+  54000/57181 frames, 46.9 min, ~3 min left
+  57000/57181 frames, 49.5 min, ~0 min left
+  57181/57181 frames, 49.7 min, ~0 min left
+done results/eod_assign_4fish/2024-10-23T15_18_28/model_voltages_N150_sink0_bem_by_frame.pkl

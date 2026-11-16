@@ -1,0 +1,120 @@
+00_12_52 done: 85 frames, 0.1 min
+00_32_53 done: 59 frames, 0.1 min
+00_52_53 done: 50 frames, 0.1 min
+01_12_53 done: 109 frames, 0.1 min
+01_32_53 done: 129 frames, 0.2 min
+01_52_53 done: 89 frames, 0.1 min
+02_12_53 done: 93 frames, 0.1 min
+02_32_53 done: 167 frames, 0.2 min
+02_52_54 done: 63 frames, 0.1 min
+03_12_54 done: 123 frames, 0.2 min
+03_32_54 done: 54 frames, 0.1 min
+03_52_54 done: 120 frames, 0.2 min
+04_12_54 done: 12 frames, 0.1 min
+04_32_54 done: 127 frames, 0.2 min
+04_52_54 done: 80 frames, 0.1 min
+05_12_55 done: 113 frames, 0.1 min
+05_32_55 done: 211 frames, 0.2 min
+05_52_55 done: 84 frames, 0.1 min
+06_12_55 done: 21 frames, 0.1 min
+06_32_55 done: 8 frames, 0.1 min
+06_52_55 done: 46 frames, 0.1 min
+07_12_56 done: 46 frames, 0.1 min
+07_32_56 done: 58 frames, 0.1 min
+07_52_56 done: 51 frames, 0.1 min
+08_12_56 done: 50 frames, 0.1 min
+08_32_56 done: 78 frames, 0.1 min
+08_52_56 done: 18 frames, 0.1 min
+09_12_56 done: 5 frames, 0.0 min
+09_32_57 done: 95 frames, 0.1 min
+09_52_57 done: 19 frames, 0.1 min
+10_12_57 done: 4 frames, 0.0 min
+10_32_57 done: 14 frames, 0.1 min
+10_52_57 done: 67 frames, 0.1 min
+11_12_57 done: 73 frames, 0.1 min
+11_32_57 done: 57 frames, 0.1 min
+11_52_58 done: 76 frames, 0.1 min
+12_12_58 done: 17 frames, 0.1 min
+12_32_58 done: 5 frames, 0.0 min
+12_56_22 done: 33 frames, 0.1 min
+13_16_22 done: 28 frames, 0.1 min
+13_36_22 done: 20 frames, 0.1 min
+13_56_22 done: 6 frames, 0.1 min
+14_16_23 done: 7 frames, 0.1 min
+14_36_23 done: 3 frames, 0.0 min
+14_56_23 done: 4 frames, 0.0 min
+15_16_23 done: 65 frames, 0.1 min
+15_36_23 done: 1 frames, 0.0 min
+15_56_23 done: 3 frames, 0.0 min
+16_16_23 done: 22 frames, 0.1 min
+16_36_24 done: 4 frames, 0.0 min
+16_56_24 done: 2 frames, 0.0 min
+17_36_24 done: 2 frames, 0.0 min
+17_56_24 done: 86 frames, 0.1 min
+18_16_24 done: 62 frames, 0.1 min
+18_36_24 done: 20 frames, 0.1 min
+18_56_25 done: 3 frames, 0.0 min
+19_16_25 done: 14 frames, 0.1 min
+19_36_25 done: 48 frames, 0.1 min
+19_56_25 done: 39 frames, 0.1 min
+20_16_25 done: 167 frames, 0.2 min
+20_36_25 done: 119 frames, 0.1 min
+21_16_26 done: 45 frames, 0.1 min
+21_36_26 done: 130 frames, 0.2 min
+21_56_26 done: 72 frames, 0.1 min
+22_16_26 done: 12 frames, 0.1 min
+22_36_26 done: 65 frames, 0.1 min
+22_56_26 done: 61 frames, 0.1 min
+23_16_27 done: 131 frames, 0.2 min
+23_36_27 done: 79 frames, 0.1 min
+23_56_27 done: 62 frames, 0.1 min
+=== best1000 done Wed Nov 11 22:20:43 EST 2026
+00_12_52: 34377 frames, 0 cached, 34377 to solve, N 150, interior 4
+00_12_52 done: 34377 frames, 31.8 min
+01_12_53: 33958 frames, 0 cached, 33958 to solve, N 150, interior 4
+01_12_53 done: 33958 frames, 31.7 min
+02_12_53: 33001 frames, 0 cached, 33001 to solve, N 150, interior 4
+02_12_53 done: 33001 frames, 30.7 min
+03_12_54: 34615 frames, 0 cached, 34615 to solve, N 150, interior 4
+03_12_54 done: 34615 frames, 31.5 min
+04_12_54: 32052 frames, 0 cached, 32052 to solve, N 150, interior 4
+04_12_54 done: 32052 frames, 29.7 min
+05_12_55: 32437 frames, 0 cached, 32437 to solve, N 150, interior 4
+05_12_55 done: 32437 frames, 29.3 min
+06_12_55: 38533 frames, 0 cached, 38533 to solve, N 150, interior 4
+06_12_55 done: 38533 frames, 34.6 min
+07_12_56: 39058 frames, 0 cached, 39058 to solve, N 150, interior 4
+07_12_56 done: 39058 frames, 33.6 min
+08_12_56: 39964 frames, 0 cached, 39964 to solve, N 150, interior 4
+08_12_56 done: 39964 frames, 34.5 min
+09_12_56: 31046 frames, 0 cached, 31046 to solve, N 150, interior 4
+09_12_56 done: 31046 frames, 27.4 min
+10_12_57: 33555 frames, 0 cached, 33555 to solve, N 150, interior 4
+10_12_57 done: 33555 frames, 29.8 min
+11_12_57: 30347 frames, 0 cached, 30347 to solve, N 150, interior 4
+11_12_57 done: 30347 frames, 27.0 min
+12_12_58: 32209 frames, 0 cached, 32209 to solve, N 150, interior 4
+12_12_58 done: 32209 frames, 29.9 min
+13_16_22: 43265 frames, 0 cached, 43265 to solve, N 150, interior 4
+13_16_22 done: 43265 frames, 40.5 min
+14_16_23: 42750 frames, 0 cached, 42750 to solve, N 150, interior 4
+14_16_23 done: 42750 frames, 39.4 min
+15_16_23: 41199 frames, 0 cached, 41199 to solve, N 150, interior 4
+15_16_23 done: 41199 frames, 37.4 min
+16_16_23: 41214 frames, 0 cached, 41214 to solve, N 150, interior 4
+16_16_23 done: 41214 frames, 37.5 min
+17_16_24: 37883 frames, 0 cached, 37883 to solve, N 150, interior 4
+17_16_24 done: 37883 frames, 34.0 min
+18_16_24: 46457 frames, 0 cached, 46457 to solve, N 150, interior 4
+18_16_24 done: 46457 frames, 42.2 min
+19_16_25: 39985 frames, 0 cached, 39985 to solve, N 150, interior 4
+19_16_25 done: 39985 frames, 61.3 min
+20_16_25: 43959 frames, 0 cached, 43959 to solve, N 150, interior 4
+20_16_25 done: 43959 frames, 39.5 min
+21_36_26: 37863 frames, 0 cached, 37863 to solve, N 150, interior 4
+21_36_26 done: 37863 frames, 34.6 min
+22_36_26: 33258 frames, 0 cached, 33258 to solve, N 150, interior 4
+22_36_26 done: 33258 frames, 29.8 min
+23_36_27: 37140 frames, 0 cached, 37140 to solve, N 150, interior 4
+23_36_27 done: 37140 frames, 33.5 min
+=== all 24 done Thu Nov 12 12:12:51 EST 2026

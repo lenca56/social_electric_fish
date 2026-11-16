@@ -1,0 +1,42 @@
+2-fish: 18801 EODs on 18681 frames, versions ['N150_tank_enlarged_none', 'N150_tank_enlarged_r0.5_s1e7']; 0 frames cached, 18681 to solve (3 workers)
+  500/18681 frames, 1.0 min, ~38 min left
+  1000/18681 frames, 2.2 min, ~39 min left
+  1500/18681 frames, 3.2 min, ~36 min left
+  2000/18681 frames, 4.2 min, ~35 min left
+  2500/18681 frames, 5.2 min, ~34 min left
+  3000/18681 frames, 6.3 min, ~33 min left
+  3500/18681 frames, 7.4 min, ~32 min left
+  4000/18681 frames, 8.4 min, ~31 min left
+  4500/18681 frames, 9.4 min, ~30 min left
+  5000/18681 frames, 10.6 min, ~29 min left
+  5500/18681 frames, 11.7 min, ~28 min left
+  6000/18681 frames, 12.8 min, ~27 min left
+  6500/18681 frames, 13.9 min, ~26 min left
+  7000/18681 frames, 15.0 min, ~25 min left
+  7500/18681 frames, 16.1 min, ~24 min left
+  8000/18681 frames, 17.1 min, ~23 min left
+  8500/18681 frames, 18.4 min, ~22 min left
+  9000/18681 frames, 19.6 min, ~21 min left
+  9500/18681 frames, 20.7 min, ~20 min left
+  10000/18681 frames, 21.9 min, ~19 min left
+  10500/18681 frames, 23.1 min, ~18 min left
+  11000/18681 frames, 24.4 min, ~17 min left
+  11500/18681 frames, 25.6 min, ~16 min left
+  12000/18681 frames, 26.8 min, ~15 min left
+  12500/18681 frames, 27.7 min, ~14 min left
+  13000/18681 frames, 28.9 min, ~13 min left
+  13500/18681 frames, 30.2 min, ~12 min left
+  14000/18681 frames, 31.5 min, ~11 min left
+  14500/18681 frames, 32.9 min, ~9 min left
+  15000/18681 frames, 33.9 min, ~8 min left
+  15500/18681 frames, 34.9 min, ~7 min left
+  16000/18681 frames, 36.0 min, ~6 min left
+  16500/18681 frames, 37.4 min, ~5 min left
+  17000/18681 frames, 38.5 min, ~4 min left
+  17500/18681 frames, 39.7 min, ~3 min left
+  18000/18681 frames, 40.8 min, ~2 min left
+  18500/18681 frames, 41.7 min, ~0 min left
+  18681/18681 frames, 42.1 min, ~0 min left
+2-fish N150_tank_enlarged_none: % correct 97.03 on 18801 EODs (no pick counts as wrong)
+2-fish N150_tank_enlarged_r0.5_s1e7: % correct 96.99 on 18801 EODs (no pick counts as wrong)
+2-fish: done, 42.1 min

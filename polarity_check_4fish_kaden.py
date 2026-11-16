@@ -1,4 +1,4 @@
-"""Polarity of each electrode pair on the 4-fish Kaden recordings, from Denis' mask-midline run (denis_mask_midline_kaden_4fish.py).
+"""Polarity of each electrode pair on the 4-fish Kaden recordings, from Denis' mask-midline run (EODAssignment/analysis/social_electric_fish_runners/denis_mask_midline_kaden_4fish.py).
 No ground truth emitter here, so leave one pair out: the emitter is the fish with the highest cosine similarity on the other 9
 pairs (kept when it is clear: best >= MIN_SIM and best - second >= MIN_MARGIN); then the left-out pair's recorded sign is
 compared with that fish's predicted sign, where both are strong (|value| > STRONG of the max over the 10 pairs).

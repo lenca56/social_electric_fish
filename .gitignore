@@ -31,3 +31,4 @@ __pycache__/**
 # SLURM output of cluster_kaden_4fish_voltage_rule.slurm
 slurm_logs/*
 !slurm_logs/.gitkeep
+results/eod_assign_4fish_kaden/l2_distributions/denis_71/denis_71_l2_per_eod.csv.gz
