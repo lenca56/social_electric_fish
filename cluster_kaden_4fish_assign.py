@@ -1,13 +1,16 @@
 """Cluster job: EOD assignment on the 71 4-fish recordings of 2024-02-20 with the fitted mask midlines, with either my numerical
-model or Denis' analytic pipeline (MODEL), and the voltage rule. One SLURM array task = one (video, chunk) pair of the job table
-below: 71 videos x N_CHUNKS = 4 -> tasks 0-283.
+model or Denis' analytic pipeline (MODEL), and the voltage rule. One SLURM array task = one row of the job table below (--list):
+  mine   one whole video x one interior conductivity of INTERIOR_SIGMAS: 71 x 4 = 284 tasks (0-283; tasks 0-3 = the first
+         video with interior 1, 4, 16, 100, ...)
+  denis  one whole video (no interior conductivity in his model): 71 tasks (0-70)
 
 Run cluster_kaden_4fish_midlines.py first: this job reads its midlines (MIDLINES) and predicts nothing for a fish without one.
 
 MODELS (MODEL = 'mine' or 'denis'; every other model setting is in the hyperparameters below)
   mine   my 2D resistive field model (compute_electric_field.py): N_GRID x N_GRID grid over the 912 x 912 px frame;
          non-conductive tank walls (TANK_OUTLINE) and plastic L-barriers (BARRIERS); the other three fish as bodies with a skin
-         (as resistive as SKIN_LAMBDA_CM of water) and an interior of INTERIOR_SIGMA x water, from Kaden's masks of the EOD's own
+         (as resistive as SKIN_LAMBDA_CM of water) and an interior of sigma x water (sigma: the task's value of INTERIOR_SIGMAS;
+         conductivities relative to water = 1, skin 1 / (SKIN_LAMBDA_CM / SKIN_CM + 1 / sigma)), from Kaden's masks of the EOD's own
          frame; the emitter as unit point currents along its mask midline, sink at the tail tip. One sparse solve per fish.
          model_raw = unit-current pair voltages V(+) - V(-) in the model's raw sign (MODEL_SIGN = -1 against the recording).
          recorded  = main phase: each pair's 25-sample trace demeaned, all 10 pairs at the sample of the largest |V|.
@@ -19,11 +22,13 @@ MODELS (MODEL = 'mine' or 'denis'; every other model setting is in the hyperpara
 
 VOLTAGE RULE (both models): pred_volt = a_f * e_k * MODEL_SIGN * model_raw, with a_f the fish factor and e_k the factor of the
 signed electrode k of pair p (+ or -) nearer to fish f's midline (FACTORS: medians fitted on clean isolated EODs, one file per
-model); the EOD goes to the fish with the smallest ||recorded - pred_volt|| (pick_voltage). The shape rule scales recorded and
-MODEL_SIGN * model_raw to max |v| = 1 and takes the smallest L2 (pick_shape).
+model; mine: the factors fitted on the interior-4 model, for every sigma); the EOD goes to the fish with the smallest
+||recorded - pred_volt|| (pick_voltage). The shape rule scales recorded and MODEL_SIGN * model_raw to max |v| = 1 and takes the
+smallest L2 (pick_shape).
 
-WHERE IT SAVES (folder created by the task): OUT_DIR/<video>/chunk<c>_of4.npz and .csv,
-OUT_DIR = results/eod_assign_4fish_kaden/cluster_assign/<TAG>, TAG = mine_N150_tank_barriers_int4 or denis_analytic
+WHERE IT SAVES (folder created by the task): OUT_ROOT/<TAG>/<video>.npz and .csv (with N_CHUNKS > 1: <video>_chunk<c>_of<N>),
+OUT_ROOT = results/eod_assign_4fish_kaden/cluster_assign, TAG = mine_N150_tank_barriers_int<sigma> (int1, int4, int16, int100)
+or denis_analytic
   .npz  eod_rows (row of the EOD in the EOD table), frames, recorded (n, 10), model_raw (n, 4, 10), model_sign, factor (n, 4, 10),
         nearer_pole (n, 4, 10; 0 = +, 1 = -), pred_volt (n, 4, 10), l2_volt, l2_rel (= l2_volt / max|recorded|), l2_shape (n, 4),
         pick_voltage, pick_shape (n,), has_midline (n, 4), good_masks (n,: the frame passes the mask QC), letters,
@@ -32,6 +37,8 @@ OUT_DIR = results/eod_assign_4fish_kaden/cluster_assign/<TAG>, TAG = mine_N150_t
         (+ pick_similarity for denis)
 By default a task recomputes and replaces its files; OVERWRITE=0 skips tasks whose two files exist (to resume an interrupted
 array). Files are written to .tmp and renamed when complete.
+Run time (4 cores): mine ~1-2 h per video (~34k EOD frames, one solve per fish per frame, the same for every sigma); denis a few
+minutes per video.
 
 FILES IT READS (relative to the repository root, the folder of this script)
   code      mine: compute_electric_field.py, eod_assign.py, io_utils.py (numpy >= 2.4, pandas, scipy)
@@ -46,8 +53,9 @@ USAGE (MODEL=denis in front of any of these for Denis' pipeline)
   python cluster_kaden_4fish_assign.py --check     every input present and readable for all 71 videos?
   python cluster_kaden_4fish_assign.py --list      the job table (task index -> video, chunk)
   python cluster_kaden_4fish_assign.py 17          run task 17 here (without SLURM)
-  MAX_FRAMES=10 OUT_DIR=results/test python cluster_kaden_4fish_assign.py 0     quick test on 10 frames
-  MODEL=mine sbatch cluster_kaden_4fish_assign.slurm                           all 284 tasks
+  MAX_FRAMES=10 OUT_ROOT=results/test python cluster_kaden_4fish_assign.py 0    quick test on 10 frames
+  MODEL=mine sbatch cluster_kaden_4fish_assign.slurm                           all 284 tasks (71 videos x 4 sigmas)
+  MODEL=denis sbatch --array=0-70 cluster_kaden_4fish_assign.slurm             all 71 videos
 """
 import os, sys, re, json, glob, time, shutil
 import multiprocessing as mp
@@ -64,7 +72,7 @@ assert MODEL in ('mine', 'denis'), f"MODEL = {MODEL!r}: must be 'mine' or 'denis
 
 # my numerical model (MODEL = 'mine')
 N_GRID = 150                  # grid nodes per side over the 912 x 912 px video frame (~6.1 px = 0.43 cm per cell)
-INTERIOR_SIGMA = 4.0          # interior conductivity of the other fish's bodies, x water
+INTERIOR_SIGMAS = [1.0, 4.0, 16.0, 100.0]   # interior conductivity of the other fish's bodies, x water: one task per value
 SKIN_LAMBDA_CM = 0.1          # skin resistance: as resistive as this many cm of water (skin thickness SKIN_CM = 0.005 cm)
 SINK_FRAC = 0.0               # position of the current sink along the midline (0 = tail tip)
 PX_PER_CM = 14.2              # model scale: the 60 x 60 cm tank spans ~852 px inside its walls
@@ -97,11 +105,10 @@ MIDLINES = os.environ.get('MIDLINES', 'results/eod_assign_4fish_kaden/cluster_mi
 MASK_QC = 'results/eod_assign_4fish_kaden/{video}/mask_qc_good_frames.csv'
 
 # output
-TAG = {'mine': f'mine_N{N_GRID}_tank{"_barriers" if USE_BARRIERS else ""}_int{INTERIOR_SIGMA:g}', 'denis': 'denis_analytic'}[MODEL]
-OUT_DIR = os.environ.get('OUT_DIR', f'results/eod_assign_4fish_kaden/cluster_assign/{TAG}')
+OUT_ROOT = os.environ.get('OUT_ROOT', 'results/eod_assign_4fish_kaden/cluster_assign')   # one subfolder per model setting (TAG)
 
 # jobs
-N_CHUNKS = 4                  # each video's EOD frames split into this many array tasks (~8-12k EODs each)
+N_CHUNKS = 1                  # each video's EOD frames split into this many array tasks (1 = the whole video in one task)
 N_WORKERS = int(os.environ.get('SLURM_CPUS_PER_TASK', 1))   # mine: worker processes; denis: numba threads
 MAX_FRAMES = int(os.environ.get('MAX_FRAMES', 0))   # tests only: just the first MAX_FRAMES frames of the chunk (0 = all)
 OVERWRITE = os.environ.get('OVERWRITE', '1') == '1'   # 1 (default): recompute and replace existing outputs; 0: skip finished tasks
@@ -115,7 +122,9 @@ VIDEOS = ['00_12_52', '00_32_53', '00_52_53', '01_12_53', '01_32_53', '01_52_53'
           '15_16_23', '15_36_23', '15_56_23', '16_16_23', '16_36_24', '16_56_24', '17_16_24', '17_36_24', '17_56_24',
           '18_16_24', '18_36_24', '18_56_25', '19_16_25', '19_36_25', '19_56_25', '20_16_25', '20_36_25', '21_16_26',
           '21_36_26', '21_56_26', '22_16_26', '22_36_26', '22_56_26', '23_16_27', '23_36_27', '23_56_27']
-JOBS = pd.DataFrame([(v, c) for v in VIDEOS for c in range(N_CHUNKS)], columns=['video', 'chunk'])   # 284 tasks: --array=0-283
+SIGMAS = INTERIOR_SIGMAS if MODEL == 'mine' else [np.nan]           # Denis' model has no interior conductivity
+JOBS = pd.DataFrame([(v, s, c) for v in VIDEOS for s in SIGMAS for c in range(N_CHUNKS)], columns=['video', 'interior_sigma', 'chunk'])
+# mine: 71 x 4 = 284 tasks (--array=0-283); denis: 71 tasks (--array=0-70)
 ORDER = [f'{p}{s}' for p in range(1, 11) for s in ('+', '-')]
 NUMPY_VERSION = tuple(int(x) for x in np.__version__.split('.')[:2])
 
@@ -129,8 +138,13 @@ def kaden_pkl(video):
     return alt[0]
 
 
-def out_base(video, chunk):
-    return f'{OUT_DIR}/{video}/chunk{chunk}_of{N_CHUNKS}'
+def tag(sigma):
+    '''output subfolder of a model setting'''
+    return f'mine_N{N_GRID}_tank{"_barriers" if USE_BARRIERS else ""}_int{sigma:g}' if MODEL == 'mine' else 'denis_analytic'
+
+
+def out_base(video, sigma, chunk):
+    return f'{OUT_ROOT}/{tag(sigma)}/{video}' + ('' if N_CHUNKS == 1 else f'_chunk{chunk}_of{N_CHUNKS}')
 
 
 def check_inputs():
@@ -152,17 +166,18 @@ def check_inputs():
         except FileNotFoundError: pk = None
         rows.append(dict(video=v, eod_table=os.path.exists(EOD_TABLE.format(video=v)), midlines=os.path.exists(MIDLINES.format(video=v)),
                          kaden_pkl=pk is not None, mask_qc=os.path.exists(MASK_QC.format(video=v)),
-                         chunks_done=sum(os.path.exists(out_base(v, c) + '.npz') and os.path.exists(out_base(v, c) + '.csv') for c in range(N_CHUNKS))))
+                         tasks_done=sum(os.path.exists(out_base(v, sg, c) + '.npz') and os.path.exists(out_base(v, sg, c) + '.csv')
+                                        for sg in SIGMAS for c in range(N_CHUNKS))))
         if not rows[-1]['eod_table']: bad.append(EOD_TABLE.format(video=v))
         if not rows[-1]['midlines']: bad.append(MIDLINES.format(video=v) + '  (run cluster_kaden_4fish_midlines.py first)')
         if MODEL == 'mine' and pk is None: bad.append(KADEN_PKL.format(video=v))
     T = pd.DataFrame(rows)
-    print(f'model:           {MODEL}\nrepository root: {ROOT}\noutput folder:   {OUT_DIR}\nmidlines:        {MIDLINES}'
+    print(f'model:           {MODEL}\nrepository root: {ROOT}\noutput folders:  {", ".join(f"{OUT_ROOT}/{tag(sg)}" for sg in SIGMAS)}\nmidlines:        {MIDLINES}'
           + (f'\nDenis repo:      {DENIS_REPO}' if MODEL == 'denis' else '') + f'\nnumpy {np.__version__}, pandas {pd.__version__}')
     print(T.to_string(index=False))
     print(f'\n{T.eod_table.sum()}/71 EOD tables, {T.midlines.sum()}/71 midline files, {T.kaden_pkl.sum()}/71 Kaden pickles '
           f'({"needed" if MODEL == "mine" else "not needed"}), {T.mask_qc.sum()}/71 mask-QC lists (optional); '
-          f'tasks done {T.chunks_done.sum()}/{len(JOBS)}')
+          f'tasks done {T.tasks_done.sum()}/{len(JOBS)}')
     if MODEL == 'mine':
         try:
             import compute_electric_field, eod_assign, io_utils, scipy   # noqa: F401
@@ -179,11 +194,12 @@ if len(sys.argv) > 1 and sys.argv[1] == '--check':
     check_inputs(); sys.exit()
 
 idx = int(os.environ['SLURM_ARRAY_TASK_ID']) if 'SLURM_ARRAY_TASK_ID' in os.environ else int(sys.argv[1])
-video, chunk = JOBS.loc[idx, 'video'], int(JOBS.loc[idx, 'chunk'])
-base = out_base(video, chunk)
+assert 0 <= idx < len(JOBS), f'task {idx}: MODEL={MODEL} has tasks 0-{len(JOBS) - 1} (python {sys.argv[0]} --list)'
+video, SIGMA, chunk = JOBS.loc[idx, 'video'], float(JOBS.loc[idx, 'interior_sigma']), int(JOBS.loc[idx, 'chunk'])
+base = out_base(video, SIGMA, chunk)
 HYPER = dict(MODEL=MODEL, MODEL_SIGN=MODEL_SIGN, POLE_ELECTRODES=POLE_ELECTRODES, FACTORS_FILE=FACTORS_FILE, MIDLINES=MIDLINES,
              N_MIDLINE=N_MIDLINE, N_CHUNKS=N_CHUNKS, MAX_FRAMES=MAX_FRAMES, video=video, chunk=chunk, task=idx,
-             **(dict(N_GRID=N_GRID, INTERIOR_SIGMA=INTERIOR_SIGMA, SKIN_LAMBDA_CM=SKIN_LAMBDA_CM, SINK_FRAC=SINK_FRAC, PX_PER_CM=PX_PER_CM,
+             **(dict(N_GRID=N_GRID, INTERIOR_SIGMA=SIGMA, SKIN_LAMBDA_CM=SKIN_LAMBDA_CM, SINK_FRAC=SINK_FRAC, PX_PER_CM=PX_PER_CM,
                      TANK_OUTLINE=TANK_OUTLINE, ELECTRODES=ELECTRODES, BARRIERS=BARRIERS if USE_BARRIERS else None)
                 if MODEL == 'mine' else dict(DENIS_REPO=DENIS_REPO, DENIS_ELECTRODES=DENIS_ELECTRODES)))
 
@@ -225,7 +241,7 @@ def mine_context():
             n = int(np.ceil(np.hypot(r.x2 - r.x1, r.y2 - r.y1) * s * 4)) + 2
             x, y = np.linspace(r.x1, r.x2, n) * s, np.linspace(r.y1, r.y2, n) * s
             inside[np.clip(np.rint(y).astype(int), 0, N_GRID - 1), np.clip(np.rint(x).astype(int), 0, N_GRID - 1)] = False
-    mat = dict(materials(N_GRID, P, PX_PER_CM), g_interior=INTERIOR_SIGMA, g_skin=1 / (SKIN_LAMBDA_CM / SKIN_CM + 1 / INTERIOR_SIGMA))
+    mat = dict(materials(N_GRID, P, PX_PER_CM), g_interior=SIGMA, g_skin=1 / (SKIN_LAMBDA_CM / SKIN_CM + 1 / SIGMA))
     pairs = load_electrode_pairs(ELECTRODES, P)
     assert [p for p, _, _ in pairs] == list(range(1, 11)), f'electrode pairs out of order in {ELECTRODES}'
     return dict(masks=load_masks(kaden_pkl(video)), inside=inside, mat=mat, pairs=pairs)
@@ -285,7 +301,7 @@ def run_denis(frames, mids_eod, sel):
     cm = np.full(mids_eod.shape, np.nan)
     for i in np.flatnonzero(has):
         for f in range(4): cm[i, f] = sf.resample(mids_eod[i, f][:, ::-1] * (P - 1), N_MIDLINE) * sf.PX_TO_CM   # (x, y) cm, even arc length
-    work = Path(f'{OUT_DIR}/{video}/denis_work_chunk{chunk}'); work.mkdir(parents=True, exist_ok=True)
+    work = Path(f'{base}_denis_work'); work.mkdir(parents=True, exist_ok=True)
     csv = work / f'Data_4fish_2024-02-20T{video}.csv'                    # his loader reads the date from the path: exactly one allowed
     assert len(re.findall(r'\d{4}-\d{2}-\d{2}', str(csv.resolve()))) == 1, f'the path {csv.resolve()} must contain exactly one date'
     sf.midline_input(raw[has], cm[has]).to_csv(csv, index=False)
@@ -304,7 +320,7 @@ def run_denis(frames, mids_eod, sel):
 
 # ===================================================================================================================== run
 t0 = time.time()
-print(f'task {idx}: model {MODEL}, video {video}, chunk {chunk + 1}/{N_CHUNKS}, {N_WORKERS} cpu(s); root {ROOT}; output {base}.npz/.csv', flush=True)
+print(f'task {idx}: model {MODEL}' + (f', interior {SIGMA:g} x water' if MODEL == 'mine' else '') + f', video {video}, chunk {chunk + 1}/{N_CHUNKS}, {N_WORKERS} cpu(s); root {ROOT}; output {base}.npz/.csv', flush=True)
 print('hyperparameters: ' + json.dumps(HYPER), flush=True)
 if not OVERWRITE and os.path.exists(base + '.npz') and os.path.exists(base + '.csv'):
     print('  already done, skipped (OVERWRITE=0)'); sys.exit(0)
