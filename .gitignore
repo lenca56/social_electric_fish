@@ -35,3 +35,8 @@ __pycache__/**
 slurm_logs/*
 !slurm_logs/.gitkeep
 results/eod_assign_4fish_kaden/l2_distributions/denis_71/denis_71_l2_per_eod.csv.gz
+# kept for the 3-fish mask-stage jobs (cluster_3fish_*.py): the 3-fish tank, both electrode layouts, the final-mask QC list
+!data/electrodes/tank_outline_updated_3-fish.csv
+!data/electrodes/electrode_locations_updated_3-fish.csv
+!data/electrodes/electrodes_signed_px_coord_3-fish.csv
+!results/eod_assignment_3_fish_silent/with_latest_run_tracking/mask_qc_good_frames.csv
