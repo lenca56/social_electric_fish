@@ -13,6 +13,7 @@
 # Step 2 of 3 (cluster_3fish_common.py), after cluster_3fish_stage_midlines.slurm. Submit from the repository root:
 #   sbatch cluster_3fish_stage_predict.slurm                      all tasks (recordings without an EOD table exit at once)
 #   sbatch --array=300-349 cluster_3fish_stage_predict.slurm      only 2024-10-15T14_12_25 (10 stages x 5 settings)
+#   MASK_STAGES=final sbatch --array=30-34 cluster_3fish_stage_predict.slurm   only the final masks of 14_12_25 (5 settings)
 # Settings (INTERIOR_SIGMAS, INCLUDE_DENIS) are in the hyperparameters of cluster_3fish_stage_predict.py; if you change them,
 # the task count changes too (--list). Denis' setting needs ../EODAssignment (or DENIS_REPO) and numba.
 # Then, anywhere (no solves):   python assign_3fish_stage_rules.py

@@ -1,6 +1,7 @@
 """Cluster job, step 1 of 3 (see cluster_3fish_common.py): mask midline of every fish in every EOD frame of a 3-fish recording,
 from the masks of one efish4-track stage. One SLURM array task = one (recording, stage): 11 recordings x 10 stages = 110 tasks
 (0-109; tasks 10 r .. 10 r + 9 = recording r at stages 01_segment .. 10_disturbance).
+MASK_STAGES=final: only the run's final masks, 11 tasks (recording r = task r); MASK_STAGES=segment,extent: those stages.
 
 WHAT IT COMPUTES  per frame and fish: fish_midline_with_head (midline_methods.py) on that stage's visible mask, N_MIDLINE points,
 tail -> head, (row, col) / (P - 1); NaN where the fish has no mask or the fit fails (the method of the 4-fish midlines).
@@ -33,7 +34,7 @@ OVERWRITE = os.environ.get('OVERWRITE', '1') == '1'     # 0: skip tasks whose ou
 OUT_ROOT = os.environ.get('OUT_ROOT', C.OUT)            # output root (midlines/ below it)
 
 STAGES = C.stage_list()
-JOBS = pd.DataFrame([(v, f'{i + 1:02d}_{s}', s) for v in C.VIDEOS for i, s in enumerate(STAGES)], columns=['video', 'label', 'stage'])
+JOBS = pd.DataFrame([(v, C.stage_label(s), s) for v in C.VIDEOS for s in STAGES], columns=['video', 'label', 'stage'])
 out_path = lambda video, label: C.MIDLINES.replace(C.OUT, OUT_ROOT).format(video=video, stage=label)
 
 

@@ -13,6 +13,7 @@
 # Step 1 of 3 (cluster_3fish_common.py). Submit from the repository root:   sbatch cluster_3fish_stage_midlines.slurm
 # Recordings without an EOD table are skipped (FRAMES=eod); every video frame instead:   FRAMES=all sbatch ...
 # Only the recording with an EOD table so far (2024-10-15T14_12_25):   sbatch --array=60-69 cluster_3fish_stage_midlines.slurm
+# Only the final masks (no stages; recording r = task r):   MASK_STAGES=final sbatch --array=6 cluster_3fish_stage_midlines.slurm
 
 echo "My SLURM_ARRAY_JOB_ID is $SLURM_ARRAY_JOB_ID."
 echo "My SLURM_ARRAY_TASK_ID is $SLURM_ARRAY_TASK_ID"

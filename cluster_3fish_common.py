@@ -44,8 +44,20 @@ ASSIGNMENT = OUT + '/assignment'
 
 
 def stage_list():
+    '''the mask stages to run, from the environment variable MASK_STAGES: 'all' (default: the 10 efish4-track stages), 'final'
+       (the run's final masks, outputs/video<rec>.pkl), or a comma list of stage names (e.g. segment,extent,final)'''
     from io_utils import STAGES
-    return list(STAGES)
+    want = os.environ.get('MASK_STAGES', 'all')
+    out = list(STAGES) if want == 'all' else [s.strip() for s in want.split(',')]
+    bad = [s for s in out if s not in STAGES and s != 'final']
+    assert not bad, f'MASK_STAGES: unknown stage(s) {bad}; choose from {list(STAGES)} or final'
+    return out
+
+
+def stage_label(stage):
+    '''file name of a stage: 01_segment .. 10_disturbance (pipeline order), or final'''
+    from io_utils import STAGES
+    return 'final' if stage == 'final' else f'{STAGES.index(stage) + 1:02d}_{stage}'
 
 
 def setting_tag(model, sigma=None):

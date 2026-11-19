@@ -2,6 +2,7 @@
 midlines (step 1) and masks of one efish4-track stage, for one model setting. No factors and no assignment here (step 3).
 One SLURM array task = one (recording, stage, setting): 11 recordings x 10 stages x len(SETTINGS) = 550 tasks with the default
 SETTINGS (0-549; python cluster_3fish_stage_predict.py --list). Recordings without an EOD table are skipped.
+MASK_STAGES=final: only the run's final masks, 11 x 5 = 55 tasks (recording r = tasks 5 r .. 5 r + 4); the same variable as step 1.
 
 SETTINGS (default: my model at interior 1, 4, 16, 100 x water, and Denis' pipeline)
   mine   my 2D resistive field model (compute_electric_field.py): N_GRID x N_GRID grid over the 912 x 912 px frame, non-conductive
@@ -58,7 +59,7 @@ OVERWRITE = os.environ.get('OVERWRITE', '1') == '1'          # 0: skip tasks who
 OUT_ROOT = os.environ.get('OUT_ROOT', C.OUT)
 
 STAGES = C.stage_list()
-JOBS = pd.DataFrame([(v, f'{i + 1:02d}_{s}', s, m, sg) for v in C.VIDEOS for i, s in enumerate(STAGES) for m, sg in SETTINGS],
+JOBS = pd.DataFrame([(v, C.stage_label(s), s, m, sg) for v in C.VIDEOS for s in STAGES for m, sg in SETTINGS],
                     columns=['video', 'label', 'stage', 'model', 'sigma'])
 JOBS['setting'] = [C.setting_tag(m, s) for m, s in zip(JOBS.model, JOBS.sigma)]
 out_path = lambda r: C.PREDICTIONS.replace(C.OUT, OUT_ROOT).format(setting=r.setting, video=r.video, stage=r.label)
