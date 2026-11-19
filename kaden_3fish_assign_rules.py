@@ -165,7 +165,7 @@ def plot(A, video, path):
             ax = axs[i, j]
             for s, g in A[(A.subset == sub) & (A.rule == r)].groupby('setting'):
                 g = g.set_index('stage').reindex(stages); ax.plot(range(len(stages)), g.accuracy, '-o', ms=3.5, lw=1.5, label=s)
-            ax.set_xticks(range(len(stages)), [s.split('_', 1)[-1] for s in stages], rotation=60, fontsize=7.5)
+            ax.set_xticks(range(len(stages))); ax.set_xticklabels([s.split('_', 1)[-1] for s in stages], rotation=60, fontsize=7.5)
             n = A[(A.subset == sub) & (A.rule == r)].n
             ax.set_title(f'{r}, {sub} EODs (n = {n.max() if len(n) else 0:,})', fontsize=9); ax.grid(alpha=0.3)
             if j == 0: ax.set_ylabel('% given to the emitter')
