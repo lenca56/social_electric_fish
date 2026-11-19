@@ -46,3 +46,5 @@ results/eod_assign_4fish_kaden/l2_distributions/denis_71/denis_71_l2_per_eod.csv
 !data/electrodes/3-fish/*/*.csv
 # 3-fish fish lengths for the length-law fish factors (fish_lengths_3fish.py -> kaden_3fish_assign_rules.py)
 !results/eod_assignment_3_fish_silent/fish_lengths/fish_lengths_3fish.csv
+# 3-fish mask-QC good frames (kaden_3fish_mask_qc.py), the 'good' EOD set of kaden_3fish_assign_rules.py
+!results/eod_assignment_3_fish_silent/mask_stages/mask_qc/mask_qc_good_frames.csv
