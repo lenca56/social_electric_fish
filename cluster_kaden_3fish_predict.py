@@ -128,7 +128,8 @@ def run_mine(rows, frames, mids):
                mat=dict(materials(N_GRID, C.P, PX_PER_CM), g_interior=SIGMA, g_skin=1 / (SKIN_LAMBDA_CM / SKIN_CM + 1 / SIGMA)))
     has = np.isfinite(mids).all(axis=(2, 3)).any(1)                                           # some fish has a midline
     uniq, first = np.unique(frames[has], return_index=True)
-    work = [(int(k), mids[has][i]) for k, i in zip(uniq, first)]
+    at = np.flatnonzero(has)[first]                                                          # one EOD row per frame
+    work = [(int(k), mids[i].copy()) for k, i in zip(uniq, at)]   # not mids[has][i]: a view that keeps a whole copy of mids alive per frame
     print(f'  my model, interior {SIGMA:g}: {len(work)} frames to solve, {N_WORKERS} worker(s)', flush=True)
     U, t1 = {}, time.time()
     def collect(j, res):
