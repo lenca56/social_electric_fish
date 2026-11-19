@@ -1,0 +1,133 @@
+{
+ "recording": "video2024-10-14T16_07_02",
+ "source": "data/3_fish_silent/masks/video2024-10-14T16_07_02/outputs/video2024-10-14T16_07_02.pkl",
+ "image_size_px": 912,
+ "units": "L_px in video pixels; L_tank = L_px / (image_size_px - 1), the [0, 1] tank units of the midlines -> pass multipole_sources(..., L=L_tank)",
+ "method": {
+  "stride": 5,
+  "contact_gap_px": 3,
+  "area_tolerance": 0.1,
+  "edge_px": 10,
+  "candidates": 300,
+  "max_deviation_from_straight_px": 4.0,
+  "n_used": 30,
+  "midline": "fish_midline_with_head (slice spline)"
+ },
+ "fish": {
+  "A": {
+   "L_px": 258.222,
+   "L_tank": 0.283449,
+   "frame_shown": 4135,
+   "L_px_shown_frame": 258.222,
+   "n_frames_used": 25,
+   "frames_used": [
+    41410,
+    46680,
+    7585,
+    18170,
+    53800,
+    20595,
+    21525,
+    14420,
+    19480,
+    42120,
+    20185,
+    59045,
+    41990,
+    59065,
+    42555,
+    29075,
+    40800,
+    42565,
+    47730,
+    50530,
+    4135,
+    25470,
+    17765,
+    20870,
+    8830
+   ],
+   "L_px_spread": [
+    244.34,
+    256.09,
+    260.42,
+    263.05
+   ],
+   "max_deviation_px_used": 3.96,
+   "clean_candidates": 2769,
+   "straight_found": 25
+  },
+  "B": {
+   "L_px": 218.499,
+   "L_tank": 0.239846,
+   "frame_shown": 19665,
+   "L_px_shown_frame": 218.621,
+   "n_frames_used": 6,
+   "frames_used": [
+    59225,
+    36835,
+    8455,
+    2580,
+    460,
+    19665
+   ],
+   "L_px_spread": [
+    211.65,
+    216.35,
+    218.64,
+    219.27
+   ],
+   "max_deviation_px_used": 3.98,
+   "clean_candidates": 3042,
+   "straight_found": 6
+  },
+  "C": {
+   "L_px": 173.095,
+   "L_tank": 0.190005,
+   "frame_shown": 20755,
+   "L_px_shown_frame": 173.515,
+   "n_frames_used": 30,
+   "frames_used": [
+    30460,
+    5790,
+    23725,
+    57040,
+    15060,
+    1040,
+    1025,
+    30455,
+    12210,
+    17345,
+    20755,
+    50325,
+    59475,
+    21420,
+    37095,
+    39970,
+    42340,
+    39965,
+    32260,
+    11825,
+    16345,
+    8850,
+    23730,
+    39975,
+    44905,
+    26095,
+    58020,
+    52505,
+    11820,
+    38370
+   ],
+   "L_px_spread": [
+    160.05,
+    168.46,
+    179.94,
+    186.87
+   ],
+   "max_deviation_px_used": 3.15,
+   "clean_candidates": 3964,
+   "straight_found": 57
+  }
+ }
+}

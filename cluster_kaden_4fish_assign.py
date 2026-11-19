@@ -26,8 +26,8 @@ model; mine: the factors fitted on the interior-4 model, for every sigma); the E
 ||recorded - pred_volt|| (pick_voltage). The shape rule scales recorded and MODEL_SIGN * model_raw to max |v| = 1 and takes the
 smallest L2 (pick_shape).
 
-WHERE IT SAVES (folder created by the task): OUT_ROOT/<TAG>/Assigned_Data_4fish_2024-02-20T<video>.npz and .csv (with N_CHUNKS > 1:
-...<video>_chunk<c>_of<N>),
+WHERE IT SAVES (folder created by the task): OUT_ROOT/<TAG>/Voltage_prediction_4fish_2024-02-20T<video>.npz and
+OUT_ROOT/<TAG>/Assigned_Data_4fish_2024-02-20T<video>.csv (with N_CHUNKS > 1: ..._chunk<c>_of<N>),
 OUT_ROOT = results/eod_assign_4fish_kaden/cluster_assign, TAG = mine_N150_tank_barriers_int<sigma> (int1, int4, int16, int100)
 or denis_analytic
   .npz  eod_rows (row of the EOD in the EOD table), frames, recorded (n, 10), model_raw (n, 4, 10), model_sign, factor (n, 4, 10),
@@ -107,7 +107,8 @@ MASK_QC = 'results/eod_assign_4fish_kaden/{video}/mask_qc_good_frames.csv'
 
 # output
 OUT_ROOT = os.environ.get('OUT_ROOT', 'results/eod_assign_4fish_kaden/cluster_assign')   # one subfolder per model setting (TAG)
-OUT_NAME = 'Assigned_Data_4fish_2024-02-20T{video}'   # file name per video (as the EOD tables and Denis' Assigned_Data_* files)
+OUT_NAME = {'npz': 'Voltage_prediction_4fish_2024-02-20T{video}',   # per video: the predictions, distances and picks (arrays)
+            'csv': 'Assigned_Data_4fish_2024-02-20T{video}'}       # the per-EOD summary table (as Denis' Assigned_Data_* files)
 
 # jobs
 N_CHUNKS = 1                  # each video's EOD frames split into this many array tasks (1 = the whole video in one task)
@@ -145,8 +146,9 @@ def tag(sigma):
     return f'mine_N{N_GRID}_tank{"_barriers" if USE_BARRIERS else ""}_int{sigma:g}' if MODEL == 'mine' else 'denis_analytic'
 
 
-def out_base(video, sigma, chunk):
-    return f'{OUT_ROOT}/{tag(sigma)}/{OUT_NAME.format(video=video)}' + ('' if N_CHUNKS == 1 else f'_chunk{chunk}_of{N_CHUNKS}')
+def out_path(video, sigma, chunk, ext):
+    '''output file of a task: ext = 'npz' (Voltage_prediction_...) or 'csv' (Assigned_Data_...)'''
+    return f'{OUT_ROOT}/{tag(sigma)}/{OUT_NAME[ext].format(video=video)}' + ('' if N_CHUNKS == 1 else f'_chunk{chunk}_of{N_CHUNKS}') + f'.{ext}'
 
 
 def check_inputs():
@@ -168,7 +170,7 @@ def check_inputs():
         except FileNotFoundError: pk = None
         rows.append(dict(video=v, eod_table=os.path.exists(EOD_TABLE.format(video=v)), midlines=os.path.exists(MIDLINES.format(video=v)),
                          kaden_pkl=pk is not None, mask_qc=os.path.exists(MASK_QC.format(video=v)),
-                         tasks_done=sum(os.path.exists(out_base(v, sg, c) + '.npz') and os.path.exists(out_base(v, sg, c) + '.csv')
+                         tasks_done=sum(os.path.exists(out_path(v, sg, c, 'npz')) and os.path.exists(out_path(v, sg, c, 'csv'))
                                         for sg in SIGMAS for c in range(N_CHUNKS))))
         if not rows[-1]['eod_table']: bad.append(EOD_TABLE.format(video=v))
         if not rows[-1]['midlines']: bad.append(MIDLINES.format(video=v) + '  (run cluster_kaden_4fish_midlines.py first)')
@@ -198,7 +200,7 @@ if len(sys.argv) > 1 and sys.argv[1] == '--check':
 idx = int(os.environ['SLURM_ARRAY_TASK_ID']) if 'SLURM_ARRAY_TASK_ID' in os.environ else int(sys.argv[1])
 assert 0 <= idx < len(JOBS), f'task {idx}: MODEL={MODEL} has tasks 0-{len(JOBS) - 1} (python {sys.argv[0]} --list)'
 video, SIGMA, chunk = JOBS.loc[idx, 'video'], float(JOBS.loc[idx, 'interior_sigma']), int(JOBS.loc[idx, 'chunk'])
-base = out_base(video, SIGMA, chunk)
+NPZ, CSV = out_path(video, SIGMA, chunk, 'npz'), out_path(video, SIGMA, chunk, 'csv')
 HYPER = dict(MODEL=MODEL, MODEL_SIGN=MODEL_SIGN, POLE_ELECTRODES=POLE_ELECTRODES, FACTORS_FILE=FACTORS_FILE, MIDLINES=MIDLINES,
              N_MIDLINE=N_MIDLINE, N_CHUNKS=N_CHUNKS, MAX_FRAMES=MAX_FRAMES, video=video, chunk=chunk, task=idx,
              **(dict(N_GRID=N_GRID, INTERIOR_SIGMA=SIGMA, SKIN_LAMBDA_CM=SKIN_LAMBDA_CM, SINK_FRAC=SINK_FRAC, PX_PER_CM=PX_PER_CM,
@@ -303,7 +305,7 @@ def run_denis(frames, mids_eod, sel):
     cm = np.full(mids_eod.shape, np.nan)
     for i in np.flatnonzero(has):
         for f in range(4): cm[i, f] = sf.resample(mids_eod[i, f][:, ::-1] * (P - 1), N_MIDLINE) * sf.PX_TO_CM   # (x, y) cm, even arc length
-    work = Path(f'{base}_denis_work'); work.mkdir(parents=True, exist_ok=True)
+    work = Path(CSV[:-4] + '_denis_work'); work.mkdir(parents=True, exist_ok=True)
     csv = work / f'Data_4fish_2024-02-20T{video}.csv'                    # his loader reads the date from the path: exactly one allowed
     assert len(re.findall(r'\d{4}-\d{2}-\d{2}', str(csv.resolve()))) == 1, f'the path {csv.resolve()} must contain exactly one date'
     sf.midline_input(raw[has], cm[has]).to_csv(csv, index=False)
@@ -322,9 +324,9 @@ def run_denis(frames, mids_eod, sel):
 
 # ===================================================================================================================== run
 t0 = time.time()
-print(f'task {idx}: model {MODEL}' + (f', interior {SIGMA:g} x water' if MODEL == 'mine' else '') + f', video {video}, chunk {chunk + 1}/{N_CHUNKS}, {N_WORKERS} cpu(s); root {ROOT}; output {base}.npz/.csv', flush=True)
+print(f'task {idx}: model {MODEL}' + (f', interior {SIGMA:g} x water' if MODEL == 'mine' else '') + f', video {video}, chunk {chunk + 1}/{N_CHUNKS}, {N_WORKERS} cpu(s); root {ROOT}; output {NPZ}, {os.path.basename(CSV)}', flush=True)
 print('hyperparameters: ' + json.dumps(HYPER), flush=True)
-if not OVERWRITE and os.path.exists(base + '.npz') and os.path.exists(base + '.csv'):
+if not OVERWRITE and os.path.exists(NPZ) and os.path.exists(CSV):
     print('  already done, skipped (OVERWRITE=0)'); sys.exit(0)
 if MODEL == 'mine':
     assert NUMPY_VERSION >= (2, 4), f'numpy {np.__version__}: Kaden pickles need numpy >= 2.4 (install it from conda-forge)'
@@ -365,22 +367,22 @@ def pick(d):
 
 good = (np.isin(frames, pd.read_csv(MASK_QC.format(video=video)).frame.to_numpy())
         if os.path.exists(MASK_QC.format(video=video)) else np.zeros(len(frames), bool))
-os.makedirs(os.path.dirname(base), exist_ok=True)
+os.makedirs(os.path.dirname(NPZ), exist_ok=True)
 def write_npz(p):
     with open(p, 'wb') as fh:                                     # a file handle: numpy adds no '.npz' to the .tmp name
         np.savez_compressed(fh, eod_rows=sel, frames=frames, recorded=recorded, model_raw=model_raw, model_sign=MODEL_SIGN,
                             factor=factor, nearer_pole=pole, pred_volt=pred, l2_volt=l2_volt, l2_rel=l2_rel, l2_shape=l2_shape,
                             pick_voltage=pick(l2_volt), pick_shape=pick(l2_shape), has_midline=has_midline, good_masks=good,
                             letters=np.array(list(LETTERS)), hyperparameters=json.dumps(HYPER), **extra)
-save_atomic(base + '.npz', write_npz)
+save_atomic(NPZ, write_npz)
 out = pd.DataFrame({'eod_row': sel, 'Frame': frames, 'good_masks': good, 'r_max': r_max,
                     **{f'l2_volt_{f}': l2_volt[:, j] for j, f in enumerate(LETTERS)},
                     **{f'l2_rel_{f}': l2_rel[:, j] for j, f in enumerate(LETTERS)},
                     **{f'l2_shape_{f}': l2_shape[:, j] for j, f in enumerate(LETTERS)},
                     'pick_voltage': pick(l2_volt), 'pick_shape': pick(l2_shape),
                     **({'pick_similarity': extra['pick_similarity']} if 'pick_similarity' in extra else {})})
-save_atomic(base + '.csv', lambda p: out.to_csv(p, index=False))
+save_atomic(CSV, lambda p: out.to_csv(p, index=False))
 ok = out.pick_voltage != ''
-print(f'done: {base}.npz / .csv, {len(out)} EODs ({ok.sum()} with a voltage pick; shares ' +
+print(f'done: {NPZ} / {os.path.basename(CSV)}, {len(out)} EODs ({ok.sum()} with a voltage pick; shares ' +
       ' '.join(f'{f} {(out.pick_voltage[ok] == f).mean() * 100:.1f}%' for f in LETTERS) +
       f'), {(time.time() - t0) / 60:.1f} min', flush=True)

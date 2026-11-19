@@ -1,0 +1,4 @@
+fish A: L = 253.93 px = 0.27874 tank units  (median of 25 straight frames, range 246.35-259.81 px, IQR 251.73-255.59; shown frame 27270; 25 straight of 3231 clean masks)
+fish B: L = 219.01 px = 0.24040 tank units  (median of 13 straight frames, range 203.02-223.54 px, IQR 214.09-221.44; shown frame 21425; 13 straight of 3851 clean masks)
+fish C: L = 182.57 px = 0.20040 tank units  (median of 30 straight frames, range 167.5-185.02 px, IQR 181.77-183.75; shown frame 35265; 85 straight of 4013 clean masks)
+saved results/eod_assignment_3_fish_silent/fish_lengths/fish_lengths_2024-10-15T14_12_25.json and results/eod_assignment_3_fish_silent/fish_lengths/fish_lengths_2024-10-15T14_12_25.png
