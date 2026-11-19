@@ -15,6 +15,7 @@ measures/uses L in those units, so pass  L = L_tank  (= L_px / (P - 1)). L_px is
 
     python fish_lengths.py                              # recording 2024-02-20T12_32_58
     python fish_lengths.py --pkl <other efish4-track .pkl> --tag <name>
+    python fish_lengths.py --pkl <.pkl> --tag <name> --json_dir <dir> --fig_dir <dir>   other experiments (kept out of fish_lengths_combine.py)
 """
 import argparse, json, os, pickle
 import numpy as np
@@ -86,8 +87,13 @@ def zeus_lengths(pkl, fish):
 
 
 def main():
+    global STRIDE, N_CANDIDATES, MAX_DEV_PX, MIN_USE
     ap = argparse.ArgumentParser(); ap.add_argument('--pkl', default=PKL); ap.add_argument('--tag', default='12_32_58')
+    ap.add_argument('--json_dir', default='results'); ap.add_argument('--fig_dir', default='figures')   # other recordings: keep apart from the 4-fish files
+    ap.add_argument('--stride', type=int, default=STRIDE); ap.add_argument('--candidates', type=int, default=N_CANDIDATES)
+    ap.add_argument('--max_dev', type=float, default=MAX_DEV_PX); ap.add_argument('--min_use', type=int, default=MIN_USE)
     a = ap.parse_args()
+    STRIDE, N_CANDIDATES, MAX_DEV_PX, MIN_USE = a.stride, a.candidates, a.max_dev, a.min_use
     import matplotlib; matplotlib.use('Agg')                 # here, so importing rle_decode leaves a notebook's backend alone
     import matplotlib.pyplot as plt
     K = pickle.load(open(a.pkl, 'rb')); LET = K['letters']; P = K['image_size'][0]; n = K['n_frames']
@@ -147,15 +153,15 @@ def main():
         b.hist(Ls, bins=25, color='#2a78d6', label=f'{len(use)} straightest (used)'); b.axvline(L_px, color='k', lw=1)
         b.set_xlabel('midline length (px)'); b.set_ylabel('frames'); b.legend(fontsize=7); b.spines[['top', 'right']].set_visible(False)
     plt.tight_layout()
-    os.makedirs('figures', exist_ok=True); os.makedirs('results', exist_ok=True)
-    fig_path = f'figures/fish_lengths_{a.tag}.png'; fig.savefig(fig_path, dpi=200, bbox_inches='tight')
+    os.makedirs(a.fig_dir, exist_ok=True); os.makedirs(a.json_dir, exist_ok=True)
+    fig_path = f'{a.fig_dir}/fish_lengths_{a.tag}.png'; fig.savefig(fig_path, dpi=200, bbox_inches='tight')
     out = dict(recording=K.get('recording', a.tag), source=a.pkl, image_size_px=int(P),
                units='L_px in video pixels; L_tank = L_px / (image_size_px - 1), the [0, 1] tank units of the midlines -> '
                      'pass multipole_sources(..., L=L_tank)',
                method=dict(stride=STRIDE, contact_gap_px=CONTACT_GAP, area_tolerance=AREA_TOL, edge_px=EDGE_PX, candidates=N_CANDIDATES,
                            max_deviation_from_straight_px=MAX_DEV_PX, n_used=N_USE, midline='fish_midline_with_head (slice spline)'),
                fish=results)
-    json_path = f'results/fish_lengths_{a.tag}.json'; json.dump(out, open(json_path, 'w'), indent=1)
+    json_path = f'{a.json_dir}/fish_lengths_{a.tag}.json'; json.dump(out, open(json_path, 'w'), indent=1)
     for L, r in results.items():
         if r['L_px'] is None: print(f"fish {L}: no L ({r['straight_found']} straight of {r['clean_candidates']} clean masks)"); continue
         print(f"fish {L}: L = {r['L_px']:.2f} px = {r['L_tank']:.5f} tank units  (median of {r['n_frames_used']} straight frames, "

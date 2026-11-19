@@ -8,13 +8,20 @@ RULES (recorded r: 10 pairs; model p_f = model_sign * model_raw of fish f; each 
   voltage_cosine  largest cos(r, a_f e_k p_f)  (the electrode factors reweight the pairs)
   denis_own       Denis' own pick (his similarity), Denis setting only
 
-FACTORS (per recording x stage x setting, fitted without the ground truth, as for the 4-fish recordings)
+FACTORS (per recording x stage x setting, without the ground truth)
+  fish factor a_f (FISH_FACTORS = 'length_law', default): the 4-fish linear law of fish factor vs body length (LENGTH_LAW, from
+  results/eod_assign_4fish_kaden/clean_emitter_set/gain_fish_x_signed_electrode/fish_factor_vs_length.png; my model's law for every
+  interior conductivity, Denis' law for Denis) at the fish's length, read as a_mine / a_denis from FISH_LENGTHS (fish_lengths_3fish.py:
+  one length per fish for every recording, the Oct 14 median of fish_lengths.py, the median midline length of the straightest clean
+  frames at 15.2 px/cm: A 16.98, B 14.38, C 11.97 cm). Only the ratios between the fish matter: the
+  electrode factors take up the overall scale of each model setting. FISH_FACTORS = 'fit': median ratio |r_p| / |p_f,p| of each
+  fish's clean EODs on their N_TOP_PAIRS pairs instead (fewer than MIN_RATIOS: the median of all ratios).
   clean EODs: every fish has a prediction; the shape_l2 fish f is at least ISOLATION_CM from both other fish (midline to midline);
   its N_TOP_PAIRS loudest recorded pairs are its N_TOP_PAIRS largest predicted pairs, with the model's sign; the other fish predict
-  at most DOMINANCE x its |p| there; per fish the N_CLEAN best by shape_l2.
-  ratios |r_p| / |p_f,p| on those pairs; fish factor a_f = median of fish f's ratios (a fish with fewer than MIN_RATIOS, e.g. a silent
-  fish of a control, gets the median of all ratios); signed electrode factor e_k = median of ratio / a_f over the ratios of
-  electrode k = the pole of pair p nearer to fish f (fewer than MIN_RATIOS_ELECTRODE: e_k = 1).
+  at most DOMINANCE x its |p| there; the N_CLEAN best by shape_l2 in all (not per fish: in a silent recording they are the emitter's).
+  signed electrode factor e_k (k = the pole of pair p nearer to fish f): plain least squares in volts over all 10 pairs of the clean
+  EODs, e_k = sum r_p m_p / sum m_p^2 with m_p = a_f p_f,p (loud EODs carry the most weight; no per-EOD normalisation); an electrode
+  with fewer than MIN_RATIOS_ELECTRODE terms gets the median of the fitted e_k.
 
 ACCURACY: % of EODs given to the emitter. The emitter is cluster_kaden_3fish_common.EMITTER[recording] where given, else inferred: the
 fish the shape_l2 rule picks most often on the 'predicted' EODs, pooled over every stage and setting of the recording (in a silent
@@ -26,7 +33,8 @@ control nearly every EOD is the emitter's); emitter.csv lists the emitter, its s
 OUTPUT  results/eod_assignment_3_fish_silent/mask_stages/assignment/
   accuracy.csv                        setting, video, stage, rule, subset, n, n_picked, emitter, accuracy (%), shares A/B/C (%)
   emitter.csv                         video, emitter, source (given / inferred), share of shape_l2 picks (%)
-  factors.csv                         setting, video, stage, factor (fish A.., electrode 1+..), value, n_ratios
+  factors.csv                         setting, video, stage, factor (fish A.., electrode 1+..), value, n_ratios (fish: clean EODs;
+                                      electrode: least-squares terms)
   picks/<setting>/<rec>/<stage>.csv   per EOD: eod_row, Frame, pick and score per rule
   accuracy_vs_stage_<rec>.png         accuracy per rule (columns) and EOD set (rows), one line per setting
 
@@ -45,9 +53,13 @@ RULES = ['shape_l2', 'cosine', 'voltage_l2', 'voltage_cosine', 'denis_own']
 ISOLATION_CM = 10.0           # clean EODs: the emitter at least this far from both other fish
 N_TOP_PAIRS = 2               # clean EODs: the loudest recorded pairs = the emitter's largest predicted pairs; ratios on these
 DOMINANCE = 0.5               # clean EODs: other fish predict at most this x the emitter's |p| on those pairs
-N_CLEAN = 1000                # clean EODs per fish (best shape_l2)
-MIN_RATIOS = 50               # fewer ratios for a fish: it gets the median over all ratios
-MIN_RATIOS_ELECTRODE = 10     # fewer ratios for a signed electrode: factor 1
+N_CLEAN = 1000                # clean EODs in all (best shape_l2)
+FISH_FACTORS = 'length_law'   # 'length_law': a_f from the 4-fish law at the fish's length; 'fit': median ratio of the fish's clean EODs
+LENGTH_LAW = {'mine': (0.010661805, 0.313860493),     # a = slope x L (cm) + intercept, 4-fish Kaden fish x signed-electrode fit
+              'denis': (0.000204483, 0.002989576)}    # (fish_factors_and_length_fits.csv: 'slope s (per cm)', 'intercept c')
+FISH_LENGTHS = 'results/eod_assignment_3_fish_silent/fish_lengths/fish_lengths_3fish.csv'   # video, fish, L_cm, a_mine, a_denis (fish_lengths_3fish.py)
+MIN_RATIOS = 50               # FISH_FACTORS = 'fit': fewer ratios for a fish: it gets the median over all ratios
+MIN_RATIOS_ELECTRODE = 10     # fewer least-squares terms for a signed electrode: the median of the fitted electrode factors
 GOOD_FRAMES = 'results/eod_assignment_3_fish_silent/with_latest_run_tracking/mask_qc_good_frames.csv'   # 14_12_25 only
 GOOD_FRAMES_FOR = '2024-10-15T14_12_25'
 OUT_ROOT = os.environ.get('OUT_ROOT', C.OUT)
@@ -66,8 +78,16 @@ def best(score, largest):
     return np.where(np.isfinite(score).any(1), i, -1)
 
 
-def fit_factors(R, Pm, pole, shape, mids):
-    '''fish factors a (3,), signed electrode factors E (10, 2) and the factor table, from clean EODs (see FACTORS).'''
+def law_factors(video, model):
+    '''(3,) length-law fish factors of fish A, B, C in this recording for 'mine' or 'denis' (FISH_LENGTHS, column a_<model>)'''
+    T = pd.read_csv(FISH_LENGTHS); T = T[T.video == video].set_index('fish')[f'a_{model}']
+    assert all(x in T.index for x in C.LETTERS), f'{video}: no factor for every fish in {FISH_LENGTHS} (python fish_lengths_3fish.py)'
+    return T.reindex(list(C.LETTERS)).to_numpy(float)
+
+
+def fit_factors(R, Pm, pole, shape, mids, a_law=None):
+    '''fish factors a (3,), signed electrode factors E (10, 2) and the factor table, from clean EODs (see FACTORS); a_law: the
+       length-law fish factors (FISH_FACTORS = 'length_law') or None (fit them).'''
     ok = np.isfinite(Pm).all((1, 2)) & np.isfinite(R).all(1)
     f = best(shape, largest=False)
     xy = mids[:, :, ::5, ::-1] * (C.P - 1) / C.PX_PER_CM_VIDEO                                   # (n, 3, 21, 2) cm
@@ -81,20 +101,20 @@ def fit_factors(R, Pm, pole, shape, mids):
         if (np.abs(np.delete(Pm[i], e, 0)[:, top]) > DOMINANCE * np.abs(Pm[i, e, top])).any(): continue
         rows += [dict(eod=i, fish=e, shape=shape[i, e], pair=p, pole=pole[i, e, p], ratio=abs(R[i, p]) / abs(Pm[i, e, p])) for p in top]
     T = pd.DataFrame(rows, columns=['eod', 'fish', 'shape', 'pair', 'pole', 'ratio'])
-    keep = T.drop_duplicates('eod').sort_values('shape').groupby('fish').head(N_CLEAN).eod
+    keep = T.drop_duplicates('eod').sort_values('shape').head(N_CLEAN).eod                    # the N_CLEAN best in all
     T = T[T.eod.isin(set(keep))]
-    a_all = T.ratio.median() if len(T) else 1.0
-    a = np.array([T.ratio[T.fish == g].median() if (T.fish == g).sum() >= MIN_RATIOS else a_all for g in range(3)])
-    T = T.assign(g=T.ratio / a[T.fish.to_numpy().astype(int)]) if len(T) else T.assign(g=[])
-    E = np.ones((10, 2))
-    for p in range(10):
-        for s in range(2):
-            k = (T.pair == p) & (T.pole == s)
-            if k.sum() >= MIN_RATIOS_ELECTRODE: E[p, s] = T.g[k].median()
+    if a_law is not None: a = np.asarray(a_law, float)
+    else:
+        a_all = T.ratio.median() if len(T) else 1.0
+        a = np.array([T.ratio[T.fish == g].median() if (T.fish == g).sum() >= MIN_RATIOS else a_all for g in range(3)])
+    ev, fi = T.drop_duplicates('eod')[['eod', 'fish']].to_numpy(int).T                        # clean EODs and their fish
+    r = R[ev].ravel(); m = (a[fi, None] * Pm[ev, fi]).ravel(); k = (np.arange(10)[None] * 2 + pole[ev, fi]).ravel()   # all 10 pairs
+    num, den, n = np.bincount(k, r * m, 20), np.bincount(k, m * m, 20), np.bincount(k, minlength=20)
+    ok = (n >= MIN_RATIOS_ELECTRODE) & (den > 0)
+    E = np.where(ok, num / np.where(den > 0, den, 1), np.median(num[ok] / den[ok]) if ok.any() else 1.0).reshape(10, 2)
     tab = pd.DataFrame({'factor': [f'fish {x}' for x in C.LETTERS] + [f'electrode {e}' for e in ORDER],
                         'value': list(a) + list(E.ravel()),
-                        'n_ratios': [int((T.fish == g).sum()) for g in range(3)] +
-                                    [int(((T.pair == p) & (T.pole == s)).sum()) for p in range(10) for s in range(2)]})
+                        'n_ratios': [int((fi == g).sum()) for g in range(3)] + list(n.astype(int))})
     return a, E, tab
 
 
@@ -109,7 +129,10 @@ def run_one(path):
     Pm = sign * U                                                                               # (n, 3, 10) in the recording's sign
     unit = lambda x: x / np.abs(x).max(axis=-1, keepdims=True)
     S = {'shape_l2': np.linalg.norm(unit(R)[:, None] - unit(Pm), axis=2), 'cosine': cos(R[:, None], Pm)}
-    a, E, tab = fit_factors(R, Pm, pole, S['shape_l2'], mids)
+    a_law = None
+    if FISH_FACTORS == 'length_law':
+        a_law = law_factors(video, 'denis' if setting == 'denis' else 'mine')
+    a, E, tab = fit_factors(R, Pm, pole, S['shape_l2'], mids, a_law)
     V = a[None, :, None] * E[np.arange(10)[None, None, :], pole] * Pm                           # predicted volts
     S['voltage_l2'] = np.linalg.norm(R[:, None] - V, axis=2); S['voltage_cosine'] = cos(R[:, None], V)
     picks = {r: best(S[r], largest=r in ('cosine', 'voltage_cosine')) for r in S}
