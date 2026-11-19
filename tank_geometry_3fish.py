@@ -6,6 +6,7 @@ layouts and the four plastic L-barriers, for the 3-fish mask-stage jobs (cluster
    the 2 cm cut-out at the top left; identical to the stored data/electrodes/tank_outline_updated_3-fish.csv). True fits the wall
    lines on each video's own background instead. CORNER_SHIFT_PX then moves single outline corners per group of recordings (checked
    by eye on the backgrounds); the wall lines are redrawn through the moved corners.
+   ELECTRODE_SHIFT_PX moves single electrodes of Denis' clicked layout by hand, on every recording, before my layout is made.
 3. Electrodes: Denis' clicked positions (data/electrodes/electrodes_signed_px_coord_3-fish.csv, on 14_12_25) carried to this video
    by the similarity transform (rotation, scale, shift; least squares) that maps the 4 wall corners of 14_12_25 onto this video's
    (the identity with the 14_12_25 outline, so his clicked positions unchanged); then my model's layout from them as in
@@ -38,7 +39,28 @@ REFERENCE = '2024-10-15T14_12_25'                 # Denis clicked the electrodes
 OUTLINE_PER_VIDEO = False                         # False: the REFERENCE outline (and electrodes) on every video
 # hand corrections of the outline corners (dx, dy) in px, per group of recordings (date or recording prefix); x right, y down.
 # Denis' electrodes stay where he clicked them; my model's electrodes are pushed inside the corrected outline as usual.
-CORNER_SHIFT_PX = {'2024-10-14': {'tl': (0, 8), 'bl': (0, 29), 'br': (15, -19)}}   # 14.2 px = 1 cm
+CORNER_SHIFT_PX = {'2024-10-14': {'tl': (-7, 8), 'bl': (0, 29), 'br': (15, -19)},   # 14.2 px = 1 cm
+                   '2024-10-15': {'br': (7, -7)}}
+# hand corrections of Denis' clicked electrodes (dx, dy) in px, per group of recordings ('' = every recording; the shifts of all
+# matching groups add up): (pair, pole sign) -> shift
+ELECTRODE_SHIFT_PX = {
+    '': {(1, '+'): (28, 0),                        # bottom middle 1+: 2 cm right
+         (6, '-'): (-7, 0), (5, '+'): (-7, 0),     # top middle 6- and 5+: 0.5 cm left
+         (7, '-'): (0, 28)},                       # top-left 7-: 2 cm down
+    '2024-10-15': {(4, '-'): (0, -7),              # right wall 4-: 0.5 cm up
+                   (3, '+'): (0, -21),             # right wall 3+: 1.5 cm up
+                   (3, '-'): (0, 7),               # right wall 3-: 0.5 cm down
+                   (1, '+'): (-14, 0),             # bottom middle 1+: back 1 cm left (1 cm right in all)
+                   (2, '-'): (14, 0)},             # bottom middle 2-: 1 cm right
+    '2024-10-14': {(7, '+'): (0, 14), (8, '-'): (0, 14),   # left wall 7+ and 8-: 1 cm down
+                   (1, '+'): (-7, 0),              # bottom middle 1+: back 0.5 cm left (1.5 cm right in all)
+                   (2, '-'): (21, 0),              # bottom middle 2-: 1.5 cm right
+                   (6, '+'): (-14, 0),             # top left 6+: 1 cm left
+                   (7, '-'): (0, 14),              # top-left 7-: 1 cm further down (3 cm in all)
+                   (5, '+'): (-7, 0),              # top middle 5+: 0.5 cm further left (1 cm in all)
+                   (8, '+'): (0, 14),              # bottom-left 8+: 1 cm down
+                   (4, '-'): (0, -7)},             # right wall 4-: 0.5 cm up
+}
 DENIS_REF_ELECTRODES = 'data/electrodes/electrodes_signed_px_coord_3-fish.csv'
 N_BACKGROUND = 41                                 # frames in the median background
 SEARCH_PX = 12                                    # barrier refinement: corner shift searched within +-SEARCH_PX
@@ -108,6 +130,18 @@ def corner_shift(video):
     return next((d for g, d in CORNER_SHIFT_PX.items() if video.startswith(g)), {})
 
 
+def shift_electrodes(E, video):
+    '''Denis' layout E with the ELECTRODE_SHIFT_PX of every group that matches this recording added'''
+    E = E.copy()
+    for group, shifts in ELECTRODE_SHIFT_PX.items():
+        if not video.startswith(group): continue
+        for (pair, sign), (dx, dy) in shifts.items():
+            i = E.index[E.pair == pair][0]; k = 1 if str(E.at[i, 'pol1']).strip() == sign else 2
+            assert str(E.at[i, f'pol{k}']).strip() == sign, (pair, sign)
+            E.loc[i, [f'x{k}', f'y{k}']] += (dx, dy)
+    return E
+
+
 def lines_through(cn):
     '''wall lines through the 4 corners, in wall_lines' form: top / bottom y = a x + b, left / right x = a y + b'''
     def line(p, q, t, v): a = (q[v] - p[v]) / (q[t] - p[t]); return np.array([a, p[v] - a * p[t]])
@@ -158,7 +192,7 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(); ap.add_argument('--workers', type=int, default=4); a = ap.parse_args()
     with mp.get_context('fork').Pool(a.workers) as pool: R = {r[0]: r[1:] for r in pool.map(one, C.VIDEOS)}
     ref = R[REFERENCE][2]; ref_c = np.array([ref[k] for k in ('tl', 'tr', 'br', 'bl')])
-    D0 = pd.read_csv(DENIS_REF_ELECTRODES); os.makedirs(FIG_DIR, exist_ok=True)
+    D0 = pd.read_csv(DENIS_REF_ELECTRODES).astype({c: float for c in ('x1', 'y1', 'x2', 'y2')}); os.makedirs(FIG_DIR, exist_ok=True)
     fig_all, axs_all = plt.subplots(2, 4, figsize=(30, 15.5)); rows = []
     for ax_all, v in zip(axs_all.ravel(), C.VIDEOS):
         bg, fit, cn, V, notch, Ls = R[v]
@@ -169,6 +203,7 @@ if __name__ == '__main__':
             fit = lines_through(cn); V, notch = outline(cn)
         denis = D0.copy().astype({c: float for c in ('x1', 'y1', 'x2', 'y2')})
         for k in (1, 2): denis[[f'x{k}', f'y{k}']] = np.round(f(D0[[f'x{k}', f'y{k}']].to_numpy(float)), 1)
+        denis = shift_electrodes(denis, v)
         mine = updated_layout(denis, fit, V, notch)
         out = GEOMETRY_DIR.format(video=v); os.makedirs(out, exist_ok=True)
         pd.DataFrame(np.round(V, 2), columns=['x', 'y']).to_csv(f'{out}/tank_outline.csv', index=False)
