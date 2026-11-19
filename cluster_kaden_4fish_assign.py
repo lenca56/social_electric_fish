@@ -26,7 +26,8 @@ model; mine: the factors fitted on the interior-4 model, for every sigma); the E
 ||recorded - pred_volt|| (pick_voltage). The shape rule scales recorded and MODEL_SIGN * model_raw to max |v| = 1 and takes the
 smallest L2 (pick_shape).
 
-WHERE IT SAVES (folder created by the task): OUT_ROOT/<TAG>/<video>.npz and .csv (with N_CHUNKS > 1: <video>_chunk<c>_of<N>),
+WHERE IT SAVES (folder created by the task): OUT_ROOT/<TAG>/Assigned_Data_4fish_2024-02-20T<video>.npz and .csv (with N_CHUNKS > 1:
+...<video>_chunk<c>_of<N>),
 OUT_ROOT = results/eod_assign_4fish_kaden/cluster_assign, TAG = mine_N150_tank_barriers_int<sigma> (int1, int4, int16, int100)
 or denis_analytic
   .npz  eod_rows (row of the EOD in the EOD table), frames, recorded (n, 10), model_raw (n, 4, 10), model_sign, factor (n, 4, 10),
@@ -106,6 +107,7 @@ MASK_QC = 'results/eod_assign_4fish_kaden/{video}/mask_qc_good_frames.csv'
 
 # output
 OUT_ROOT = os.environ.get('OUT_ROOT', 'results/eod_assign_4fish_kaden/cluster_assign')   # one subfolder per model setting (TAG)
+OUT_NAME = 'Assigned_Data_4fish_2024-02-20T{video}'   # file name per video (as the EOD tables and Denis' Assigned_Data_* files)
 
 # jobs
 N_CHUNKS = 1                  # each video's EOD frames split into this many array tasks (1 = the whole video in one task)
@@ -144,7 +146,7 @@ def tag(sigma):
 
 
 def out_base(video, sigma, chunk):
-    return f'{OUT_ROOT}/{tag(sigma)}/{video}' + ('' if N_CHUNKS == 1 else f'_chunk{chunk}_of{N_CHUNKS}')
+    return f'{OUT_ROOT}/{tag(sigma)}/{OUT_NAME.format(video=video)}' + ('' if N_CHUNKS == 1 else f'_chunk{chunk}_of{N_CHUNKS}')
 
 
 def check_inputs():
