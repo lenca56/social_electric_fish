@@ -2,12 +2,14 @@
 layouts and the four plastic L-barriers, for the 3-fish mask-stage jobs (cluster_kaden_3fish_*.py).
 
 1. Background: median of 41 frames of the .avi (tank_outline_electrodes.background).
-2. Outline: wall lines fitted to the background and the 2 cm cut-out at the top left (tank_outline_electrodes.wall_lines / outline),
-   as for the stored 14_12_25 outline (identical on that video).
+2. Outline: OUTLINE_PER_VIDEO = False (default) uses the 14_12_25 outline on every video (wall lines fitted to its background and
+   the 2 cm cut-out at the top left; identical to the stored data/electrodes/tank_outline_updated_3-fish.csv). True fits the wall
+   lines on each video's own background instead. CORNER_SHIFT_PX then moves single outline corners per group of recordings (checked
+   by eye on the backgrounds); the wall lines are redrawn through the moved corners.
 3. Electrodes: Denis' clicked positions (data/electrodes/electrodes_signed_px_coord_3-fish.csv, on 14_12_25) carried to this video
-   by the similarity transform (rotation, scale, shift; least squares) that maps the 4 wall corners of 14_12_25 onto this video's;
-   then my model's layout from them as in tank_outline_electrodes.update (side poles pushed MARGIN_PX inside the walls, pairs 9 and
-   10 to the corners). Polarities unchanged.
+   by the similarity transform (rotation, scale, shift; least squares) that maps the 4 wall corners of 14_12_25 onto this video's
+   (the identity with the 14_12_25 outline, so his clicked positions unchanged); then my model's layout from them as in
+   tank_outline_electrodes.update (side poles pushed MARGIN_PX inside the walls, pairs 9 and 10 to the corners). Polarities unchanged.
 4. Barriers: four white plastic L-pieces at the corners of an inner rectangle. Their rough corners are read off the backgrounds once
    per group of recordings that share them (L_PRIORS; they moved between groups); per video each L is refined on the high-pass
    background: corner shift within +-SEARCH_PX and arm lengths that maximise the brightness along both arms (the white bars).
@@ -33,6 +35,10 @@ import cluster_kaden_3fish_common as C
 
 # ================================================================================================================ hyperparameters
 REFERENCE = '2024-10-15T14_12_25'                 # Denis clicked the electrodes on this video
+OUTLINE_PER_VIDEO = False                         # False: the REFERENCE outline (and electrodes) on every video
+# hand corrections of the outline corners (dx, dy) in px, per group of recordings (date or recording prefix); x right, y down.
+# Denis' electrodes stay where he clicked them; my model's electrodes are pushed inside the corrected outline as usual.
+CORNER_SHIFT_PX = {'2024-10-14': {'tl': (0, 8), 'bl': (0, 29), 'br': (15, -19)}}   # 14.2 px = 1 cm
 DENIS_REF_ELECTRODES = 'data/electrodes/electrodes_signed_px_coord_3-fish.csv'
 N_BACKGROUND = 41                                 # frames in the median background
 SEARCH_PX = 12                                    # barrier refinement: corner shift searched within +-SEARCH_PX
@@ -98,6 +104,17 @@ def one(video):
     return video, bg, fit, cn, V, notch, Ls
 
 
+def corner_shift(video):
+    return next((d for g, d in CORNER_SHIFT_PX.items() if video.startswith(g)), {})
+
+
+def lines_through(cn):
+    '''wall lines through the 4 corners, in wall_lines' form: top / bottom y = a x + b, left / right x = a y + b'''
+    def line(p, q, t, v): a = (q[v] - p[v]) / (q[t] - p[t]); return np.array([a, p[v] - a * p[t]])
+    return dict(top=line(cn['tl'], cn['tr'], 0, 1), bottom=line(cn['bl'], cn['br'], 0, 1),
+                left=line(cn['tl'], cn['bl'], 1, 0), right=line(cn['tr'], cn['br'], 1, 0))
+
+
 def updated_layout(denis, fit, V, notch):
     '''my model's electrodes from Denis' layout of this video (tank_outline_electrodes.update, 'updated' variant)'''
     new = denis.copy()
@@ -133,8 +150,8 @@ def draw(ax, bg, V, denis, mine, Ls, title, labels=True):
 LEGEND = ([plt.Line2D([], [], color='#eb6834', lw=1.5), plt.Line2D([], [], color='#2fd3ff', lw=2.6),
            plt.Line2D([], [], marker='o', ls='', mfc='#1baf7a', mec='#1baf7a'), plt.Line2D([], [], marker='o', ls='', mfc='white', mec='#1baf7a'),
            plt.Line2D([], [], marker='x', ls='', color='#ff4fa3', mew=1.8)],
-          ['tank outline (walls fitted on this video)', 'plastic L-barriers', 'my model electrode, + pole', 'my model electrode, − pole',
-           "Denis' electrode (moved with the tank), joined to mine"])
+          ['tank outline (14_12_25; Oct 14 corners moved by hand, CORNER_SHIFT_PX)' if not OUTLINE_PER_VIDEO else 'tank outline (walls fitted on this video)', 'plastic L-barriers', 'my model electrode, + pole', 'my model electrode, − pole',
+           "Denis' electrode, joined to mine"])
 
 
 if __name__ == '__main__':
@@ -145,7 +162,11 @@ if __name__ == '__main__':
     fig_all, axs_all = plt.subplots(2, 4, figsize=(30, 15.5)); rows = []
     for ax_all, v in zip(axs_all.ravel(), C.VIDEOS):
         bg, fit, cn, V, notch, Ls = R[v]
+        if not OUTLINE_PER_VIDEO: fit, cn, V, notch = R[REFERENCE][1:5]
         f = similarity(ref_c, np.array([cn[k] for k in ('tl', 'tr', 'br', 'bl')]))
+        if corner_shift(v):
+            cn = {k: c + np.array(corner_shift(v).get(k, (0, 0)), float) for k, c in cn.items()}
+            fit = lines_through(cn); V, notch = outline(cn)
         denis = D0.copy().astype({c: float for c in ('x1', 'y1', 'x2', 'y2')})
         for k in (1, 2): denis[[f'x{k}', f'y{k}']] = np.round(f(D0[[f'x{k}', f'y{k}']].to_numpy(float)), 1)
         mine = updated_layout(denis, fit, V, notch)
@@ -163,6 +184,6 @@ if __name__ == '__main__':
         fig.savefig(f'{FIG_DIR}/geometry_{v}.png', dpi=80); plt.close(fig)
         draw(ax_all, bg, V, denis, mine, Ls, v, labels=False)
     fig_all.legend(*LEGEND, loc='lower center', ncol=5, fontsize=12, frameon=False)
-    fig_all.suptitle('3-fish recordings: tank outline, electrodes and L-barriers fitted per video', fontsize=15)
+    fig_all.suptitle('3-fish recordings: ' + ('tank outline (Oct 14: corners moved by hand) and electrodes of 14_12_25, ' if not OUTLINE_PER_VIDEO else 'tank outline, electrodes and ') + 'L-barriers fitted per video', fontsize=15)
     fig_all.tight_layout(rect=(0, 0.04, 1, 0.97)); fig_all.savefig(f'{FIG_DIR}/geometry_all_videos.png', dpi=60)
     T = pd.DataFrame(rows); T.to_csv(f'{FIG_DIR}/geometry_per_video.csv', index=False); print(T.to_string(index=False))
