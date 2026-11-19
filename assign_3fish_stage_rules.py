@@ -16,13 +16,16 @@ FACTORS (per recording x stage x setting, fitted without the ground truth, as fo
   fish of a control, gets the median of all ratios); signed electrode factor e_k = median of ratio / a_f over the ratios of
   electrode k = the pole of pair p nearer to fish f (fewer than MIN_RATIOS_ELECTRODE: e_k = 1).
 
-ACCURACY (recordings in cluster_3fish_common.EMITTER): % of EODs given to the emitter, on three EOD sets
+ACCURACY: % of EODs given to the emitter. The emitter is cluster_3fish_common.EMITTER[recording] where given, else inferred: the
+fish the shape_l2 rule picks most often on the 'predicted' EODs, pooled over every stage and setting of the recording (in a silent
+control nearly every EOD is the emitter's); emitter.csv lists the emitter, its source and that share. Three EOD sets:
   all        every EOD with a video frame (no pick counts as wrong)
   predicted  EODs where every fish has a prediction (all midlines at that stage)
   good       EODs on frames that pass the mask QC of the final masks (GOOD_FRAMES), the same EODs at every stage
 
 OUTPUT  results/eod_assignment_3_fish_silent/mask_stages/assignment/
-  accuracy.csv                        setting, video, stage, rule, subset, n, n_picked, accuracy (%), shares A/B/C (%)
+  accuracy.csv                        setting, video, stage, rule, subset, n, n_picked, emitter, accuracy (%), shares A/B/C (%)
+  emitter.csv                         video, emitter, source (given / inferred), share of shape_l2 picks (%)
   factors.csv                         setting, video, stage, factor (fish A.., electrode 1+..), value, n_ratios
   picks/<setting>/<rec>/<stage>.csv   per EOD: eod_row, Frame, pick and score per rule
   accuracy_vs_stage_<rec>.png         accuracy per rule (columns) and EOD set (rows), one line per setting
@@ -121,13 +124,11 @@ def run_one(path):
     good = (np.isin(frames, pd.read_csv(GOOD_FRAMES).frame.to_numpy()) if video == GOOD_FRAMES_FOR and os.path.exists(GOOD_FRAMES)
             else np.zeros(len(frames), bool))
     subsets = {'all': frames >= 0, 'predicted': np.isfinite(Pm).all((1, 2)), 'good': good}
-    em = C.LETTERS.index(C.EMITTER[video]) if video in C.EMITTER else None
     acc = []
     for r, p in picks.items():
         for sub, k in subsets.items():
             if not k.any(): continue
             acc.append(dict(setting=setting, video=video, stage=stage, rule=r, subset=sub, n=int(k.sum()), n_picked=int((p[k] >= 0).sum()),
-                            accuracy=(p[k] == em).mean() * 100 if em is not None else np.nan,
                             **{f'share_{x}': (p[k] == g).mean() * 100 for g, x in enumerate(C.LETTERS)}))
     return pd.DataFrame(acc), tab.assign(setting=setting, video=video, stage=stage)
 
@@ -147,7 +148,7 @@ def plot(A, video, path):
             if j == 0: ax.set_ylabel('% given to the emitter')
     h, l = axs[0, 0].get_legend_handles_labels()
     fig.legend(h, l, loc='upper right', ncol=len(l), frameon=False, fontsize=9, title='model setting')
-    fig.suptitle(f'3-fish {video}: accuracy per mask stage, rule and model setting', fontsize=11, x=0.3, ha='center')
+    fig.suptitle(f'3-fish {video} (emitter {A.emitter.iloc[0]}): accuracy per mask stage, rule and model setting', fontsize=11, x=0.3, ha='center')
     fig.tight_layout(rect=(0, 0, 1, 0.95)); fig.savefig(path, dpi=110); plt.close(fig)
 
 
@@ -158,8 +159,16 @@ if __name__ == '__main__':
     with mp.get_context('fork').Pool(a.workers) as pool: res = pool.map(run_one, files)
     A = pd.concat([r[0] for r in res], ignore_index=True); F = pd.concat([r[1] for r in res], ignore_index=True)
     out = f'{OUT_ROOT}/assignment'; os.makedirs(out, exist_ok=True)
+    em = []                                                    # the emitter: given, or the shape rule's majority fish
+    for v, g in A[(A.rule == 'shape_l2') & (A.subset == 'predicted')].groupby('video'):
+        sh = {x: np.average(g[f'share_{x}'], weights=g.n) for x in C.LETTERS}
+        e = C.EMITTER.get(v, max(sh, key=sh.get))
+        em.append(dict(video=v, emitter=e, source='given' if v in C.EMITTER else 'inferred', shape_l2_share=round(sh[e], 2)))
+    EM = pd.DataFrame(em).set_index('video'); EM.to_csv(f'{out}/emitter.csv'); print(EM.to_string(), flush=True)
+    A['emitter'] = A.video.map(EM.emitter)
+    A['accuracy'] = [r[f'share_{r.emitter}'] if isinstance(r.emitter, str) else np.nan for _, r in A.iterrows()]
     A.to_csv(f'{out}/accuracy.csv', index=False); F.to_csv(f'{out}/factors.csv', index=False)
     for v in sorted(set(A.video)):
         if A[A.video == v].accuracy.notna().any(): plot(A, v, f'{out}/accuracy_vs_stage_{v}.png')
-    print(A[A.subset == 'all'].pivot_table(index=['setting', 'stage'], columns='rule', values='accuracy').round(2).to_string())
+    print(A[A.subset == 'all'].pivot_table(index=['video', 'setting', 'stage'], columns='rule', values='accuracy').round(2).to_string())
     print(f'written to {out}/')

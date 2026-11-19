@@ -1,8 +1,8 @@
 """Cluster job, step 2 of 3 (see cluster_3fish_common.py): raw model predictions for every EOD of a 3-fish recording, with the
 midlines (step 1) and masks of one efish4-track stage, for one model setting. No factors and no assignment here (step 3).
-One SLURM array task = one (recording, stage, setting): 11 recordings x 10 stages x len(SETTINGS) = 550 tasks with the default
-SETTINGS (0-549; python cluster_3fish_stage_predict.py --list). Recordings without an EOD table are skipped.
-MASK_STAGES=final: only the run's final masks, 11 x 5 = 55 tasks (recording r = tasks 5 r .. 5 r + 4); the same variable as step 1.
+One SLURM array task = one (recording, stage, setting): 8 recordings x 10 stages x len(SETTINGS) = 400 tasks with the default
+SETTINGS (0-399; python cluster_3fish_stage_predict.py --list).
+MASK_STAGES=final: only the run's final masks, 8 x 5 = 40 tasks (recording r = tasks 5 r .. 5 r + 4); the same variable as step 1.
 
 SETTINGS (default: my model at interior 1, 4, 16, 100 x water, and Denis' pipeline)
   mine   my 2D resistive field model (compute_electric_field.py): N_GRID x N_GRID grid over the 912 x 912 px frame, non-conductive
@@ -23,7 +23,7 @@ WHERE IT SAVES  results/eod_assignment_3_fish_silent/mask_stages/predictions/<se
 
 USAGE
   python cluster_3fish_stage_predict.py --check | --list | <task>
-  MAX_FRAMES=100 OUT_ROOT=results/test python cluster_3fish_stage_predict.py 301      quick test (14_12_25, 01_segment, mine_int4)
+  MAX_FRAMES=100 OUT_ROOT=results/test python cluster_3fish_stage_predict.py 151      quick test (14_12_25, 01_segment, mine_int4)
   sbatch cluster_3fish_stage_predict.slurm
 """
 import os, sys, re, json, time, shutil

@@ -5,15 +5,14 @@
 #SBATCH --cpus-per-task=4        # cpu-cores per task (mine: worker processes; denis: numba threads)
 #SBATCH --mem-per-cpu=4G         # memory per cpu-core (mine ~1 GB per worker; denis a few GB)
 #SBATCH --time=04:00:59          # total run time limit (HH:MM:SS); mine: ~20k frames x 3 fish ~0.5-1.5 h on 4 cores; denis minutes
-#SBATCH --array=0-549            # 11 recordings x 10 stages x 5 settings (python cluster_3fish_stage_predict.py --list)
+#SBATCH --array=0-399            # 8 recordings x 10 stages x 5 settings; with MASK_STAGES=final give --array=0-39 (--list)
 #SBATCH --output=slurm_logs/%x_%A_%a.out
 #SBATCH --mail-type=all          # send email on job start, end and fault
 #SBATCH --mail-user=cuturela@princeton.edu
 
 # Step 2 of 3 (cluster_3fish_common.py), after cluster_3fish_stage_midlines.slurm. Submit from the repository root:
-#   sbatch cluster_3fish_stage_predict.slurm                      all tasks (recordings without an EOD table exit at once)
-#   sbatch --array=300-349 cluster_3fish_stage_predict.slurm      only 2024-10-15T14_12_25 (10 stages x 5 settings)
-#   MASK_STAGES=final sbatch --array=30-34 cluster_3fish_stage_predict.slurm   only the final masks of 14_12_25 (5 settings)
+#   MASK_STAGES=final sbatch --array=0-39 cluster_3fish_stage_predict.slurm     final masks only: 8 recordings x 5 settings
+#   sbatch cluster_3fish_stage_predict.slurm                                    all 10 mask stages: 400 tasks
 # Settings (INTERIOR_SIGMAS, INCLUDE_DENIS) are in the hyperparameters of cluster_3fish_stage_predict.py; if you change them,
 # the task count changes too (--list). Denis' setting needs ../EODAssignment (or DENIS_REPO) and numba.
 # Then, anywhere (no solves):   python assign_3fish_stage_rules.py

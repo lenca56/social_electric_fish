@@ -1,7 +1,7 @@
 """Cluster job, step 1 of 3 (see cluster_3fish_common.py): mask midline of every fish in every EOD frame of a 3-fish recording,
-from the masks of one efish4-track stage. One SLURM array task = one (recording, stage): 11 recordings x 10 stages = 110 tasks
-(0-109; tasks 10 r .. 10 r + 9 = recording r at stages 01_segment .. 10_disturbance).
-MASK_STAGES=final: only the run's final masks, 11 tasks (recording r = task r); MASK_STAGES=segment,extent: those stages.
+from the masks of one efish4-track stage. One SLURM array task = one (recording, stage): 8 recordings x 10 stages = 80 tasks
+(0-79; tasks 10 r .. 10 r + 9 = recording r at stages 01_segment .. 10_disturbance).
+MASK_STAGES=final: only the run's final masks, 8 tasks (recording r = task r); MASK_STAGES=segment,extent: those stages.
 
 WHAT IT COMPUTES  per frame and fish: fish_midline_with_head (midline_methods.py) on that stage's visible mask, N_MIDLINE points,
 tail -> head, (row, col) / (P - 1); NaN where the fish has no mask or the fit fails (the method of the 4-fish midlines).
@@ -13,7 +13,7 @@ WHERE IT SAVES  results/eod_assignment_3_fish_silent/mask_stages/midlines/<rec>/
 
 USAGE
   python cluster_3fish_stage_midlines.py --check | --list | <task>
-  MAX_FRAMES=200 OUT_ROOT=results/test python cluster_3fish_stage_midlines.py 60        quick test (14_12_25, 01_segment)
+  MAX_FRAMES=200 OUT_ROOT=results/test python cluster_3fish_stage_midlines.py 30        quick test (14_12_25, 01_segment)
   sbatch cluster_3fish_stage_midlines.slurm
 """
 import os, sys, json, time

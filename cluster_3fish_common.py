@@ -9,8 +9,8 @@ DATA (relative to the repository root)
   masks      data/3_fish_silent/masks/video<rec>/ : one efish4-track run, read per stage with io_utils.load_stage_masks; the 10
              stages io_utils.STAGES = segment, identity, contact, body_masks, propagate, keypoints, extent, recover, ownership,
              disturbance (letters A, B, C are the same fish at every stage; checked on 14_12_25: IoU 0.92-1.0 with the latest run)
-  EOD table  data/3_fish_silent/Data_3fish_<rec>_synch_fix_newest.csv (only 2024-10-15T14_12_25 so far; a recording without a
-             table is skipped by every job until its table is added)
+  EOD table  data/3_fish_silent/Data_3fish_<rec>.csv (added 2026-11-19 for 8 recordings; the one of 14_12_25 has the same EODs,
+             frames, times and traces as its older _synch_fix_newest table). Only these 8 recordings are in VIDEOS.
 OUTPUT       results/eod_assignment_3_fish_silent/mask_stages/{midlines, predictions, assignment}/
 """
 import os
@@ -22,11 +22,13 @@ P = 912                                       # video frame size, px
 PX_PER_CM_VIDEO = P / 60                      # video calibration (whole frame = 60 cm), for distances between fish
 N_MIDLINE = 101                               # midline points (tail -> head) = point currents of both models
 
-# the 11 recordings with efish4-track mask stages, fixed so a task index always means the same recording
-VIDEOS = ['2024-10-14T15_04_15', '2024-10-14T15_24_15', '2024-10-14T15_47_02', '2024-10-14T16_07_02', '2024-10-14T16_27_02',
-          '2024-10-14T16_47_02', '2024-10-15T14_12_25', '2024-10-15T14_30_53', '2024-10-15T14_50_54', '2024-10-15T15_10_54',
-          '2024-10-15T15_30_54']
-# the emitting fish of each silent control (ground truth for the accuracy); a recording not listed gets picks but no accuracy
+# the 8 recordings with an EOD table (and efish4-track mask stages), fixed so a task index always means the same recording;
+# not included (no EOD table): 2024-10-14T15_04_15, 2024-10-14T15_24_15, 2024-10-14T16_27_02 (the last has no mask stages either)
+VIDEOS = ['2024-10-14T15_47_02', '2024-10-14T16_07_02', '2024-10-14T16_47_02', '2024-10-15T14_12_25', '2024-10-15T14_30_53',
+          '2024-10-15T14_50_54', '2024-10-15T15_10_54', '2024-10-15T15_30_54']
+# the emitting fish (Kaden's letter) of each silent control, the ground truth for the accuracy. A recording not listed gets the
+# fish that the shape rule picks most often over all its stages and settings (assign_3fish_stage_rules.py writes emitter.csv with
+# that share, to check; put the letter here once confirmed)
 EMITTER = {'2024-10-15T14_12_25': 'C'}       # Kaden's C = ZEUS fish 0, the emitter of this control
 
 # geometry
@@ -36,7 +38,7 @@ DENIS_ELECTRODES = 'data/electrodes/electrodes_signed_px_coord_3-fish.csv'  # De
 
 # data and output
 MASK_RUN = 'data/3_fish_silent/masks/video{video}'
-EOD_TABLE = 'data/3_fish_silent/Data_3fish_{video}_synch_fix_newest.csv'
+EOD_TABLE = 'data/3_fish_silent/Data_3fish_{video}.csv'
 OUT = 'results/eod_assignment_3_fish_silent/mask_stages'
 MIDLINES = OUT + '/midlines/{video}/{stage}.npz'
 PREDICTIONS = OUT + '/predictions/{setting}/{video}/{stage}.npz'
