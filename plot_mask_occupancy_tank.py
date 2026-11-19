@@ -16,10 +16,9 @@ from matplotlib.colors import LogNorm, ListedColormap
 from matplotlib.path import Path as MPath
 from scipy.ndimage import distance_transform_edt
 import eod_assignment_control_groups as g
-from io_utils import load_masks
+from io_utils import load_masks, load_tank_outline, load_electrodes
 import tank_outline_electrodes as te
 from compute_electric_field import tank_inside, electrode_points, PX_PER_CM
-from eod_assign import load_electrode_pairs
 
 STEP, N, P = 2, 200, 912
 MIN_FRAMES = 3                       # a pixel counts as occupied when a fish covers it in >= MIN_FRAMES sampled frames
@@ -37,7 +36,7 @@ for rec in ('2-fish', '3-fish'):
         for k in keys:
             for (y0, y1, x0, x1), crop in masks.crops(k).values(): cnt[y0:y1, x0:x1] += crop
         n_frames = len(keys); np.savez_compressed(cache, counts=cnt, n_frames=n_frames, step=STEP)
-    V = pd.read_csv(c['outline'])[['x', 'y']].to_numpy(); poly = MPath(V)
+    V = load_tank_outline(c['outline']); poly = MPath(V)
     yy, xx = np.mgrid[0:P, 0:P]
     inside_px = poly.contains_points(np.c_[xx.ravel(), yy.ravel()]).reshape(P, P)
     occ = cnt >= MIN_FRAMES; outside = occ & ~inside_px
@@ -62,7 +61,7 @@ for rec in ('2-fish', '3-fish'):
     bg = te.background(te.REC[TR[rec]]['video'], te.REC[TR[rec]]['n_frames'])
     inside = tank_inside(V, N, P); gpx = np.arange(N) / (N - 1) * (P - 1); cell = gpx[1] - gpx[0]
     ext = (gpx[0] - cell / 2, gpx[-1] + cell / 2, gpx[-1] + cell / 2, gpx[0] - cell / 2)
-    pts = electrode_points(load_electrode_pairs(c['electrodes_updated'], P))[:, ::-1] * (P - 1)
+    pts = electrode_points(load_electrodes(c['electrodes_updated'], P))[:, ::-1] * (P - 1)
     fig = plt.figure(figsize=(22, 13)); gs = fig.add_gridspec(2, 6, width_ratios=[1.6, 1.6, 1, 1, 1, 1])
     big = fig.add_subplot(gs[:, :2]); zs = [fig.add_subplot(gs[i, 2 + k]) for i in range(2) for k in range(4)]
     boxes = {'top left': (0, 130, 0, 130), 'top right': (782, 912, 0, 130), 'bottom left': (0, 130, 782, 912),

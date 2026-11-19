@@ -13,7 +13,7 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
-from io_utils import load_masks
+from io_utils import load_masks, load_eods
 
 PX_PER_CM = 912 / 60
 REC = {
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(); ap.add_argument('--workers', type=int, default=6); a = ap.parse_args()
     for name, c in REC.items():
         t0 = time.time()
-        eod = pd.read_csv(c['newest'], usecols=['Frame'])
+        eod = load_eods(c['newest'], columns=['Frame'], traces=False)[0]
         flags = pd.read_csv(f"{c['res']}/eod_clean_good_synch_fix_newest.csv")
         assert (flags.Frame.to_numpy() == eod.Frame.to_numpy()).all()
         FISH = c['fish']; MASKS = load_masks(c['track'], 'shiv', fish_order=FISH)

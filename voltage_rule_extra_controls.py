@@ -29,7 +29,7 @@ EXTRA = {'N200 tank, no fish bodies': ('mine', '{out}/N200_tank_nobodies_none/eo
 for rec, r in REC.items():
     c = g.REC[rec]; em, nf = r['emitter'], r['n']; out = f"{c['out']}/voltage_rule"
     q = pd.read_csv(f"{r['res']}/eod_clean_good_synch_fix_newest.csv"); clean = q.clean_good.to_numpy(bool); frames = q.Frame.to_numpy()
-    valid = pd.read_csv(c['newest'], usecols=['Time']).Time.to_numpy() >= 0   # 'all EODs' leaves out EODs before the video starts
+    valid = load_eods(c['newest'], columns=['Time'], traces=False)[0].Time.to_numpy() >= 0   # 'all EODs': no EODs before the video
     n = len(q); half = np.arange(n) < n // 2
     z = np.load(c['midlines']); M = dict(zip(z['frames'].tolist(), z['midlines_px']))
     L = pd.read_csv(f'{out}/fish_lengths.csv').iloc[:, 1].to_numpy()          # the lengths voltage_rule_controls.py used
@@ -37,20 +37,20 @@ for rec, r in REC.items():
     # 1. shape cosine for every model of mine
     for name, (kind, path, el) in {**MODELS, **EXTRA}.items():
         if kind != 'mine': continue
-        d = pd.read_csv(path.format(res=r['res'], out=c['out']), usecols=['Frame', 'pick_cosine'])
+        d = load_assignment(path.format(res=r['res'], out=c['out'])).table
         assert (d.Frame.to_numpy() == frames).all(); ok = d.pick_cosine.to_numpy() == em
         rows.append(dict(model=name, rule='shape cosine (no gains)', **{'all EODs': 100 * ok[valid].mean(), 'clean good': 100 * ok[clean].mean()}))
     # 2. the no-bodies model under every rule
     for name, (kind, path, el) in EXTRA.items():
-        pairs = load_electrode_pairs(f'data/electrodes/{el}_{rec}.csv', P); pair_ids = [p for p, _, _ in pairs]
+        pairs = load_electrodes(f'data/electrodes/{el}_{rec}.csv', P); pair_ids = [p for p, _, _ in pairs]
         pairs_px = [(pp[::-1] * (P - 1), pm[::-1] * (P - 1)) for _, pp, pm in pairs]
-        d = pd.read_csv(path.format(res=r['res'], out=c['out'])); assert (d.Frame.to_numpy() == frames).all()
-        R = d[[f'r_raw_p{q_}' for q_ in pair_ids]].to_numpy()
-        Mm = MODEL_SIGN * np.stack([d[[f'u{f}_raw_p{q_}' for q_ in pair_ids]].to_numpy() for f in range(nf)], axis=1)
+        a = load_assignment(path.format(res=r['res'], out=c['out']))
+        assert (a.table.Frame.to_numpy() == frames).all() and a.pair_ids == pair_ids and a.fish == list(range(nf))
+        R, Mm = a.recorded, MODEL_SIGN * a.predicted
         A = LAW[kind][0] * L + LAW[kind][1]
         K = nearer_pole(M, frames, pairs_px, nf)
         Mem, Kem = A[em] * Mm[:, em], K[:, em]
-        res = {'shape (no gains)': d.pick.to_numpy() == em}
+        res = {'shape (no gains)': a.pick == em}
         G, cnt = fit_gains(R, Mem, Kem, clean)
         V = A[None, :, None] * np.take(G, np.where(K >= 0, K, 0)) * Mm; V[K < 0] = np.nan
         pl2, pcos = picks(R, V); res['voltage L2, in-sample'] = pl2 == em; res['voltage cosine, in-sample'] = pcos == em

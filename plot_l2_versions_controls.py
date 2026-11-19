@@ -13,6 +13,7 @@ accuracy_versions.csv.
 import os
 import numpy as np, pandas as pd
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
+from io_utils import load_assignment
 
 V = {'Nov 5: N150, square, original electrodes': '{res}/conductivities/my_model_shape_synch_fix_newest.csv',
      'N200, square, original electrodes': '{out}/N200_image_none/eod_assignment_shape.csv',
@@ -26,23 +27,23 @@ REC = (('2-fish', 'results/eod_ground_truth', 'results/eod_assignment_2_fish_sil
 for rec, res, out, em in REC:
     q = pd.read_csv(f'{res}/eod_clean_good_synch_fix_newest.csv')
     avail = {name: p.format(res=res, out=out) for name, p in V.items() if os.path.exists(p.format(res=res, out=out))}
-    d = {name: pd.read_csv(p, usecols=['Frame', 'pick', f'd{em}']) for name, p in avail.items()}
+    d = {name: load_assignment(p) for name, p in avail.items()}
     cols = dict(zip(V, COLORS))                                       # colour fixed per version, also when one is missing
-    for x in d.values(): assert (x.Frame.to_numpy() == q.Frame.to_numpy()).all()
+    for x in d.values(): assert (x.table.Frame.to_numpy() == q.Frame.to_numpy()).all()
     acc = pd.DataFrame({name: {'all': (x.pick == em).mean() * 100, 'mask QC': (x.pick == em)[q.mask_qc.astype(bool)].mean() * 100,
                                'clean good': (x.pick == em)[q.clean_good.astype(bool)].mean() * 100} for name, x in d.items()}).T
     acc.to_csv(f'{out}/accuracy_versions.csv'); print(f'\n{rec} % correct\n' + acc.round(2).to_string())
-    correct_all = np.logical_and.reduce([x.pick.to_numpy() == em for x in d.values()])
+    correct_all = np.logical_and.reduce([x.pick == em for x in d.values()])
     groups = {'clean good frames': correct_all & q.clean_good.to_numpy(bool), 'all EODs': correct_all}
     fig, ax = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
     rows = []
     for a, (gname, sel) in zip(ax, groups.items()):
         for name, x in d.items():
             col = cols[name]
-            l2 = np.sort(x[f'd{em}'].to_numpy()[sel])
+            l2 = np.sort(x.score[sel, em])
             a.plot(l2, np.arange(1, len(l2) + 1) / len(l2), '-', color=col, lw=2, label=f'{name} (median {np.median(l2):.3f})')
             rows.append(dict(group=gname, version=name, n=len(l2), median=np.median(l2), mean=l2.mean(), p90=np.percentile(l2, 90)))
-        a.set_xlim(0, np.percentile(d['N200 tank, no electrodes'][f'd{em}'].to_numpy()[sel], 99.5))
+        a.set_xlim(0, np.percentile(d['N200 tank, no electrodes'].score[sel, em], 99.5))
         a.set_xlabel('L2 distance of the true emitter (shape only)'); a.set_title(f'{gname}: {sel.sum()} EODs correct in every version',
                                                                                    fontsize=10)
         a.grid(alpha=0.3, lw=0.6); a.legend(fontsize=8, frameon=False, loc='lower right')

@@ -34,6 +34,7 @@ import numpy as np
 import pandas as pd
 import eod_assignment_control_groups as g
 from compute_electric_field import PX_PER_CM
+from io_utils import load_tank_outline, load_assignment, load_denis_assignment
 
 WALL_CM, CORNER_CM = 1.5, 5.0
 REC = {'2-fish': dict(res='results/eod_ground_truth', emitter=1, letters={'A': 1, 'B': 0}),
@@ -59,7 +60,7 @@ ap = argparse.ArgumentParser(); ap.add_argument('--set', choices=list(SETS), def
 MINE = {v: (spec[0], spec[2] if len(spec) > 2 else 'pick') for v, spec in SET['versions'].items()}   # (path, pick column)
 COL = {v: spec[1] for v, spec in SET['versions'].items()}
 if SET['denis']: COL['Denis analytic, my mask'] = '#008300'
-DENIS = '{res}/conductivities/denis_mask_midline_offset/denis_mask_midline_all_eods_synch_fix_newest.csv'
+DENIS = '{res}/conductivities/denis_mask_midline_offset'                  # his summary table and his synch_fix_newest/ run
 CORNERS = {'top-left corner (cut-out)': 5, 'top-right corner': 1, 'bottom-right corner': 2, 'bottom-left corner': 3}   # outline vertex
 
 
@@ -79,13 +80,14 @@ for rec, r in REC.items():
     q = pd.read_csv(f"{r['res']}/eod_clean_good_synch_fix_newest.csv")
     picks = {}
     for name, (p, pc) in MINE.items():
-        d = pd.read_csv(p.format(res=r['res'], out=c['out']), usecols=['Frame', pc])
+        d = load_assignment(p.format(res=r['res'], out=c['out'])).table
         assert (d.Frame.to_numpy() == q.Frame.to_numpy()).all(); picks[name] = d[pc].to_numpy() == em
     if SET['denis']:
-        dn = pd.read_csv(DENIS.format(res=r['res']))
-        assert (dn.Frame.to_numpy() == q.Frame.to_numpy()).all() and (dn.eod_row.to_numpy() == np.arange(len(q))).all()
-        picks['Denis analytic, my mask'] = dn['pick'].map(r['letters']).to_numpy() == em
-    V = pd.read_csv(c['outline'].replace('updated', SET['outline']))[['x', 'y']].to_numpy()
+        ddir = DENIS.format(res=r['res'])
+        dn = load_denis_assignment(f'{ddir}/denis_mask_midline_all_eods_synch_fix_newest.csv', f'{ddir}/synch_fix_newest', fish=r['letters'])
+        assert (dn.table.Frame.to_numpy() == q.Frame.to_numpy()).all() and (dn.table.eod_row.to_numpy() == np.arange(len(q))).all()
+        picks['Denis analytic, my mask'] = dn.pick == em
+    V = load_tank_outline(c['outline'].replace('updated', SET['outline']))
     z = np.load(c['midlines']); M = dict(zip(z['frames'].tolist(), z['midlines_px']))
     loc = np.array([location(M[int(k)][em], V) if np.isfinite(M[int(k)][em]).all() else 'no midline' for k in q.Frame])
     clean = q.clean_good.to_numpy(bool)

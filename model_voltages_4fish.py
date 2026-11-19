@@ -19,8 +19,8 @@ import scipy.sparse as sp
 from scipy.sparse.linalg import splu
 from compute_electric_field import theta_outer, multipole_sources, build_multipole_b, occupancy_field, unflatten_to_grid, gammas
 from midline_methods import fish_midline_with_head
-from eod_assign import load_electrode_pairs, pair_voltages
-from io_utils import load_masks, unpack_crop
+from eod_assign import pair_voltages
+from io_utils import load_electrodes, load_masks, load_eods, unpack_crop
 
 FEB, OCT = 'data/electrodes/electrodes_signed_px_coord_4-fish.csv', 'data/electrodes/electrodes_signed_px_coord_2024-10-23.csv'
 KADEN = 'data/track_Kaden/results_{t}_full/video2024-02-20T{t}/outputs/video2024-02-20T{t}.pkl'
@@ -143,8 +143,8 @@ def main():
     cfg = RECS[a.rec]
     os.makedirs(f'{OUT}/{a.rec}', exist_ok=True)
     path = f'{OUT}/{a.rec}/model_voltages_N{N}_sink0_bem_by_frame.pkl'
-    MASKS, PAIRS = video_masks(cfg), load_electrode_pairs(cfg['electrodes'], P)
-    frames = np.unique(pd.read_csv(cfg['eod'], usecols=['Frame']).Frame.to_numpy())
+    MASKS, PAIRS = video_masks(cfg), load_electrodes(cfg['electrodes'], P)
+    frames = np.unique(load_eods(cfg['eod'], columns=['Frame'], traces=False)[0].Frame.to_numpy())
     done = pd.read_pickle(path) if os.path.exists(path) else {}
     todo = [int(k) for k in frames if int(k) not in done]
     print(f'{a.rec}: {len(frames)} EOD frames, {len(done)} cached, {len(todo)} to solve', flush=True)

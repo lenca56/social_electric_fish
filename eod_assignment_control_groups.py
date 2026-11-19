@@ -46,6 +46,8 @@ video frame k (checked: median IoU with the ZEUS masks 0.83-0.93 at offset 0, lo
 ZEUS fish numbers (2-fish A = 1, B = 0; 3-fish A = 1, B = 2, C = 0), so emitters and fish indices stay the same. Midlines then
 come from results/eod_assignment_<n>_fish_silent/with_Kaden_tracking/mask_midlines_by_frame_newest.npz and results go to that
 folder by default.
+--masks latest (2026-11-16): Kaden's newer efish4-track run (data/<n>_fish_silent/<n>fish_video..._latest_run/video....pkl), same
+letters as --masks kaden (IoU 0.96-0.99 per letter); midlines and results in with_latest_run_tracking/.
 --body-sigmas s1,s2,...: the other fish as a uniform medium of s x water without skin (instead of skin + interior), one version
 per value, all solved in one pass over the frames (tag N<N>_<geometry>_body<s>_none; needs --versions none).
 --interior-sigmas s1,s2,...: the other fish keep the skin (same resistance: as resistive as SKIN_LAMBDA_CM of water) and get an
@@ -75,7 +77,9 @@ REC = {
                    outline='data/electrodes/tank_outline_updated_2-fish.csv',
                    midlines='results/eod_assignment_2_fish_silent/mask_midlines_by_frame_newest.npz',
                    kaden='data/track_Kaden/2fish/video2024-02-13T14_33_21.pkl', kaden_order=(1, 0),
-                   out_kaden='results/eod_assignment_2_fish_silent/with_Kaden_tracking'),
+                   out_kaden='results/eod_assignment_2_fish_silent/with_Kaden_tracking',
+                   latest='data/2_fish_silent/2fish_video2024-02-13T14_33_21_latest_run/video2024-02-13T14_33_21.pkl',
+                   out_latest='results/eod_assignment_2_fish_silent/with_latest_run_tracking'),
     '3-fish': dict(fish=(0, 1, 2), emitter=0, res='results/eod_ground_truth_3fish', out='results/eod_assignment_3_fish_silent/Nov_10_2026',
                    track='data/3_fish_silent/elephantnose_2024-10-15T14-12-25_Shiv_tracking_final.pkl',
                    newest='data/3_fish_silent/Data_3fish_2024-10-15T14_12_25_synch_fix_newest.csv',
@@ -84,7 +88,9 @@ REC = {
                    outline='data/electrodes/tank_outline_updated_3-fish.csv',
                    midlines='results/eod_assignment_3_fish_silent/mask_midlines_by_frame_newest.npz',
                    kaden='data/track_Kaden/3fish/video2024-10-15T14_12_25.pkl', kaden_order=(2, 0, 1),
-                   out_kaden='results/eod_assignment_3_fish_silent/with_Kaden_tracking'),
+                   out_kaden='results/eod_assignment_3_fish_silent/with_Kaden_tracking',
+                   latest='data/3_fish_silent/3fish_video2024-10-15T14_12_25_latest_run/video2024-10-15T14_12_25.pkl',
+                   out_latest='results/eod_assignment_3_fish_silent/with_latest_run_tracking'),
 }
 BASELINE = '{res}/conductivities/my_model_shape_synch_fix_newest.csv'  # N 150, image geometry, no discs (run of 2026-11-05)
 C = None                                                            # run context, set before the pool forks
@@ -102,8 +108,18 @@ def version_tag(N, geometry, v, bodies=True, body_sigma=None):
             ('none' if v is None else f'r{v[0]:g}_s{v[1]:.0e}'.replace('e+0', 'e').replace('e+', 'e')))
 
 
+def mask_file(rec, masks='zeus'):
+    """The mask pickle of a mask set: 'zeus', 'kaden' or 'latest' (Kaden's efish4-track run of 2026-11-16, *_latest_run folder)."""
+    return REC[rec]['track' if masks == 'zeus' else masks]
+
+
+def out_dir(rec, masks='zeus'):
+    """Default output folder of a mask set."""
+    return REC[rec]['out' if masks == 'zeus' else f'out_{masks}']
+
+
 def midlines_path(rec, masks='zeus'):
-    return REC[rec]['midlines'] if masks == 'zeus' else f"{REC[rec]['out_kaden']}/mask_midlines_by_frame_newest.npz"
+    return REC[rec]['midlines'] if masks == 'zeus' else f"{out_dir(rec, masks)}/mask_midlines_by_frame_newest.npz"
 
 
 def context(rec, N, versions=(None,), geometry='tank', bodies=True, masks='zeus', body_sigmas=None):
@@ -112,7 +128,7 @@ def context(rec, N, versions=(None,), geometry='tank', bodies=True, masks='zeus'
        medium is then the same for every fish and frame, so each version's matrix is factorised once (ctx['solvers'])."""
     c = REC[rec]
     video = (load_masks(c['track'], 'shiv', fish_order=c['fish']) if masks == 'zeus' else
-             load_masks(c['kaden'], fish_order=c['kaden_order']))                          # video[k]: (n_fish, P, P), ZEUS fish order
+             load_masks(mask_file(rec, masks), fish_order=c['kaden_order']))                          # video[k]: (n_fish, P, P), ZEUS fish order
     P = video.shape[0]
     if body_sigmas is not None:
         assert list(versions) == [None], '--body-sigmas needs --versions none'; versions = [None] * len(body_sigmas)
@@ -143,7 +159,7 @@ def save_midlines(rec, mids, P, masks='zeus'):
     p = midlines_path(rec, masks); os.makedirs(os.path.dirname(p), exist_ok=True)
     frames = np.array(sorted(mids)); M = np.stack([mids[k] for k in frames])
     np.savez_compressed(p + '.tmp.npz', frames=frames, midlines_tank=M, midlines_px=M[..., ::-1] * (P - 1),
-                        n_ctrl=ex.n_poles + 1, mask_source=REC[rec]['track'] if masks == 'zeus' else REC[rec]['kaden'],
+                        n_ctrl=ex.n_poles + 1, mask_source=mask_file(rec, masks),
                         eod_table=REC[rec]['newest'],
                         method=f'eod_examples.fish_midlines: fish_midline_with_head on the {masks} mask (area rule head), tail -> head')
     os.replace(p + '.tmp.npz', p)
@@ -242,7 +258,7 @@ if __name__ == '__main__':
     ap.add_argument('--check', type=int, default=0, help='image geometry, N 150, no discs: n EODs must match BASELINE')
     ap.add_argument('--midlines-only', action='store_true', help="fill the video's midline file, no solves")
     ap.add_argument('--bodies', choices=['yes', 'no'], default='yes', help='no: the other fish are not modelled')
-    ap.add_argument('--masks', choices=['zeus', 'kaden'], default='zeus')
+    ap.add_argument('--masks', choices=['zeus', 'kaden', 'latest'], default='zeus')
     ap.add_argument('--body-sigmas', default=None, help='comma separated: other fish as uniform s x water (no skin), one version each')
     ap.add_argument('--interior-sigmas', default=None, help='comma separated: other fish with skin and an interior of s x water')
     ap.add_argument('--skin-lambdas', default=None, help='with --interior-sigmas: comma separated skin resistances (cm of water), '
@@ -288,7 +304,7 @@ if __name__ == '__main__':
         frames, R, rows = frames[sel], R[sel], rows[sel]
     suffix = f'_random{a.eods}' if a.eods else ''
     tags = [version_tag(a.N, a.geometry, v, a.bodies == 'yes', s) + suffix for v, s in zip(versions, C['body'])]
-    out = a.out or (c['out'] if a.masks == 'zeus' else c['out_kaden']); os.makedirs(out, exist_ok=True)
+    out = a.out or out_dir(a.rec, a.masks); os.makedirs(out, exist_ok=True)
     cache_path = f'{out}/model_frames_N{a.N}_{a.geometry}_{"+".join(t.split("_", 2)[2] for t in tags)}.pkl'
     done = pd.read_pickle(cache_path) if os.path.exists(cache_path) else {'__versions__': tags}
     assert done['__versions__'] == tags, f'{cache_path} holds versions {done["__versions__"]}'

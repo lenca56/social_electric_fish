@@ -30,6 +30,7 @@ import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import eod_examples as ex
 import eod_assignment_control_groups as g
+from io_utils import load_assignment
 from compute_electric_field import (build_multipole_b, multipole_sources, occupancy_field, build_A_shell, solve_potential,
                                     unflatten_to_grid, confine_sources)
 from eod_assign import pair_voltages, compare_patterns, MODEL_SIGN
@@ -84,12 +85,12 @@ if __name__ == '__main__':
     for rec, r in REC.items():
         c = g.REC[rec]; em = r['emitter']; out = f"{c['out']}/bodies_debug"; os.makedirs(out, exist_ok=True)
         q = pd.read_csv(f"{r['res']}/eod_clean_good_synch_fix_newest.csv"); clean = q.clean_good.to_numpy(bool)
-        runs = {k: pd.read_csv(p.format(res=r['res'], out=c['out']), usecols=['Frame', 'pick']).pick.to_numpy() for k, p in RUNS.items()}
+        runs = {k: load_assignment(p.format(res=r['res'], out=c['out'])).pick for k, p in RUNS.items()}
         wrong = clean & np.logical_or.reduce([p != em for p in runs.values()])
         right_all = clean & np.logical_and.reduce([p == em for p in runs.values()])
         ctrl = np.sort(np.random.default_rng(0).choice(np.flatnonzero(right_all), N_CONTROL, replace=False))
         rows_i = np.r_[np.flatnonzero(wrong), ctrl]; is_wrong = np.r_[np.ones(wrong.sum(), bool), np.zeros(N_CONTROL, bool)]
-        base = pd.read_csv(RUNS['N200 tank'].format(res=r['res'], out=c['out'])); R = base[[f'r_raw_p{p}' for p in range(1, 11)]].to_numpy()
+        base = load_assignment(RUNS['N200 tank'].format(res=r['res'], out=c['out'])); assert base.pair_ids == list(range(1, 11)); R = base.recorded
         frames = q.Frame.to_numpy()[rows_i]
         CTX = g.context(rec, N, [None], 'tank'); CTX['mids'] = g.load_midlines(rec); CTX['em'] = em
         print(f'{rec}: {wrong.sum()} clean-good EODs wrong in at least one of {list(RUNS)}; {N_CONTROL} controls right in all; '

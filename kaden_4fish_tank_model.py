@@ -21,11 +21,11 @@ import argparse, os, time
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
-from io_utils import load_masks
+from io_utils import load_masks, load_electrodes, load_tank_outline, load_tank_barriers, load_eods
 from kaden_4fish_assign import kaden_pkl, EOD
 from compute_electric_field import (multipole_sources, build_multipole_b, occupancy_field, build_A_shell, solve_potential,
                                     unflatten_to_grid, materials, tank_inside, confine_sources, SKIN_CM, SKIN_LAMBDA_CM, PX_PER_CM)
-from eod_assign import pair_voltages, load_electrode_pairs
+from eod_assign import pair_voltages
 
 BASE, P, SINK, CHECKPOINT = 'results/eod_assign_4fish_kaden', 912, 0.0, 2000
 OUTLINE = 'data/electrodes/tank_outline_updated_4-fish.csv'
@@ -38,15 +38,15 @@ def barrier_nodes(N, path=BARRIERS):
     '''(N, N) bool: grid nodes on the plastic L-pieces (each arm a segment in video px, x = column, y = row). Every arm is sampled
        densely and each sample marks its nearest node, so the removed nodes form an 8-connected line that no grid edge crosses.'''
     out = np.zeros((N, N), bool); s = (N - 1) / (P - 1)
-    for _, r in pd.read_csv(path).iterrows():
-        n = int(np.ceil(np.hypot(r.x2 - r.x1, r.y2 - r.y1) * s * 4)) + 2
-        x = np.linspace(r.x1, r.x2, n) * s; y = np.linspace(r.y1, r.y2, n) * s
+    for x1, y1, x2, y2 in load_tank_barriers(path):
+        n = int(np.ceil(np.hypot(x2 - x1, y2 - y1) * s * 4)) + 2
+        x = np.linspace(x1, x2, n) * s; y = np.linspace(y1, y2, n) * s
         out[np.clip(np.rint(y).astype(int), 0, N - 1), np.clip(np.rint(x).astype(int), 0, N - 1)] = True
     return out
 
 
 def tank_mask(N, barriers=True):
-    inside = tank_inside(pd.read_csv(OUTLINE)[['x', 'y']].to_numpy(), N, P)
+    inside = tank_inside(load_tank_outline(OUTLINE), N, P)
     return inside & ~barrier_nodes(N) if barriers else inside
 
 
@@ -55,7 +55,7 @@ def context(t, N, interior, barriers=True):
     mat = materials(N, P, PX_PER_CM)
     mat = dict(mat, g_interior=interior, g_skin=1 / (SKIN_LAMBDA_CM / SKIN_CM + 1 / interior))
     return dict(masks=load_masks(kaden_pkl(t)), mids=dict(zip(z['frames'].tolist(), z['mids'])), N=N, mat=mat,
-                inside=tank_mask(N, barriers), pairs=load_electrode_pairs(ELECTRODES, P))
+                inside=tank_mask(N, barriers), pairs=load_electrodes(ELECTRODES, P))
 
 
 def solve_frame(k):
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     if a.frames:
         F = pd.read_csv(a.frames); frames = np.unique(F[F.video == t].Frame.to_numpy())
     else:
-        frames = np.unique(pd.read_csv(EOD.format(t=t), usecols=['Frame']).Frame.to_numpy())
+        frames = np.unique(load_eods(EOD.format(t=t), columns=['Frame'], traces=False)[0].Frame.to_numpy())
     frames = [int(k) for k in frames if int(k) in C['mids']]
     if a.bench:
         t1 = time.time(); [solve_frame(k) for k in frames[:a.bench]]

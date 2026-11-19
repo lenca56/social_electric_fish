@@ -1,0 +1,22 @@
+2-fish: 18681 EOD frames, mask QC good (every fish) 12235 (65.5%); EODs: 12240 of 18798 in the video; 0.2 min
+(letters -> fish {'B': 0, 'A': 1})
+letter                         A      B
+has a mask                 100.0  100.0
+area within 20% of median   94.0   86.3
+length 0.8-1.2 x median     95.7   95.6
+>= 99% in one piece         95.6   96.5
+step <= 15 px               96.4   92.7
+area change <= 15%          98.4   96.7
+not touching other fish     84.2   84.2
+all                         75.3   71.2
+3-fish: 19590 EOD frames, mask QC good (every fish) 8522 (43.5%); EODs: 8598 of 19780 in the video; 0.3 min
+(letters -> fish {'C': 0, 'A': 1, 'B': 2})
+letter                        A     B     C
+has a mask                 99.8  99.6  99.8
+area within 20% of median  94.1  95.3  79.3
+length 0.8-1.2 x median    97.0  98.5  79.3
+>= 99% in one piece        90.5  93.1  89.7
+step <= 15 px              98.7  99.0  95.2
+area change <= 15%         98.0  98.3  95.5
+not touching other fish    68.2  68.5  88.2
+all                        64.5  67.4  62.1

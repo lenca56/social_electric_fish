@@ -6,19 +6,19 @@ compute_electric_field.PX_PER_CM), and the N x N grid as the model sees it (node
 Output: results/eod_assignment_<n>_fish_silent/Nov_10_2026/model_geometry_N<N>.png
 """
 import argparse, subprocess
-import numpy as np, pandas as pd
+import numpy as np
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from compute_electric_field import tank_inside, electrode_occupancy, electrode_points, PX_PER_CM, cell_cm
-from eod_assign import load_electrode_pairs
+from io_utils import load_electrodes, load_tank_outline
 import eod_assignment_control_groups as g
 import tank_outline_electrodes as te
 
 ap = argparse.ArgumentParser(); ap.add_argument('--N', type=int, default=200); N = ap.parse_args().N; P = 912
 for rec, tr in (('2-fish', '2-fish'), ('3-fish', '3-fish')):
     c = g.REC[rec]; bg = te.background(te.REC[tr]['video'], te.REC[tr]['n_frames'])
-    V = pd.read_csv(c['outline'])[['x', 'y']].to_numpy(); el = pd.read_csv(c['electrodes_updated'])
-    pairs = load_electrode_pairs(c['electrodes_updated'], P); pts = electrode_points(pairs)
+    V = load_tank_outline(c['outline'])
+    pairs = load_electrodes(c['electrodes_updated'], P); pts = electrode_points(pairs)
     inside = tank_inside(V, N, P); px = np.arange(N) / (N - 1) * (P - 1)
     fig = plt.figure(figsize=(19, 10.5)); gsp = fig.add_gridspec(2, 4, width_ratios=[2.1, 2.1, 1, 1])
     a_vid, a_grid = fig.add_subplot(gsp[:, 0]), fig.add_subplot(gsp[:, 1])
@@ -26,12 +26,11 @@ for rec, tr in (('2-fish', '2-fish'), ('3-fish', '3-fish')):
     lo, hi = np.percentile(bg, [1, 99.5])
     a_vid.imshow(bg, cmap='gray', vmin=lo, vmax=hi)
     a_vid.plot(*np.vstack([V, V[:1]]).T, '-', color='#eb6834', lw=1.5)
-    for _, r in el.iterrows():
-        for k in (1, 2):
-            x, y = r[f'x{k}'], r[f'y{k}']
+    for pid, pp, pm in load_electrodes(c['electrodes_updated']):           # poles in video px (x, y)
+        for (x, y), sign in ((pp, '+'), (pm, '-')):
             for rad, ls in ((0.25, ':'), (0.5, '-')):
                 a_vid.add_patch(plt.Circle((x, y), rad * PX_PER_CM, fill=False, ec='#2a78d6', lw=1.0, ls=ls))
-            a_vid.text(x + (10 if x < 456 else -10), y + (14 if y < 456 else -8), f"{r.pair}{r[f'pol{k}']}", color='#2a78d6',
+            a_vid.text(x + (10 if x < 456 else -10), y + (14 if y < 456 else -8), f'{pid}{sign}', color='#2a78d6',
                        fontsize=8, fontweight='bold', ha='left' if x < 456 else 'right')
     a_vid.set_title('video: tank outline (orange), electrode discs\n0.25 cm (dotted) and 0.5 cm (solid)', fontsize=10)
     # model grid: 0 outside the walls, 1 water, 2 disc of 0.25 cm, 3 disc of 0.5 cm (the 0.25 cm disc nodes are inside the 0.5 ones)

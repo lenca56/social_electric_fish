@@ -44,7 +44,8 @@ def paths(t):
 
 
 def eod_frames(t):
-    return np.unique(pd.read_csv(EOD.format(t=t), usecols=['Frame'], nrows=ROWS).Frame.to_numpy())
+    from io_utils import load_eods
+    return np.unique(load_eods(EOD.format(t=t), columns=['Frame'], traces=False, nrows=ROWS)[0].Frame.to_numpy())
 
 
 # ------------------------------------------------------------------------------------------------------------------ midlines
@@ -88,9 +89,8 @@ def _voltages(k):
 
 def stage_model(t, workers):
     global MASKS, MIDS, PAIRS
-    from io_utils import load_masks
-    from eod_assign import load_electrode_pairs
-    MASKS = load_masks(kaden_pkl(t)); PAIRS = load_electrode_pairs(ELECTRODES, P)
+    from io_utils import load_masks, load_electrodes
+    MASKS = load_masks(kaden_pkl(t)); PAIRS = load_electrodes(ELECTRODES, P)
     z = np.load(paths(t)['mids']); MIDS = dict(zip(z['frames'].tolist(), z['mids']))
     path = paths(t)['model']
     done = pd.read_pickle(path) if path.exists() else {}
@@ -109,10 +109,10 @@ def stage_model(t, workers):
 
 # ------------------------------------------------------------------------------------------------------------------ tables
 def stage_tables(t):
-    from eod_assign import load_electrode_pairs, recorded_pair_traces_all
-    pair_ids = [pid for pid, _, _ in load_electrode_pairs(ELECTRODES, P)]
-    df = pd.read_csv(EOD.format(t=t), nrows=ROWS)
-    V = recorded_pair_traces_all(df, pair_ids, 25)                            # (n, 10, 25), each pair demeaned
+    from io_utils import load_electrodes, load_eods
+    pair_ids = [pid for pid, _, _ in load_electrodes(ELECTRODES, P)]
+    df, V, _ = load_eods(EOD.format(t=t), columns=['Frame', 'Time'], pairs=pair_ids, nrows=ROWS)
+    V = V - np.nanmean(V, axis=2, keepdims=True)                              # (n, 10, 25), each pair demeaned
     ts = np.nanargmax(np.abs(V).max(axis=1), axis=1)
     R = V[np.arange(len(V)), :, ts]                                           # recorded peak pattern (volts)
     U = pd.read_pickle(paths(t)['model'])

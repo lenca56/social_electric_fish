@@ -23,6 +23,7 @@ import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.path import Path as MPath
 import eod_assignment_control_groups as g
+from io_utils import load_tank_outline, load_assignment
 from compute_electric_field import PX_PER_CM
 
 REC = {'2-fish': dict(res='results/eod_ground_truth', emitter=1), '3-fish': dict(res='results/eod_ground_truth_3fish', emitter=0)}
@@ -55,7 +56,7 @@ TABLES = {}
 for rec, r in REC.items():
     c = g.REC[rec]; em = r['emitter']
     q = pd.read_csv(f"{r['res']}/eod_clean_good_synch_fix_newest.csv"); clean = q.clean_good.to_numpy(bool)
-    V = pd.read_csv(c['outline'])[['x', 'y']].to_numpy(); nin = inward_normals(V)
+    V = load_tank_outline(c['outline']); nin = inward_normals(V)
     z = np.load(c['midlines']); M = dict(zip(z['frames'].tolist(), z['midlines_px']))
     rows = []
     for i in np.flatnonzero(clean):
@@ -63,9 +64,9 @@ for rec, r in REC.items():
         rows.append((i, *wall_geometry(Pts, V, nin)) if np.isfinite(Pts).all() else (i, np.nan, np.nan))
     T = pd.DataFrame(rows, columns=['eod_row', 'wall_cm', 'heading_deg']).set_index('eod_row')
     for v, (tag, _) in VER.items():
-        d = pd.read_csv(f"{c['out']}/{tag}/eod_assignment_shape.csv", usecols=['Frame', 'pick', f'd{em}'])
-        assert (d.Frame.to_numpy() == q.Frame.to_numpy()).all()
-        T[f'L2 | {v}'] = d[f'd{em}'].to_numpy()[T.index]; T[f'correct | {v}'] = (d.pick.to_numpy() == em)[T.index]
+        a = load_assignment(f"{c['out']}/{tag}/eod_assignment_shape.csv")
+        assert (a.table.Frame.to_numpy() == q.Frame.to_numpy()).all()
+        T[f'L2 | {v}'] = a.score[T.index, em]; T[f'correct | {v}'] = (a.pick == em)[T.index]
     T = T.dropna(subset=['wall_cm']); T.to_csv(f"{c['out']}/emitter_wall_geometry.csv"); TABLES[rec] = T
     print(f"{rec}: {len(T)} clean-good EODs; wrong per version: " +
           ', '.join(f"{v} {(~T[f'correct | {v}']).sum()}" for v in VER), flush=True)

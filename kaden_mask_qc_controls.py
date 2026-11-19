@@ -10,7 +10,8 @@ Per fish and frame, a mask passes when:
 - it is not within 5 px of any other fish's mask.
 A frame is good when every fish passes. Medians are per video, over the frames computed here (EOD frames +- 1). No SLEAP rule.
 
-    OMP_NUM_THREADS=1 python kaden_mask_qc_controls.py [--workers 7]
+    OMP_NUM_THREADS=1 python kaden_mask_qc_controls.py [--workers 7] [--masks kaden|latest]
+--masks latest: Kaden's newer run (*_latest_run folders), output in with_latest_run_tracking/ instead.
 
 Output in results/eod_assignment_<n>_fish_silent/with_Kaden_tracking/: mask_qc_per_fish.csv (frame, letter, fish = ZEUS number,
 metrics, checks), mask_qc_good_frames.csv, and eod_mask_qc.csv (one row per EOD of the newest table: eod_row, Frame, Time,
@@ -39,10 +40,11 @@ def frame_rows(keys):
 
 
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser(); ap.add_argument('--workers', type=int, default=7); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument('--workers', type=int, default=7); ap.add_argument('--masks', choices=['kaden', 'latest'], default='kaden')
+    a = ap.parse_args()
     for rec in ('2-fish', '3-fish'):
         c = g.REC[rec]; t0 = time.time()
-        MASKS = load_masks(c['kaden']); LET = ''.join(MASKS.names); n = len(MASKS)
+        MASKS = load_masks(g.mask_file(rec, a.masks)); OUT = g.out_dir(rec, a.masks); LET = ''.join(MASKS.names); n = len(MASKS)
         to_fish = {LET[j]: f for f, j in enumerate(c['kaden_order'])}
         eod = pd.read_csv(c['newest'], usecols=['Frame', 'Time']); ef = np.unique(eod.Frame.to_numpy())
         keys = np.unique(np.r_[ef - 1, ef, ef + 1]); keys = keys[(keys >= 0) & (keys < n)]
@@ -70,12 +72,12 @@ if __name__ == '__main__':
         }
         for k_, v in checks.items(): q[k_] = np.asarray(v)
         q['all'] = pd.DataFrame(checks).all(axis=1).to_numpy(); q['fish'] = q.letter.map(to_fish)
-        q.to_csv(f"{c['out_kaden']}/mask_qc_per_fish.csv", index=False)
+        q.to_csv(f"{OUT}/mask_qc_per_fish.csv", index=False)
         good = q.groupby('frame')['all'].all(); good = good.index[good.to_numpy()].to_numpy(); good = good[np.isin(good, ef)]
-        pd.Series(good, name='frame').to_csv(f"{c['out_kaden']}/mask_qc_good_frames.csv", index=False)
+        pd.Series(good, name='frame').to_csv(f"{OUT}/mask_qc_good_frames.csv", index=False)
         e = pd.DataFrame({'eod_row': np.arange(len(eod)), 'Frame': eod.Frame, 'Time': eod.Time, 'in_video': eod.Time >= 0})
         e['mask_qc_good'] = e.in_video & e.Frame.isin(good)
-        e.to_csv(f"{c['out_kaden']}/eod_mask_qc.csv", index=False)
+        e.to_csv(f"{OUT}/eod_mask_qc.csv", index=False)
         rates = (q[q.frame.isin(ef)].groupby('letter')[list(checks) + ['all']].mean().T * 100).round(1)
         print(f"{rec}: {len(ef)} EOD frames, mask QC good (every fish) {len(good)} ({len(good) / len(ef) * 100:.1f}%); EODs: "
               f"{e.mask_qc_good.sum()} of {e.in_video.sum()} in the video; {(time.time() - t0) / 60:.1f} min\n"

@@ -1,0 +1,20 @@
+
+2-fish: fish lengths {0: np.float64(12.17), 1: np.float64(16.9)}; 12240 good-mask EODs of 18798
+2-fish, good mask EODs
+rule            shape cosine, peak-to-peak  shape L2, peak-to-peak  voltage L2, peak-to-peak  voltage cosine, peak-to-peak  voltage L2, peak-to-peak, no length law
+model                                                                                                                                                              
+Denis analytic                       99.43                   99.28                     99.02                         99.58                                    99.05
+2-fish, all EODs
+rule            shape cosine, peak-to-peak  shape L2, peak-to-peak  voltage L2, peak-to-peak  voltage cosine, peak-to-peak  voltage L2, peak-to-peak, no length law
+model                                                                                                                                                              
+Denis analytic                       98.29                   98.19                     97.79                          98.4                                    97.79
+
+3-fish: fish lengths {0: np.float64(12.15), 1: np.float64(17.03), 2: np.float64(14.6)}; 8598 good-mask EODs of 19780
+3-fish, good mask EODs
+rule            shape cosine, peak-to-peak  shape L2, peak-to-peak  voltage L2, peak-to-peak  voltage cosine, peak-to-peak  voltage L2, peak-to-peak, no length law
+model                                                                                                                                                              
+Denis analytic                       98.91                   98.79                     98.84                          98.8                                    97.96
+3-fish, all EODs
+rule            shape cosine, peak-to-peak  shape L2, peak-to-peak  voltage L2, peak-to-peak  voltage cosine, peak-to-peak  voltage L2, peak-to-peak, no length law
+model                                                                                                                                                              
+Denis analytic                       89.73                    90.2                     86.91                         89.44                                    85.67

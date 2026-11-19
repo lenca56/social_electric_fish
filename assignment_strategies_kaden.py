@@ -20,7 +20,9 @@ of one half of the recording, scored on the other half (2-fold by time); 'voltag
 Groups: all EODs in the video (Time >= 0), and good-mask EODs (kaden_mask_qc_controls.py: every fish passes the mask QC).
 An EOD without a pick counts as wrong.
 
-    python assignment_strategies_kaden.py [skin]
+    python assignment_strategies_kaden.py [skin] [latest]
+'denis': Denis' pipeline only (no runs of my model); figure accuracy_denis_<n>fish.png: one group per rule, all vs good-mask EODs.
+'latest': Kaden's newer masks (*_latest_run, eod_assignment_control_groups.py --masks latest), folder with_latest_run_tracking/.
 'skin': the skin sweep instead (N150 tank, interior 2, skin 0-3 cm of water, plus Denis); outputs get the suffix _skin.
 Output in results/eod_assignment_<n>_fish_silent/with_Kaden_tracking/strategies/: accuracy.csv, gains.csv, fish_lengths.csv,
 predicted_voltages_<model>_<peak|ptp>.npz (in-sample fit on all good-mask EODs), accuracy_<n>fish.png.
@@ -39,10 +41,13 @@ KMODELS = {'N150 square': ('N150_image_none', 'electrodes_signed_px_coord'),
            'N200 tank, no bodies': ('N200_tank_nobodies_none', 'electrode_locations_updated'),
            'N150 square, no bodies': ('N150_image_nobodies_none', 'electrodes_signed_px_coord'),
            **{f'N150 tank, interior {s}': (f'N150_tank_int{s}_none', 'electrode_locations_updated') for s in (2, 20, 40, 100)}}
-SET = sys.argv[1] if len(sys.argv) > 1 else 'main'; SUF = '' if SET == 'main' else f'_{SET}'
+MASKSET = 'latest' if 'latest' in sys.argv[1:] else 'kaden'; MLABEL = {'kaden': 'Kaden masks', 'latest': 'Kaden masks, latest run'}[MASKSET]
+ARGS = [x for x in sys.argv[1:] if x != 'latest']
+SET = ARGS[0] if ARGS else 'main'; SUF = '' if SET == 'main' else f'_{SET}'
 if SET == 'skin':   # N150 tank, interior 2, skin as resistive as l cm of water (0.1 = the run of the interior sweep)
     KMODELS = {f'N150 tank, int 2, skin {l:g}': ('N150_tank_int2_none' if l == 0.1 else f'N150_tank_int2_skin{l:g}_none', 'electrode_locations_updated')
                for l in (0, 0.03, 0.1, 0.3, 1, 3)}
+if SET == 'denis': KMODELS = {}
 PLOT_RULES = {'shape L2, peak sample': '#8a8a85', 'shape L2, peak-to-peak': '#eda100', 'shape cosine, peak-to-peak': '#e87ba4',
               'voltage L2, peak sample': '#2a78d6', 'voltage L2, peak-to-peak': '#eb6834'}
 
@@ -59,8 +64,39 @@ def voltage_rules(R, Mm, A, K, em, good, half, n):
     return V, G, cnt, l2, cs, nl
 
 
+DENIS_RULES = {'shape cosine, peak-to-peak': "shape cosine\n(Denis' own rule)", 'shape L2, peak-to-peak': 'shape L2',
+               'voltage cosine, peak-to-peak': 'voltage cosine\n(a(L) x 20 gains)', 'voltage L2, peak-to-peak': 'voltage L2\n(a(L) x 20 gains)',
+               'voltage L2, peak-to-peak, no length law': 'voltage L2\n(20 gains, no length law)'}
+
+
+def wilson(pct, nn, z=1.96):
+    """95 % Wilson interval (lo, hi) in % of a % correct out of nn EODs."""
+    p_ = np.round(pct / 100 * nn) / nn; den = 1 + z ** 2 / nn; mid = (p_ + z ** 2 / (2 * nn)) / den
+    hw = z * np.sqrt(p_ * (1 - p_) / nn + z ** 2 / (4 * nn ** 2)) / den; return 100 * (mid - hw), 100 * (mid + hw)
+
+
+def denis_figure(T, rec, n_all, n_good, out):
+    """Denis' pipeline: % correct per rule (x), all EODs vs good-mask EODs (two bars)."""
+    T = T[T.model == 'Denis analytic'].set_index('rule'); rules = [r_ for r_ in DENIS_RULES if r_ in T.index]
+    x = np.arange(len(rules)); w = 0.38; fig, a = plt.subplots(figsize=(11, 5.2)); vals = []
+    for j, (grp, nn, colr) in enumerate((('all EODs', n_all, '#9aa5b1'), ('good mask EODs', n_good, '#2a78d6'))):
+        y = T.loc[rules, grp].to_numpy(float); lo, hi = wilson(y, nn); xo = x + (j - 0.5) * w; vals += list(y)
+        a.bar(xo, y, w * 0.92, color=colr, label=f'{grp} (n = {nn:,})')
+        a.errorbar(xo, y, yerr=[np.clip(y - lo, 0, None), np.clip(hi - y, 0, None)], fmt='none', ecolor='0.3', elinewidth=0.9, capsize=2)
+        for xi, v, h in zip(xo, y, hi): a.text(xi, h + 0.05, f'{v:.2f}', ha='center', va='bottom', fontsize=9, color='0.15')
+    low = np.floor(min(vals) - 1); a.set_ylim(low, 100.6)
+    a.set_xticks(x, [DENIS_RULES[r_] for r_ in rules], fontsize=9.5); a.set_ylabel(f'% correct (axis starts at {low:g})')
+    a.set_title(f"{rec}, Denis' pipeline on {MLABEL} midlines: accuracy per assignment rule", fontsize=11, pad=26)
+    a.legend(frameon=False, fontsize=9, loc='lower left', bbox_to_anchor=(0, 1.0), ncol=2); a.grid(axis='y', alpha=0.3); a.set_axisbelow(True)
+    for s_ in ('top', 'right'): a.spines[s_].set_visible(False)
+    fig.text(0.5, 0.01, "Denis' analytic model, signed peak-to-peak. Voltage rules: gains fitted on good-mask EODs of one half of the recording, "
+             'scored on the other (2-fold by time). Whiskers: 95 % Wilson interval. An EOD without a pick counts as wrong.',
+             ha='center', fontsize=7.5, color='0.35', wrap=True)
+    fig.tight_layout(rect=(0, 0.04, 1, 1)); fig.savefig(f"{out}/accuracy_denis_{rec.replace('-', '')}.png", dpi=130); plt.close(fig)
+
+
 for rec, r in REC.items():
-    c = g.REC[rec]; em, nf = r['emitter'], r['n']; base = c['out_kaden']; out = f'{base}/strategies'; os.makedirs(out, exist_ok=True)
+    c = g.REC[rec]; em, nf = r['emitter'], r['n']; base = g.out_dir(rec, MASKSET); out = f'{base}/strategies'; os.makedirs(out, exist_ok=True)
     qc = pd.read_csv(f'{base}/eod_mask_qc.csv'); valid = qc.in_video.to_numpy(bool); good = qc.mask_qc_good.to_numpy(bool)
     frames = qc.Frame.to_numpy(); n = len(qc); half = np.arange(n) < n // 2
     z = np.load(f'{base}/mask_midlines_by_frame_newest.npz'); M = dict(zip(z['frames'].tolist(), z['midlines_px']))
@@ -107,6 +143,7 @@ for rec, r in REC.items():
         A = LAW['Denis'][0] * L + LAW['Denis'][1]
         V, G, cnt, l2, cs, nl = voltage_rules(D_R, D_M, A, nearer('electrodes_signed_px_coord'), em, good, half, n)
         add('Denis analytic', 'voltage L2, peak-to-peak', l2); add('Denis analytic', 'voltage cosine, peak-to-peak', cs)
+        if SET == 'denis': add('Denis analytic', 'voltage L2, peak-to-peak, no length law', nl)
         gains_rows += [dict(model='Denis analytic', measure='peak-to-peak', electrode=f'{k // 2 + 1}{"+−"[k % 2]}', gain=G[k], n_terms=int(cnt[k])) for k in range(20)]
         np.savez_compressed(f'{out}/predicted_voltages_Denis_analytic_ptp.npz', predicted_volts=V, recorded=D_R, gains=G, fish_factor=A, fish_length_cm=L)
     T = pd.DataFrame(rows); T.to_csv(f'{out}/accuracy{SUF}.csv', index=False); pd.DataFrame(gains_rows).to_csv(f'{out}/gains{SUF}.csv', index=False)
@@ -114,6 +151,7 @@ for rec, r in REC.items():
         for grp in ('good mask EODs', 'all EODs'):
             print(f'{rec}, {grp}'); print(T.pivot_table(index='model', columns='rule', values=grp, sort=False).round(2).to_string())
 
+    if SET == 'denis': denis_figure(T, rec, int(valid.sum()), int(good.sum()), out); continue
     # figure: % correct per model (x) and rule (colour), all EODs and good-mask EODs
     models = list(dict.fromkeys(T.model)); x = np.arange(len(models)); w = 0.8 / len(PLOT_RULES)
     fig, axs = plt.subplots(2, 1, figsize=(24, 12))
@@ -133,7 +171,7 @@ for rec, r in REC.items():
             for xi, v, h in zip(xo, y, hi):
                 if np.isfinite(v): a.text(xi, h + 0.01 * (top - low) + (j % 2) * step, f'{v:.2f}', ha='center', va='bottom', fontsize=6.5, color='0.2')
         a.set_xticks(x, [m.replace(', ', ',\n') for m in models], fontsize=9)
-        a.set_ylabel(f'% correct (axis starts at {low:g})'); a.set_title(f'{rec}, Kaden masks, {grp} (n = {nn:,})', fontsize=11)
+        a.set_ylabel(f'% correct (axis starts at {low:g})'); a.set_title(f'{rec}, {MLABEL}, {grp} (n = {nn:,})', fontsize=11)
         a.grid(axis='y', alpha=0.3); a.set_axisbelow(True)
         for s_ in ('top', 'right'): a.spines[s_].set_visible(False)
     axs[0].legend(fontsize=9, frameon=False, ncol=len(PLOT_RULES), loc='upper left', bbox_to_anchor=(0, 1.16))

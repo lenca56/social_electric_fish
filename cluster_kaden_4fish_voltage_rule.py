@@ -158,11 +158,11 @@ if len(sys.argv) > 1 and sys.argv[1] == '--list':
 if len(sys.argv) > 1 and sys.argv[1] == '--check':
     check_inputs(); sys.exit()
 
-from io_utils import load_masks
+from io_utils import load_masks, load_electrodes, load_tank_outline, load_tank_barriers, load_eods
 from midline_methods import fish_midline_with_head
 from compute_electric_field import (multipole_sources, build_multipole_b, occupancy_field, build_A_shell, solve_potential,
                                     unflatten_to_grid, materials, tank_inside, confine_sources, SKIN_CM)
-from eod_assign import pair_voltages, load_electrode_pairs, recorded_pair_traces_all
+from eod_assign import pair_voltages
 
 idx = int(os.environ['SLURM_ARRAY_TASK_ID']) if 'SLURM_ARRAY_TASK_ID' in os.environ else int(sys.argv[1])
 video = df.loc[idx, 'video']
@@ -178,9 +178,9 @@ def barrier_nodes(N):
     '''(N, N) bool: grid nodes on the plastic L-pieces; each arm is sampled densely and each sample marks its nearest node,
        so the removed nodes form an 8-connected line that no grid edge crosses.'''
     out = np.zeros((N, N), bool); s = (N - 1) / (P - 1)
-    for _, r in pd.read_csv(BARRIERS).iterrows():
-        n = int(np.ceil(np.hypot(r.x2 - r.x1, r.y2 - r.y1) * s * 4)) + 2
-        x, y = np.linspace(r.x1, r.x2, n) * s, np.linspace(r.y1, r.y2, n) * s
+    for x1, y1, x2, y2 in load_tank_barriers(BARRIERS):
+        n = int(np.ceil(np.hypot(x2 - x1, y2 - y1) * s * 4)) + 2
+        x, y = np.linspace(x1, x2, n) * s, np.linspace(y1, y2, n) * s
         out[np.clip(np.rint(y).astype(int), 0, N - 1), np.clip(np.rint(x).astype(int), 0, N - 1)] = True
     return out
 
@@ -243,12 +243,10 @@ if os.path.exists(MIDLINES.format(video=video)):
     zm = np.load(MIDLINES.format(video=video)); MIDS = dict(zip(zm['frames'].tolist(), zm['mids'])); del zm
 else:
     print(f'  no midline file {MIDLINES.format(video=video)}: midlines are fitted on the masks (slower)', flush=True)
-PAIRS = load_electrode_pairs(ELECTRODES, P); PIDS = [p for p, _, _ in PAIRS]
+PAIRS = load_electrodes(ELECTRODES, P); PIDS = [p for p, _, _ in PAIRS]
 assert PIDS == list(range(1, 11)), f'electrode pairs out of order in {ELECTRODES}: {PIDS}'
-EL = pd.read_csv(ELECTRODES).sort_values('pair')
-POLES_PLUS = np.array([(r.x1, r.y1) if str(r.pol1).strip() == '+' else (r.x2, r.y2) for _, r in EL.iterrows()], float)
-POLES_MINUS = np.array([(r.x2, r.y2) if str(r.pol1).strip() == '+' else (r.x1, r.y1) for _, r in EL.iterrows()], float)
-INSIDE = tank_inside(pd.read_csv(TANK_OUTLINE)[['x', 'y']].to_numpy(), N_GRID, P)
+POLES_PLUS, POLES_MINUS = (np.array([pole[j] for pole in load_electrodes(ELECTRODES)]) for j in (1, 2))   # (10, 2) x, y px, pairs 1-10
+INSIDE = tank_inside(load_tank_outline(TANK_OUTLINE), N_GRID, P)
 if USE_BARRIERS: INSIDE = INSIDE & ~barrier_nodes(N_GRID)
 MAT = materials(N_GRID, P, PX_PER_CM)
 MAT = dict(MAT, g_interior=INTERIOR_SIGMA, g_skin=1 / (SKIN_LAMBDA_CM / SKIN_CM + 1 / INTERIOR_SIGMA))
@@ -258,13 +256,13 @@ A_FISH = np.array([FAC[f'fish {f}'] for f in LETTERS])
 E_ELEC = np.array([FAC.get(f'electrode {e}', 1.0) for e in ORDER]).reshape(10, 2)              # (pair, + / -)
 print(f'  factors: fish {dict(zip(LETTERS, A_FISH.round(4)))}; electrodes {E_ELEC.min():.2f}-{E_ELEC.max():.2f}', flush=True)
 
-eods = pd.read_csv(EOD_TABLE.format(video=video), usecols=['Frame'] + [f'electrode_{p}_time_{i}' for p in PIDS for i in range(1, N_SAMPLES + 1)])
+eods, V, _ = load_eods(EOD_TABLE.format(video=video), columns=['Frame'], pairs=PIDS); assert V.shape[2] == N_SAMPLES
 frames_all = np.unique(eods.Frame.to_numpy())
 my_frames = np.array_split(frames_all, N_CHUNKS)[chunk]
 if MAX_FRAMES: my_frames = my_frames[:MAX_FRAMES]
 sel = np.flatnonzero(np.isin(eods.Frame.to_numpy(), my_frames))
 frames = eods.Frame.to_numpy()[sel]
-V = recorded_pair_traces_all(eods.iloc[sel], PIDS, N_SAMPLES); del eods
+V = (V - np.nanmean(V, axis=2, keepdims=True))[sel]; del eods                                 # each pair demeaned
 R = V[np.arange(len(V)), :, np.abs(V).max(1).argmax(1)]; del V                                 # (n, 10) recorded main phase, V
 n_missing_mid = sum(int(k) not in MIDS for k in my_frames)
 print(f'  {len(sel)} EODs on {len(my_frames)} frames ({n_missing_mid} without a stored midline); setup {time.time() - t0:.0f} s', flush=True)

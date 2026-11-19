@@ -23,7 +23,7 @@ predicted_voltages_ptp_<model>.npz (in-sample predicted volts, gains, nearer pol
 'all EODs' (from 2026-11-10) leaves out the few EODs with negative Time in the newest table (before the video starts; they
 carry Frame 1 and are never in a clean good frame).
 """
-import os, re
+import os
 import numpy as np
 import pandas as pd
 
@@ -37,13 +37,7 @@ MINE_MODELS = {**{k: v for k, v in MODELS.items() if v[0] == 'mine'},
 
 def recorded_ptp(path, pair_ids):
     """(n_eods, n_pairs) signed peak-to-peak of an EOD table, Denis' sign rule."""
-    head = pd.read_csv(path, nrows=0).columns
-    pat = re.compile(r'electrode_(\d+)_t(?:ime)?_([mp]?)(\d+)$'); cols = {}
-    for col in head:
-        m = pat.match(col)
-        if m: cols.setdefault(int(m[1]), []).append(((-1 if m[2] == 'm' else 1) * int(m[3]), col))
-    order = [col for p in pair_ids for _, col in sorted(cols[p])]
-    X = pd.read_csv(path, usecols=order)[order].to_numpy(float).reshape(-1, len(pair_ids), len(cols[pair_ids[0]]))
+    X = load_eods(path, columns=[], pairs=pair_ids)[1]
     bad = np.isnan(X)                                                  # a few windows have missing samples: ignore those samples
     hi, lo = np.where(bad, -np.inf, X), np.where(bad, np.inf, X)
     out = -(hi.max(2) - lo.min(2)) * np.sign(hi.argmax(2) - lo.argmin(2))
@@ -63,7 +57,7 @@ def shape_picks(R, U):
 for rec, r in REC.items():
     c = g.REC[rec]; em, nf = r['emitter'], r['n']; out = f"{c['out']}/voltage_rule"
     q = pd.read_csv(f"{r['res']}/eod_clean_good_synch_fix_newest.csv"); clean = q.clean_good.to_numpy(bool); frames = q.Frame.to_numpy()
-    valid = pd.read_csv(c['newest'], usecols=['Time']).Time.to_numpy() >= 0   # 'all EODs' leaves out EODs before the video starts
+    valid = load_eods(c['newest'], columns=['Time'], traces=False)[0].Time.to_numpy() >= 0   # 'all EODs': no EODs before the video
     n = len(q); half = np.arange(n) < n // 2
     z = np.load(c['midlines']); M = dict(zip(z['frames'].tolist(), z['midlines_px']))
     L = pd.read_csv(f'{out}/fish_lengths.csv').iloc[:, 1].to_numpy()
@@ -71,18 +65,18 @@ for rec, r in REC.items():
     pair_ids = list(range(1, 11)); R = recorded_ptp(c['newest'], pair_ids)
 
     # check against Denis' own recorded PTP (EODs where every fish has a midline)
-    dn_all = pd.read_csv(f"{r['res']}/conductivities/denis_mask_midline_offset/denis_mask_midline_all_eods_synch_fix_newest.csv")
-    has = dn_all.pick.notna().to_numpy(); ddir = f"{r['res']}/conductivities/denis_mask_midline_offset/synch_fix_newest"
-    dk = pd.read_pickle(f"{ddir}/{next(x for x in os.listdir(ddir) if x.endswith('.pkl'))}")
-    Dn = np.stack(dk.recorded_PTP.to_numpy()); both = np.isfinite(Dn) & np.isfinite(R[has])
+    ddir = f"{r['res']}/conductivities/denis_mask_midline_offset"
+    dn = load_denis_assignment(f'{ddir}/denis_mask_midline_all_eods_synch_fix_newest.csv', f'{ddir}/synch_fix_newest')
+    has = dn.pick >= 0; Dn = dn.recorded[has]; both = np.isfinite(Dn) & np.isfinite(R[has])
     print(f'\n{rec}: recorded PTP vs Denis\' recorded_PTP: max |difference| = {np.abs(Dn - R[has])[both].max():.2e} on '
           f'{both.sum()} values; NaN pairs here {int(np.isnan(R).sum())}, in his {int(np.isnan(Dn).sum())}', flush=True)
     np.savez_compressed(f'{out}/recorded_ptp.npz', frame=frames, recorded_ptp=R, pair_ids=pair_ids)
 
     rows, gains_rows, Kcache = [], [], {}
     for name, (kind, path, el) in MINE_MODELS.items():
-        d = pd.read_csv(path.format(res=r['res'], out=c['out'])); assert (d.Frame.to_numpy() == frames).all()
-        U = np.stack([d[[f'u{f}_raw_p{p}' for p in pair_ids]].to_numpy() for f in range(nf)], axis=1)
+        a = load_assignment(path.format(res=r['res'], out=c['out']))
+        assert (a.table.Frame.to_numpy() == frames).all() and a.pair_ids == pair_ids and a.fish == list(range(nf))
+        U = a.predicted
         ue = U[clean, em]; ok = np.isfinite(ue).all(1) & np.isfinite(R[clean]).all(1)
         cos_em = (ue[ok] * R[clean][ok]).sum(1) / (np.linalg.norm(ue[ok], axis=1) * np.linalg.norm(R[clean][ok], axis=1))
         S = np.sign(np.median(cos_em)); agree = 100 * (np.sign(cos_em) == S).mean()
@@ -92,7 +86,7 @@ for rec, r in REC.items():
         res = {}
         p_l2, p_cos = shape_picks(R, Mm); res['PTP shape L2'] = p_l2 == em; res['PTP shape cosine'] = p_cos == em
         if el not in Kcache:
-            pairs = load_electrode_pairs(f'data/electrodes/{el}_{rec}.csv', P)
+            pairs = load_electrodes(f'data/electrodes/{el}_{rec}.csv', P)
             Kcache[el] = nearer_pole(M, frames, [(pp[::-1] * (P - 1), pm[::-1] * (P - 1)) for _, pp, pm in pairs], nf)
         K = Kcache[el]; Kc = np.where(K >= 0, K, 0); Mem, Kem = A[em] * Mm[:, em], K[:, em]
         volts = lambda G_, with_len=True: (lambda V_: np.where(K >= 0, V_, np.nan))((A[None, :, None] if with_len else 1.0) * np.take(G_, Kc) * Mm)

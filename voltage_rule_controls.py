@@ -34,7 +34,8 @@ import os
 import numpy as np
 import pandas as pd
 import eod_assignment_control_groups as g
-from eod_assign import load_electrode_pairs, MODEL_SIGN
+from eod_assign import MODEL_SIGN
+from io_utils import load_electrodes, load_eods, load_assignment, load_denis_assignment
 
 P, PX_CM_LAW = 912, 912 / 60
 LAW = {'mine': (0.010661805405381211, 0.31386049313202685), 'Denis': (0.00020448335330612151, 0.002989576395375126)}
@@ -97,7 +98,7 @@ def picks(R, V):
 for rec, r in REC.items():
     c = g.REC[rec]; em, nf = r['emitter'], r['n']; out = f"{c['out']}/voltage_rule"; os.makedirs(out, exist_ok=True)
     q = pd.read_csv(f"{r['res']}/eod_clean_good_synch_fix_newest.csv"); clean = q.clean_good.to_numpy(bool); frames = q.Frame.to_numpy()
-    valid = pd.read_csv(c['newest'], usecols=['Time']).Time.to_numpy() >= 0   # 'all EODs' leaves out EODs before the video starts
+    valid = load_eods(c['newest'], columns=['Time'], traces=False)[0].Time.to_numpy() >= 0   # 'all EODs': no EODs before the video
     n = len(q); half = np.arange(n) < n // 2
     z = np.load(c['midlines']); M = dict(zip(z['frames'].tolist(), z['midlines_px']))
     Lv = np.stack([np.linalg.norm(np.diff(M[int(k)], axis=1), axis=-1).sum(-1) for k in np.unique(frames)]) * 1.0 / PX_CM_LAW
@@ -106,26 +107,19 @@ for rec, r in REC.items():
     print(f'\n{rec}: fish lengths (cm, as for the law)', dict(enumerate(L.round(2))), flush=True)
 
     # Denis' predictions and recorded PTP, back on every EOD row (NaN where some fish had no midline)
-    dn_all = pd.read_csv(f"{r['res']}/conductivities/denis_mask_midline_offset/denis_mask_midline_all_eods_synch_fix_newest.csv")
-    has = dn_all.pick.notna().to_numpy()
-    dk = pd.read_pickle(next(p for p in (f"{r['res']}/conductivities/denis_mask_midline_offset/synch_fix_newest/{x}"
-                                          for x in os.listdir(f"{r['res']}/conductivities/denis_mask_midline_offset/synch_fix_newest"))
-                             if p.endswith('.pkl')))
-    assert has.sum() == len(dk) and (dk.Frame.to_numpy() == frames[has]).all()
-    D_R = np.full((n, 10), np.nan); D_R[has] = np.stack(dk.recorded_PTP.to_numpy())
-    D_M = np.full((n, nf, 10), np.nan)
-    for X in r['letters']: D_M[has, r['zeus'][X]] = np.stack(dk[f'predicted_PTP_{X}'].to_numpy())
-    denis_pick = dn_all.pick.map(r['zeus']).fillna(-1).to_numpy(int)
+    ddir = f"{r['res']}/conductivities/denis_mask_midline_offset"
+    dn = load_denis_assignment(f'{ddir}/denis_mask_midline_all_eods_synch_fix_newest.csv', f'{ddir}/synch_fix_newest', fish=r['zeus'])
+    assert (dn.table.Frame.to_numpy() == frames).all()
+    D_R, D_M, denis_pick = dn.recorded, dn.predicted, dn.pick
 
     rows, gains_rows = [], []
     for name, (kind, path, el) in MODELS.items():
-        pairs = load_electrode_pairs(f'data/electrodes/{el}_{rec}.csv', P); pair_ids = [p for p, _, _ in pairs]
+        pairs = load_electrodes(f'data/electrodes/{el}_{rec}.csv', P); pair_ids = [p for p, _, _ in pairs]
         pairs_px = [(pp[::-1] * (P - 1), pm[::-1] * (P - 1)) for _, pp, pm in pairs]           # (x, y) px
         if kind == 'mine':
-            d = pd.read_csv(path.format(res=r['res'], out=c['out'])); assert (d.Frame.to_numpy() == frames).all()
-            R = d[[f'r_raw_p{q_}' for q_ in pair_ids]].to_numpy()
-            Mm = MODEL_SIGN * np.stack([d[[f'u{f}_raw_p{q_}' for q_ in pair_ids]].to_numpy() for f in range(nf)], axis=1)
-            shape_pick = d.pick.to_numpy()
+            a = load_assignment(path.format(res=r['res'], out=c['out']))
+            assert (a.table.Frame.to_numpy() == frames).all() and a.pair_ids == pair_ids and a.fish == list(range(nf))
+            R, Mm, shape_pick = a.recorded, MODEL_SIGN * a.predicted, a.pick
         else:
             R, Mm, shape_pick = D_R, D_M, denis_pick
         A = LAW[kind][0] * L + LAW[kind][1]                                    # fish factor per fish

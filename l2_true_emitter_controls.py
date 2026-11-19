@@ -23,6 +23,7 @@ import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import eod_assignment_control_groups as g
 from eod_assign import MODEL_SIGN
+from io_utils import load_eods, load_assignment, load_denis_assignment
 
 REC = {'2-fish': dict(res='results/eod_ground_truth', emitter=1, letters={'A': 1, 'B': 0}, n=2),
        '3-fish': dict(res='results/eod_ground_truth_3fish', emitter=0, letters={'A': 1, 'B': 2, 'C': 0}, n=3)}
@@ -46,15 +47,15 @@ rows, L2 = [], {}
 for rec, r in REC.items():
     c = g.REC[rec]; em, nf = r['emitter'], r['n']; out = f"{c['out']}/voltage_rule"
     q = pd.read_csv(f"{r['res']}/eod_clean_good_synch_fix_newest.csv"); clean = q.clean_good.to_numpy(bool)
-    valid = pd.read_csv(c['newest'], usecols=['Time']).Time.to_numpy() >= 0
+    valid = load_eods(c['newest'], columns=['Time'], traces=False)[0].Time.to_numpy() >= 0
     Rptp = np.load(f'{out}/recorded_ptp.npz')['recorded_ptp']
     vals = {}
     for name, (path, tag) in MODELS.items():
         v = {}
         if path is not None:
-            d = pd.read_csv(path.format(res=r['res'], out=c['out']))
-            v['shape, peak sample'] = d[f'd{em}'].to_numpy()
-            u = d[[f'u{em}_raw_p{p}' for p in range(1, 11)]].to_numpy()
+            a = load_assignment(path.format(res=r['res'], out=c['out'])); assert a.pair_ids == list(range(1, 11))
+            v['shape, peak sample'] = a.score[:, em]
+            u = a.predicted[:, em]
             zp = np.load(f'{out}/predicted_voltages_ptp_{tag}.npz'); S = float(zp['sign'])
             v['shape, peak-to-peak'] = np.linalg.norm(unit(S * u) - unit(Rptp), axis=1)
             z = np.load(f'{out}/predicted_voltages_{tag}.npz'); R = z['recorded']
@@ -62,11 +63,9 @@ for rec, r in REC.items():
             v['voltage, peak-to-peak'] = np.linalg.norm(Rptp - zp['predicted_volts'][:, em], axis=1) / np.abs(Rptp).max(1)
         else:                                                                  # Denis: peak-to-peak only
             ddir = f"{r['res']}/conductivities/denis_mask_midline_offset"
-            has = pd.read_csv(f'{ddir}/denis_mask_midline_all_eods_synch_fix_newest.csv').pick.notna().to_numpy()
-            dk = pd.read_pickle(f"{ddir}/synch_fix_newest/{next(x for x in os.listdir(f'{ddir}/synch_fix_newest') if x.endswith('.pkl'))}")
-            X = {v_: k for k, v_ in r['letters'].items()}[em]
-            sh = np.full(len(q), np.nan)
-            sh[has] = np.linalg.norm(unit(np.stack(dk[f'predicted_PTP_{X}'].to_numpy())) - unit(np.stack(dk.recorded_PTP.to_numpy())), axis=1)
+            dn = load_denis_assignment(f'{ddir}/denis_mask_midline_all_eods_synch_fix_newest.csv', f'{ddir}/synch_fix_newest', fish=r['letters'])
+            has = dn.pick >= 0; sh = np.full(len(q), np.nan)
+            sh[has] = np.linalg.norm(unit(dn.predicted[has, em]) - unit(dn.recorded[has]), axis=1)
             v['shape, peak-to-peak'] = sh
             z = np.load(f'{out}/predicted_voltages_{tag}.npz'); R = z['recorded']
             v['voltage, peak-to-peak'] = np.linalg.norm(R - z['predicted_volts'][:, em], axis=1) / np.abs(R).max(1)

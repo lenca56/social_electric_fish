@@ -233,6 +233,336 @@ def pair_overlap(labs, boxes, crops):
     return out
 
 
+# --------------------------------------------------------------------------- quality metrics
+# Ground-truth-free mask quality, as used for tracking / video object segmentation without labels:
+#   shape       solidity (area / convex-hull area), holes, fragmentation (shape_metrics)
+#   temporal    IoU of a fish's mask with its own mask in the previous frame (DAVIS-style temporal
+#               stability), also after moving the previous mask onto the current centroid (shape
+#               change without the swimming), and with the other fish's previous masks (swap candidates)
+#   exclusivity pixels shared with another fish's mask (visible masks should be disjoint), contact
+#   amodal      fraction of the visible mask inside the same fish's full-body (amodal) mask
+# A mask is a (box (y0, y1, x0, x1), bool crop) pair, as from io_utils.rle_crop / Masks.crops.
+
+def crop_intersection(a, b, shift=(0, 0)):
+    """Pixels two (box, crop) masks share, with b moved by shift = (dy, dx) px."""
+    (ba, ca), (bb, cb) = a, b
+    bb = (bb[0] + shift[0], bb[1] + shift[0], bb[2] + shift[1], bb[3] + shift[1])
+    y0, y1 = max(ba[0], bb[0]), min(ba[1], bb[1])
+    x0, x1 = max(ba[2], bb[2]), min(ba[3], bb[3])
+    if y0 >= y1 or x0 >= x1:
+        return 0
+    return int(np.count_nonzero(ca[y0 - ba[0]:y1 - ba[0], x0 - ba[2]:x1 - ba[2]]
+                                & cb[y0 - bb[0]:y1 - bb[0], x0 - bb[2]:x1 - bb[2]]))
+
+
+def crop_iou(a, b, shift=(0, 0)):
+    """Intersection over union of two (box, crop) masks, with b moved by shift = (dy, dx) px."""
+    i = crop_intersection(a, b, shift)
+    u = np.count_nonzero(a[1]) + np.count_nonzero(b[1]) - i
+    return i / u if u else np.nan
+
+
+def solidity(crop):
+    """Mask area / area of the convex hull of its pixels (1 = convex).
+
+    A bent fish is legitimately below 1; sudden drops mark bites, ragged edges or
+    a neighbour's pixels glued on.
+    """
+    from scipy.spatial import ConvexHull
+    edge = crop & ~ndimage.binary_erosion(crop)
+    ys, xs = np.nonzero(edge)
+    pts = np.concatenate([np.c_[xs + dx, ys + dy] for dx in (0, 1) for dy in (0, 1)])  # pixel corners
+    return np.count_nonzero(crop) / ConvexHull(pts).volume
+
+
+def hole_frac(crop):
+    """Area of enclosed holes / mask area (0 for a solid mask)."""
+    n = np.count_nonzero(crop)
+    return (np.count_nonzero(ndimage.binary_fill_holes(crop)) - n) / n
+
+
+def centroid_shift(a, b):
+    """Whole-pixel (dy, dx) that moves mask a's centroid onto mask b's."""
+    ca = np.argwhere(a[1]).mean(0) + (a[0][0], a[0][2])
+    cb = np.argwhere(b[1]).mean(0) + (b[0][0], b[0][2])
+    return tuple(int(v) for v in np.round(cb - ca))
+
+
+def frame_quality(vis, amo, prev, gap=5):
+    """Per-fish quality metrics of one frame.
+
+    vis, amo, prev: {fish: (box, crop)} of this frame's visible masks, its amodal
+    (full-body) masks and the previous frame's visible masks. Returns
+    {fish: metrics} for every fish with a visible mask.
+    """
+    from kaden_mask_qc import in_contact                # imported here: kaden_mask_qc imports this module
+    out = {}
+    for f, m in vis.items():
+        box, crop = m
+        r = shape_metrics(crop, box)
+        r["solidity"] = solidity(crop)
+        r["hole_frac"] = hole_frac(crop)
+        others = [o for o in vis if o != f]
+        r["contact"] = any(in_contact(m, vis[o], gap) for o in others)
+        r["overlap_px"] = sum(crop_intersection(m, vis[o]) for o in others)
+        if f in amo:
+            r["area_amodal"] = int(np.count_nonzero(amo[f][1]))
+            r["vis_in_amodal"] = crop_intersection(m, amo[f]) / r["px"]
+            r["amodal_overlap_px"] = sum(crop_intersection(amo[f], amo[o]) for o in amo if o != f)
+        r["iou_prev"] = crop_iou(m, prev[f]) if f in prev else np.nan
+        r["iou_prev_aligned"] = crop_iou(m, prev[f], centroid_shift(prev[f], m)) if f in prev else np.nan
+        r["iou_prev_other"] = max((crop_iou(m, prev[o]) for o in prev if o != f), default=0.0)
+        out[f] = r
+    return out
+
+
+def qc_checks(q, key="fish"):
+    """The rules of kaden_mask_qc.py, on a table with one row per (frame, fish) of every frame.
+
+    q needs frame, `key`, px, cx, cy, major, largest_frac, contact (NaN where the fish
+    has no mask). Adds step, darea, area_ratio, length_ratio, one bool column per check
+    and 'all'; returns the check names. Medians are per fish over the frames in q.
+    """
+    import kaden_mask_qc as kq
+    q["present"] = q.px.fillna(0) > 0
+    for f in q[key].unique():                            # worst of the step to the previous and to the next frame
+        m = q[key] == f
+        s = q[m].set_index("frame").reindex(np.arange(q.frame.min() - 1, q.frame.max() + 2))
+        step = np.hypot(s.cx.diff(), s.cy.diff())
+        darea = (s.px / s.px.shift(1) - 1).abs()
+        q.loc[m, "step"] = np.fmax(step, step.shift(-1)).fillna(np.inf).loc[q.frame[m]].to_numpy()
+        q.loc[m, "darea"] = np.fmax(darea, darea.shift(-1)).fillna(np.inf).loc[q.frame[m]].to_numpy()
+    med = q[q.present].groupby(key)[["px", "major"]].median()
+    q["area_ratio"] = q.px / q[key].map(med.px)
+    q["length_ratio"] = q.major / q[key].map(med.major)
+    checks = {
+        "has a mask": q.present,
+        f"area within {kq.AREA_TOL:.0%} of median": (q.area_ratio - 1).abs() <= kq.AREA_TOL,
+        f"length {kq.LENGTH_RANGE[0]}-{kq.LENGTH_RANGE[1]} x median": q.length_ratio.between(*kq.LENGTH_RANGE),
+        f">= {kq.MIN_LARGEST_FRAC:.0%} in one piece": q.largest_frac >= kq.MIN_LARGEST_FRAC,
+        f"step <= {kq.MAX_STEP_PX} px": q.step <= kq.MAX_STEP_PX,
+        f"area change <= {kq.MAX_DAREA:.0%}": q.darea <= kq.MAX_DAREA,
+        "not touching other fish": ~q.contact.astype("boolean").fillna(True).to_numpy(bool),
+    }
+    for c, v in checks.items():
+        q[c] = np.asarray(v)
+    q["all"] = pd.DataFrame(checks).all(axis=1).to_numpy()
+    return list(checks)
+
+
+# --------------------------------------------------------------------------- quality at every efish4-track stage
+IOU_LOW = 0.6          # centroid-aligned temporal IoU below this: unstable mask (isolated fish: 5th percentile ~0.66)
+SWAP_MIN_IOU = 0.3     # swap candidate: IoU with another fish's previous mask >= this and > IoU with its own
+AMODAL_MIN = 0.99      # visible mask counted as inside its full-body mask when >= this fraction is
+
+
+def stage_label(stage):
+    """'body_masks' -> '4 body masks' (pipeline step number + name)"""
+    from io_utils import STAGES
+    return f"{STAGES.index(stage) + 1} {stage.replace('_', ' ')}"
+
+
+def _iou_same(enc, crop, other_masks, k, f):
+    """IoU of fish f's mask in frame k (stored encoding, decoded crop) with its mask in another stage's Masks."""
+    other = other_masks.encoded(k).get(f)
+    if crop is None and other is None:
+        return np.nan
+    if crop is None or other is None:
+        return 0.0
+    if enc["counts"] == other["counts"]:
+        return 1.0
+    b = other_masks.crops(k).get(f)
+    return 0.0 if b is None else crop_iou(crop, b)
+
+
+def stage_quality(run_dir, stage, prev_stage=None, final_stage="disturbance"):
+    """One row per (frame, fish) of one efish4-track stage: frame_quality metrics of its visible masks, Kaden's tracker
+    flags, and the IoU of each mask with the same fish's mask in prev_stage and in final_stage. Masks are read with
+    io_utils.load_stage_masks."""
+    from io_utils import load_stage_masks
+    vis = load_stage_masks(run_dir, stage, kind="visible")
+    amo = load_stage_masks(run_dir, stage, kind="amodal")
+    prev = load_stage_masks(run_dir, prev_stage) if prev_stage else None
+    fin = load_stage_masks(run_dir, final_stage)
+    rows, prev_vis = [], {}
+    for k in range(len(vis)):
+        cv, enc = vis.crops(k), vis.encoded(k)
+        q = frame_quality(cv, amo.crops(k), prev_vis)
+        for f, let in enumerate(vis.names):
+            r = dict(frame=k, fish=let, **{c: v[k, f].item() for c, v in vis.flags.items()}, **q.get(f, {}))
+            r["iou_prev_stage"] = _iou_same(enc.get(f), cv.get(f), prev, k, f) if prev else np.nan
+            r["iou_final"] = _iou_same(enc.get(f), cv.get(f), fin, k, f)
+            rows.append(r)
+        prev_vis = cv
+    df = pd.DataFrame(rows)
+    df.insert(0, "stage", stage_label(stage))
+    return df
+
+
+def stage_checks(df):
+    """My QC rules (qc_checks, per stage) and the extra per-mask flags on stage_quality rows; returns (df, rule names)."""
+    out = []
+    for _, q in df.groupby("stage", sort=False):
+        q = q.copy()
+        checks = qc_checks(q)
+        out.append(q)
+    df = pd.concat(out, ignore_index=True)
+    df["all_but_contact"] = df[[c for c in checks if c != "not touching other fish"]].all(axis=1)
+    df["unstable"] = df.iou_prev_aligned < IOU_LOW
+    df["swap"] = (df.iou_prev_other >= SWAP_MIN_IOU) & (df.iou_prev_other > df.iou_prev.fillna(0))
+    df["overlap"] = df.overlap_px > 0
+    df["outside_amodal"] = df.vis_in_amodal < AMODAL_MIN
+    df["holes"] = df.hole_frac > 0
+    df["changed"] = df.iou_prev_stage < 1
+    return df, checks
+
+
+def stage_summary(df, checks):
+    """One row per (stage, fish): % of frames failing each rule / carrying each flag, metric medians, track fragments."""
+    g = df.groupby(["stage", "fish"], sort=False)
+    s = pd.DataFrame({
+        **{f"% fail: {c}": 100 * (1 - g[c].mean()) for c in checks},
+        "% pass all": 100 * g["all"].mean(),
+        "% pass all but touching": 100 * g.all_but_contact.mean(),
+        f"% aligned temporal IoU < {IOU_LOW}": 100 * g.unstable.mean(),
+        "% swap candidate": 100 * g.swap.mean(),
+        "% overlap other fish": 100 * g.overlap.mean(),
+        "% visible outside amodal": 100 * g.outside_amodal.mean(),
+        "% with holes": 100 * g.holes.mean(),
+        **{f"% {c} flag": 100 * g[c].mean() for c in ("occluded", "needs_review") if c in df},
+        "% changed vs previous stage": 100 * g.changed.mean(),
+        "median temporal IoU": g.iou_prev.median(),
+        "median aligned temporal IoU": g.iou_prev_aligned.median(),
+        "median solidity": g.solidity.median(),
+        "mean IoU with final": g.iou_final.mean(),
+        "track fragments": g.present.apply(lambda v: int((np.diff(np.r_[0, v.to_numpy().astype(int)]) == 1).sum())),
+    })
+    return s.reset_index()
+
+
+def stage_change_score(df):
+    """Per (frame, fish) of stage_quality rows: change = sum over the steps of (1 - IoU with the previous step's mask), i.e.
+    how much the mask is redrawn along the pipeline (a mask that appears or vanishes counts 1), and iou_first_final =
+    IoU of the first step's mask with the final one."""
+    d = df.assign(step_change=1 - df.iou_prev_stage.fillna(1))
+    out = d.groupby(["frame", "fish"]).step_change.sum().rename("change").to_frame()
+    out["iou_first_final"] = df[df.stage == df.stage.iloc[0]].set_index(["frame", "fish"]).iou_final
+    return out.reset_index()
+
+
+def most_changed_frames(df, n=50, min_gap=25):
+    """The n frames whose most-changed fish has the highest stage_change_score, at least min_gap frames apart (so the
+    examples come from different contacts). One row per frame: frame, fish, change, iou_first_final, rank."""
+    best = (stage_change_score(df).sort_values(["change", "frame"], ascending=[False, True])
+            .drop_duplicates("frame"))
+    picked = []
+    for r in best.itertuples(index=False):
+        if all(abs(r.frame - p.frame) >= min_gap for p in picked):
+            picked.append(r)
+            if len(picked) == n:
+                break
+    out = pd.DataFrame(picked)
+    out.insert(0, "rank", np.arange(1, len(out) + 1))
+    return out
+
+
+# --------------------------------------------------------------------------- how much each step changes the masks
+def _label_window(crops, box):
+    """Label map of {fish: (box, crop)} inside box (y0, y1, x0, x1): 0 = background, f + 1 = fish f (visible masks are
+    disjoint)."""
+    y0, y1, x0, x1 = box
+    lab = np.zeros((y1 - y0, x1 - x0), np.int16)
+    for f, (b, c) in crops.items():
+        lab[b[0] - y0:b[1] - y0, b[2] - x0:b[3] - x0][c] = f + 1
+    return lab
+
+
+def stage_flux(run_dir, stage, prev_stage):
+    """Pixels one step moves, per (frame, fish), against prev_stage's visible masks: added (background -> this fish),
+    removed (this fish -> background), from_other (another fish -> this fish), to_other (this fish -> another fish),
+    px_prev. Frames where the step changes no mask are left out (all zero)."""
+    from io_utils import load_stage_masks
+    cur, prev = load_stage_masks(run_dir, stage), load_stage_masks(run_dir, prev_stage)
+    rows = []
+    for k in range(len(cur)):
+        e1, e0 = cur.encoded(k), prev.encoded(k)
+        if e1.keys() == e0.keys() and all(e1[f]["counts"] == e0[f]["counts"] for f in e1):
+            continue
+        c1, c0 = cur.crops(k), prev.crops(k)
+        boxes = [b for b, _ in (*c1.values(), *c0.values())]
+        box = (min(b[0] for b in boxes), max(b[1] for b in boxes), min(b[2] for b in boxes), max(b[3] for b in boxes))
+        l0, l1 = _label_window(c0, box), _label_window(c1, box)
+        for f in sorted(set(c0) | set(c1)):
+            a, b = l0 == f + 1, l1 == f + 1
+            rows.append(dict(frame=k, fish=cur.names[f], px_prev=int(a.sum()),
+                             added=int((b & (l0 == 0)).sum()), removed=int((a & (l1 == 0)).sum()),
+                             from_other=int((b & (l0 > 0) & ~a).sum()), to_other=int((a & (l1 > 0) & ~b).sum())))
+    out = pd.DataFrame(rows, columns=["frame", "fish", "px_prev", "added", "removed", "from_other", "to_other"])
+    out.insert(0, "stage", stage_label(stage))
+    return out
+
+
+def stage_change_table(df, flux, seconds=None):
+    """One row per step: how much it changes the masks and whether that helps.
+
+    df: stage_quality rows with stage_checks columns; flux: stage_flux rows of every step; seconds: {stage label:
+    run time} (optional). Fish-frames = (frame, fish) with a mask in this or the previous step.
+      % changed (touching / isolated)   fish-frames whose mask differs from the previous step's
+      mean change                       mean of 1 - IoU with the previous step's mask
+      % of all change                   this step's share of the summed (1 - IoU) over all steps
+      % px added / removed / moved      pixels gained from / lost to the background, and moved between fish, as % of all
+                                        mask pixels of the previous step
+      dist. to final after              mean 1 - IoU with the final mask after this step; % with IoU >= 0.95 with the
+                                        final mask; % identical to it
+      QC fixed / broken                 changed fish-frames that go from failing to passing every QC rule but touching,
+                                        and the reverse, as % of all fish-frames
+    """
+    stages = list(dict.fromkeys(df.stage))
+    d = df.set_index(["stage", "frame", "fish"])
+    total_change = (1 - df.iou_prev_stage).sum()
+    rows = []
+    for i, st in enumerate(stages):
+        q = d.loc[st]
+        r = {"step": st}
+        touch = q.contact.astype("boolean").fillna(False).to_numpy(bool)
+        if i:
+            p = d.loc[stages[i - 1]]
+            had = q.iou_prev_stage.notna()
+            ch = q.changed.to_numpy(bool)
+            r["% changed"] = 100 * ch[had].mean()
+            r["% changed, touching"] = 100 * ch[had & touch].mean()
+            r["% changed, isolated"] = 100 * ch[had & ~touch].mean()
+            r["mean change (1 - IoU)"] = (1 - q.iou_prev_stage[had]).mean()
+            r["% of all change"] = 100 * (1 - q.iou_prev_stage[had]).sum() / total_change
+            fl, px = flux[flux.stage == st], p.px.sum()
+            r["% px added"] = 100 * fl.added.sum() / px
+            r["% px removed"] = 100 * fl.removed.sum() / px
+            r["% px moved between fish"] = 100 * fl.from_other.sum() / px
+            ok0, ok1 = p.all_but_contact.to_numpy(bool), q.all_but_contact.to_numpy(bool)
+            r["% QC fixed"] = 100 * (ch & ~ok0 & ok1).mean()
+            r["% QC broken"] = 100 * (ch & ok0 & ~ok1).mean()
+        r["dist. to final after (1 - IoU)"] = (1 - q.iou_final).mean()
+        r["% identical to final after"] = 100 * (q.iou_final[q.iou_final.notna()] == 1).mean()
+        r["% IoU >= 0.95 with final after"] = 100 * (q.iou_final[q.iou_final.notna()] >= 0.95).mean()
+        r["% pass all but touching"] = 100 * q.all_but_contact.mean()
+        if seconds:
+            r["run time (s)"] = seconds.get(st, np.nan)
+        rows.append(r)
+    cols = ["step", "run time (s)", "% changed", "% changed, touching", "% changed, isolated", "mean change (1 - IoU)",
+            "% of all change", "% px added", "% px removed", "% px moved between fish", "% QC fixed", "% QC broken",
+            "% pass all but touching", "dist. to final after (1 - IoU)", "% IoU >= 0.95 with final after",
+            "% identical to final after"]
+    t = pd.DataFrame(rows)
+    return t[[c for c in cols if c in t]]
+
+
+def net_vs_gross_change(df):
+    """(gross, net): mean summed step change sum(1 - IoU with the previous step) and mean net change (1 - IoU of the
+    first step's mask with the final one), over fish-frames with a mask in both; net / gross < 1 = steps undo each other."""
+    s = stage_change_score(df).dropna(subset=["iou_first_final"])
+    return s.change.mean(), (1 - s.iou_first_final).mean()
+
+
 def compute_metrics(path, src):
     frames, meta = src["load"](path, src["mask_kind"])
     rows, extras = [], []

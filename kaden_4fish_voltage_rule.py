@@ -19,7 +19,8 @@ Output: results/eod_assign_4fish_kaden/<t>/voltage_rule_N150_tank_barriers_int4.
 import argparse, time
 import numpy as np
 import pandas as pd
-from eod_assign import load_electrode_pairs, recorded_pair_traces_all, MODEL_SIGN
+from eod_assign import MODEL_SIGN
+from io_utils import load_electrodes, load_eods
 from kaden_4fish_assign import EOD
 
 BASE, P, LET = 'results/eod_assign_4fish_kaden', 912, 'ABCD'
@@ -48,9 +49,9 @@ if __name__ == '__main__':
     F = pd.read_csv(FACTORS).set_index('factor').value
     A = np.array([F[f'fish {f}'] for f in LET]); E = np.array([F[f'electrode {e}'] for e in ORDER]).reshape(10, 2)   # (pair, +/-)
     U = pd.read_pickle(f'{BASE}/{t}/{MODEL}')
-    PIDS = [p for p, _, _ in load_electrode_pairs(EL_FILE, P)]
-    df = pd.read_csv(EOD.format(t=t), usecols=['Frame'] + [f'electrode_{p}_time_{i}' for p in PIDS for i in range(1, 26)])
-    frames = df.Frame.to_numpy(); V = recorded_pair_traces_all(df, PIDS, 25); del df
+    PIDS = [p for p, _, _ in load_electrodes(EL_FILE, P)]
+    df, V, _ = load_eods(EOD.format(t=t), columns=['Frame'], pairs=PIDS)
+    frames = df.Frame.to_numpy(); V = V - np.nanmean(V, axis=2, keepdims=True); del df          # each pair demeaned
     R = V[np.arange(len(V)), :, np.abs(V).max(1).argmax(1)]; del V                   # (n, 10) main phase, V
     z = np.load(f'{BASE}/{t}/midlines_by_frame.npz'); gi = {int(k): i for i, k in enumerate(z['frames'])}
     pole = nearer_pole(z['mids'])

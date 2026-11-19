@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import mask_metrics as mm
-from io_utils import load_masks
+from io_utils import load_masks, load_eods
 
 DENIS_NB = Path('/Volumes/Lenca_SSD/github/EODAssignment/analysis/notebooks')
 sys.path[:0] = [str(DENIS_NB), str(DENIS_NB.parents[1])]
@@ -57,14 +57,14 @@ def keypoint_table(c, which):
     """Frame + keypoints/scores in Denis' input layout (<point>_<x|y>_<i>, score_<point>_<i>) for the old or newest table."""
     if which == 'newest':
         cols = ['Frame'] + [f'{p}_{k}_{i}' for i in range(1, c['n'] + 1) for p in TRACKED_POINTS for k in ('x', 'y', 'score')]
-        d = pd.read_csv(c['newest'], usecols=cols)
+        d = load_eods(c['newest'], columns=cols, traces=False)[0]
         return d.rename(columns={f'{p}_score_{i}': f'score_{p}_{i}' for i in range(1, c['n'] + 1) for p in TRACKED_POINTS})
     if c['old_layout'] == 'keypoints':
-        return pd.read_csv(c['old'], usecols=lambda col: col == 'Frame' or col.split('_')[0] in TRACKED_POINTS + ['score'])
+        return load_eods(c['old'], columns=lambda col: col == 'Frame' or col.split('_')[0] in TRACKED_POINTS + ['score'], traces=False)[0]
     letters = [chr(65 + i) for i in range(c['n'])]
     rename = {f'{p}_{k}_{f}': (f'score_{p}_{i}' if k == 'score' else f'{p}_{k}_{i}')
               for i, f in enumerate(letters, 1) for p in TRACKED_POINTS for k in ('x', 'y', 'score')}
-    return pd.read_csv(c['old'], usecols=['Frame'] + list(rename)).rename(columns=rename)
+    return load_eods(c['old'], columns=['Frame'] + list(rename), traces=False)[0].rename(columns=rename)
 
 
 def majors(keys):

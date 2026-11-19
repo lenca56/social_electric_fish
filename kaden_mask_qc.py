@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 from scipy.ndimage import binary_dilation
 import mask_metrics as mm
-from io_utils import load_masks
+from io_utils import load_masks, load_eods
 
 KADEN = 'data/track_Kaden/results_{t}_full/video2024-02-20T{t}/outputs/video2024-02-20T{t}.pkl'
 EOD = 'data/4 fish/Data_4fish_2024-02-20T{t}.csv'
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     a = ap.parse_args(); t = a.rec; t0 = time.time()
     from kaden_4fish_assign import kaden_pkl                         # also finds the 2024-02-20T<t>_R2-*.pkl name of 5 recordings
     MASKS = load_masks(kaden_pkl(t)); assert ''.join(MASKS.names) == LET; n = len(MASKS)
-    ef = np.unique(pd.read_csv(EOD.format(t=t), usecols=['Frame']).Frame.to_numpy())
+    ef = np.unique(load_eods(EOD.format(t=t), columns=['Frame'], traces=False)[0].Frame.to_numpy())
     keys = np.unique(np.r_[ef - 1, ef, ef + 1]); keys = keys[(keys >= 0) & (keys < n)]
     with mp.get_context('fork').Pool(a.workers) as pool:
         parts = pool.map(frame_rows, np.array_split(keys, 16 * a.workers))

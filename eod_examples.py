@@ -1,6 +1,6 @@
 """Example-EOD figures, my model vs Denis' pipeline: loading a recording, masks, video frames, midlines and the tank +
 zoom + voltages figure (plot_example). Moved unchanged from EOD_examples_3fish_better_frames.ipynb."""
-import os, re, subprocess
+import os, subprocess
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,8 +9,8 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 import matplotlib.patheffects as pe
 from midline_methods import fish_midline_with_head
-from eod_assign import load_electrode_pairs, peak_pattern, rank1_pattern
-from io_utils import load_masks
+from eod_assign import peak_pattern, rank1_pattern
+from io_utils import load_electrodes, load_masks, load_eods
 
 REC = {
     '3-fish': dict(
@@ -47,18 +47,12 @@ C_PAIR = '#C00000'                                    # highlighted electrode pa
 def load_recording(name):
     '''Everything the examples need for one recording, as a dict.'''
     c = dict(REC[name], name=name)
-    df = pd.read_csv(f"{c['data']}/{c['eod_csv']}")
-    pat = re.compile(r'electrode_(\d+)_t(?:ime)?_([mp]?)(\d+)$')       # sample k (2-fish) or m12 ... 0 ... p12 (3-fish)
-    cols = {}
-    for col in df.columns:
-        m = pat.match(col)
-        if m: cols.setdefault(int(m[1]), []).append(((-1 if m[2] == 'm' else 1) * int(m[3]), col))
-    c['trace_cols'] = {p: [col for _, col in sorted(v)] for p, v in sorted(cols.items())}
-    assert len(c['trace_cols']) == 10 and len({len(v) for v in c['trace_cols'].values()}) == 1
     masks = load_masks(f"{c['data']}/{c['track']}", 'shiv', fish_order=c['fish'])       # masks[k]: (n_fish, P, P)
-    c.update(df=df, masks=masks, P=masks.shape[0], fps=masks.fps)
-    c['pairs'] = load_electrode_pairs(c['electrodes'], c['P'])
+    c.update(masks=masks, P=masks.shape[0], fps=masks.fps)
+    c['pairs'] = load_electrodes(c['electrodes'], c['P'])
     c['pair_ids'] = [pid for pid, _, _ in c['pairs']]
+    df, c['V'], _ = load_eods(f"{c['data']}/{c['eod_csv']}", pairs=c['pair_ids'])     # df: per-EOD info; V: (n_eods, pairs, samples)
+    c['df'] = df; assert c['V'].shape[1] == 10
     c['assigned'] = pd.read_csv(f"{c['res']}/eod_assignments.csv", index_col='row')
     c['cache'] = pd.read_pickle(f"{c['res']}/{c['cache']}")
     c['den'] = pd.read_pickle(c['denis_pkl'])
@@ -70,7 +64,7 @@ def load_recording(name):
 
 def recorded_pair_traces(c, i):
     '''(n_pairs, n_samp) recorded voltages of EOD row i, each pair demeaned.'''
-    V = np.stack([c['df'].loc[i, c['trace_cols'][p]].to_numpy(float) for p in c['pair_ids']])
+    V = c['V'][i]
     return V - np.nanmean(V, axis=1, keepdims=True)
 
 def frame_masks(c, k):

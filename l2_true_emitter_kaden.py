@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from io_utils import load_assignment, load_denis_assignment
 
 src = open('ptp_rule_controls.py').read()
 exec(src[:src.index('\nfor rec, r in REC.items():')])                 # REC, g, recorded_ptp, MODEL_SIGN
@@ -39,17 +40,16 @@ for rec, r in REC.items():
     Rptp = recorded_ptp(c['newest'], list(range(1, 11)))
     vals = {}
     for name, (tag, _) in KMODELS.items():
-        d = pd.read_csv(f'{base}/{tag}/eod_assignment_shape.csv'); u = d[[f'u{em}_raw_p{p}' for p in range(1, 11)]].to_numpy()
+        a = load_assignment(f'{base}/{tag}/eod_assignment_shape.csv'); assert a.pair_ids == list(range(1, 11)); u = a.predicted[:, em]
         zp = np.load(f'{out}/predicted_voltages_{fname(name)}_ptp.npz'); z = np.load(f'{out}/predicted_voltages_{fname(name)}_peak.npz')
         R = z['recorded']
-        vals[name] = {'shape, peak sample': d[f'd{em}'].to_numpy(),
+        vals[name] = {'shape, peak sample': a.score[:, em],
                       'shape, peak-to-peak': np.linalg.norm(unit(u) - unit(Rptp), axis=1),
                       'voltage, peak sample': np.linalg.norm(R - z['predicted_volts'][:, em], axis=1) / np.abs(R).max(1),
                       'voltage, peak-to-peak': np.linalg.norm(Rptp - zp['predicted_volts'][:, em], axis=1) / np.abs(Rptp).max(1)}
-    dn = pd.read_csv(f'{base}/denis_mask_midline_all_eods.csv'); has = dn.pick.notna().to_numpy()
-    dk = pd.read_pickle(f"{base}/denis/{next(x for x in os.listdir(f'{base}/denis') if x.startswith('Assigned') and x.endswith('.pkl'))}")
-    X = {f: k for k, f in LETTERS[rec].items()}[em]; sh = np.full(len(qc), np.nan)
-    sh[has] = np.linalg.norm(unit(np.stack(dk[f'predicted_PTP_{X}'].to_numpy())) - unit(np.stack(dk.recorded_PTP.to_numpy())), axis=1)
+    dn = load_denis_assignment(f'{base}/denis_mask_midline_all_eods.csv', f'{base}/denis', fish=LETTERS[rec])
+    has = dn.pick >= 0; sh = np.full(len(qc), np.nan)
+    sh[has] = np.linalg.norm(unit(dn.predicted[has, em]) - unit(dn.recorded[has]), axis=1)
     z = np.load(f'{out}/predicted_voltages_Denis_analytic_ptp.npz'); R = z['recorded']
     vals['Denis analytic'] = {'shape, peak-to-peak': sh,
                               'voltage, peak-to-peak': np.linalg.norm(R - z['predicted_volts'][:, em], axis=1) / np.abs(R).max(1)}

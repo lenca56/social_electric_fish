@@ -9,14 +9,15 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from compute_electric_field import mask_to_grid
-from eod_assign import (load_electrode_pairs, eod_sample_count, recorded_pair_traces, eod_phase_samples, normalize_peak,
-                        candidate_field, pair_voltages, iter_mgz_frames)
+from eod_assign import (eod_sample_count, recorded_pair_traces, eod_phase_samples, normalize_peak, candidate_field,
+                        pair_voltages, iter_mgz_frames)
+from io_utils import load_electrodes
 from midline_methods import fish_midline_with_head
 
 MGZ = 'data/video2024-02-20T21_16_26__223e__59997__masks_packed.mgz'
 N, delta_h, FS = 200, 0.5, 20000.0
 MAT = dict(sigma_water=1.0, eps_water=0.0, sigma_interior=200.0, eps_interior=0.0, sigma_skin=0.05, eps_skin=2.7e-6)
-pairs = load_electrode_pairs('data/electrodes_signed_px_coord_2024-02-13.csv', 912)
+pairs = load_electrodes('data/electrodes_signed_px_coord_2024-02-13.csv', 912)
 pair_ids = [pid for pid, _, _ in pairs]
 df_all = pd.read_csv('data/Data_4fish_2024-02-20T21_16_26.csv')
 n_samp = eod_sample_count(df_all)
