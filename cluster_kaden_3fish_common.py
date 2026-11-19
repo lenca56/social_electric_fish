@@ -1,9 +1,9 @@
 """Shared settings and paths of the 3-fish mask-stage jobs (one place, so the three scripts always agree):
 
-  cluster_3fish_stage_midlines.py   1. mask midlines of every fish, per recording x mask stage
-  cluster_3fish_stage_predict.py    2. raw model predictions per recording x mask stage x model setting (mine at several interior
+  cluster_kaden_3fish_midlines.py   1. mask midlines of every fish, per recording x mask stage
+  cluster_kaden_3fish_predict.py    2. raw model predictions per recording x mask stage x model setting (mine at several interior
                                        conductivities, Denis' analytic pipeline)
-  assign_3fish_stage_rules.py       3. assignment rules (shape, cosine, voltage with fitted factors) and accuracy, all combinations
+  kaden_3fish_assign_rules.py       3. assignment rules (shape, cosine, voltage with fitted factors) and accuracy, all combinations
 
 DATA (relative to the repository root)
   masks      data/3_fish_silent/masks/video<rec>/ : one efish4-track run, read per stage with io_utils.load_stage_masks; the 10
@@ -27,7 +27,7 @@ N_MIDLINE = 101                               # midline points (tail -> head) = 
 VIDEOS = ['2024-10-14T15_47_02', '2024-10-14T16_07_02', '2024-10-14T16_47_02', '2024-10-15T14_12_25', '2024-10-15T14_30_53',
           '2024-10-15T14_50_54', '2024-10-15T15_10_54', '2024-10-15T15_30_54']
 # the emitting fish (Kaden's letter) of each silent control, the ground truth for the accuracy. A recording not listed gets the
-# fish that the shape rule picks most often over all its stages and settings (assign_3fish_stage_rules.py writes emitter.csv with
+# fish that the shape rule picks most often over all its stages and settings (kaden_3fish_assign_rules.py writes emitter.csv with
 # that share, to check; put the letter here once confirmed)
 EMITTER = {'2024-10-15T14_12_25': 'C'}       # Kaden's C = ZEUS fish 0, the emitter of this control
 

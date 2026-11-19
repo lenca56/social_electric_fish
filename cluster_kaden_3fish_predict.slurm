@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=3fish_stage_predict   # create a short name for your job
+#SBATCH --job-name=kaden_3fish_predict   # create a short name for your job
 #SBATCH --nodes=1                # node count
 #SBATCH --ntasks=1               # total number of tasks across all nodes
 #SBATCH --cpus-per-task=4        # cpu-cores per task (mine: worker processes; denis: numba threads)
@@ -10,12 +10,12 @@
 #SBATCH --mail-type=all          # send email on job start, end and fault
 #SBATCH --mail-user=cuturela@princeton.edu
 
-# Step 2 of 3 (cluster_3fish_common.py), after cluster_3fish_stage_midlines.slurm. Submit from the repository root:
-#   MASK_STAGES=final sbatch --array=0-39 cluster_3fish_stage_predict.slurm     final masks only: 8 recordings x 5 settings
-#   sbatch cluster_3fish_stage_predict.slurm                                    all 10 mask stages: 400 tasks
-# Settings (INTERIOR_SIGMAS, INCLUDE_DENIS) are in the hyperparameters of cluster_3fish_stage_predict.py; if you change them,
+# Step 2 of 3 (cluster_kaden_3fish_common.py), after cluster_kaden_3fish_midlines.slurm. Submit from the repository root:
+#   MASK_STAGES=final sbatch --array=0-39 cluster_kaden_3fish_predict.slurm     final masks only: 8 recordings x 5 settings
+#   sbatch cluster_kaden_3fish_predict.slurm                                    all 10 mask stages: 400 tasks
+# Settings (INTERIOR_SIGMAS, INCLUDE_DENIS) are in the hyperparameters of cluster_kaden_3fish_predict.py; if you change them,
 # the task count changes too (--list). Denis' setting needs ../EODAssignment (or DENIS_REPO) and numba.
-# Then, anywhere (no solves):   python assign_3fish_stage_rules.py
+# Then, anywhere (no solves):   python kaden_3fish_assign_rules.py
 
 echo "My SLURM_ARRAY_JOB_ID is $SLURM_ARRAY_JOB_ID."
 echo "My SLURM_ARRAY_TASK_ID is $SLURM_ARRAY_TASK_ID"
@@ -29,4 +29,4 @@ export OMP_NUM_THREADS=1
 export NUMBA_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export PROJECT_DIR=$SLURM_SUBMIT_DIR
 
-python cluster_3fish_stage_predict.py
+python cluster_kaden_3fish_predict.py

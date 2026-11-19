@@ -1,4 +1,4 @@
-"""Step 3 of 3 (see cluster_3fish_common.py): assignment rules on the raw predictions of step 2, for every recording x mask stage x
+"""Step 3 of 3 (see cluster_kaden_3fish_common.py): assignment rules on the raw predictions of step 2, for every recording x mask stage x
 model setting found, with the accuracy against the known emitter. Runs in a few minutes on a laptop (no field solves).
 
 RULES (recorded r: 10 pairs; model p_f = model_sign * model_raw of fish f; each EOD goes to the best fish)
@@ -16,7 +16,7 @@ FACTORS (per recording x stage x setting, fitted without the ground truth, as fo
   fish of a control, gets the median of all ratios); signed electrode factor e_k = median of ratio / a_f over the ratios of
   electrode k = the pole of pair p nearer to fish f (fewer than MIN_RATIOS_ELECTRODE: e_k = 1).
 
-ACCURACY: % of EODs given to the emitter. The emitter is cluster_3fish_common.EMITTER[recording] where given, else inferred: the
+ACCURACY: % of EODs given to the emitter. The emitter is cluster_kaden_3fish_common.EMITTER[recording] where given, else inferred: the
 fish the shape_l2 rule picks most often on the 'predicted' EODs, pooled over every stage and setting of the recording (in a silent
 control nearly every EOD is the emitter's); emitter.csv lists the emitter, its source and that share. Three EOD sets:
   all        every EOD with a video frame (no pick counts as wrong)
@@ -30,7 +30,7 @@ OUTPUT  results/eod_assignment_3_fish_silent/mask_stages/assignment/
   picks/<setting>/<rec>/<stage>.csv   per EOD: eod_row, Frame, pick and score per rule
   accuracy_vs_stage_<rec>.png         accuracy per rule (columns) and EOD set (rows), one line per setting
 
-    python assign_3fish_stage_rules.py [--workers 4]
+    python kaden_3fish_assign_rules.py [--workers 4]
 """
 import os, sys, glob, json, argparse
 import multiprocessing as mp
@@ -38,7 +38,7 @@ import numpy as np
 import pandas as pd
 
 ROOT = os.path.dirname(os.path.abspath(__file__)); os.chdir(ROOT); sys.path.insert(0, ROOT)
-import cluster_3fish_common as C
+import cluster_kaden_3fish_common as C
 
 # ================================================================================================================ hyperparameters
 RULES = ['shape_l2', 'cosine', 'voltage_l2', 'voltage_cosine', 'denis_own']

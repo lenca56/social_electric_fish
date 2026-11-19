@@ -1,7 +1,7 @@
-"""Cluster job, step 2 of 3 (see cluster_3fish_common.py): raw model predictions for every EOD of a 3-fish recording, with the
+"""Cluster job, step 2 of 3 (see cluster_kaden_3fish_common.py): raw model predictions for every EOD of a 3-fish recording, with the
 midlines (step 1) and masks of one efish4-track stage, for one model setting. No factors and no assignment here (step 3).
 One SLURM array task = one (recording, stage, setting): 8 recordings x 10 stages x len(SETTINGS) = 400 tasks with the default
-SETTINGS (0-399; python cluster_3fish_stage_predict.py --list).
+SETTINGS (0-399; python cluster_kaden_3fish_predict.py --list).
 MASK_STAGES=final: only the run's final masks, 8 x 5 = 40 tasks (recording r = tasks 5 r .. 5 r + 4); the same variable as step 1.
 
 SETTINGS (default: my model at interior 1, 4, 16, 100 x water, and Denis' pipeline)
@@ -22,9 +22,9 @@ WHERE IT SAVES  results/eod_assignment_3_fish_silent/mask_stages/predictions/<se
   denis only: similarity (n, 3), pick_similarity (n,)
 
 USAGE
-  python cluster_3fish_stage_predict.py --check | --list | <task>
-  MAX_FRAMES=100 OUT_ROOT=results/test python cluster_3fish_stage_predict.py 151      quick test (14_12_25, 01_segment, mine_int4)
-  sbatch cluster_3fish_stage_predict.slurm
+  python cluster_kaden_3fish_predict.py --check | --list | <task>
+  MAX_FRAMES=100 OUT_ROOT=results/test python cluster_kaden_3fish_predict.py 151      quick test (14_12_25, 01_segment, mine_int4)
+  sbatch cluster_kaden_3fish_predict.slurm
 """
 import os, sys, re, json, time, shutil
 import multiprocessing as mp
@@ -34,7 +34,7 @@ import pandas as pd
 
 ROOT = os.environ.get('PROJECT_DIR', os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT); sys.path.insert(0, ROOT)
-import cluster_3fish_common as C
+import cluster_kaden_3fish_common as C
 
 # ================================================================================================================ hyperparameters
 INTERIOR_SIGMAS = [1.0, 4.0, 16.0, 100.0]   # my model: one setting per interior conductivity of the other fish (x water)
@@ -176,7 +176,7 @@ print('hyperparameters: ' + json.dumps(HYPER), flush=True)
 if not OVERWRITE and os.path.exists(path): print('  already done, skipped (OVERWRITE=0)'); sys.exit(0)
 frames_eod = C.eod_frames(video)
 if frames_eod is None: print(f'  no EOD table {C.EOD_TABLE.format(video=video)}: skipped'); sys.exit(0)
-if not os.path.exists(mid_path(video, label)): raise FileNotFoundError(f'{mid_path(video, label)}: run cluster_3fish_stage_midlines.py first')
+if not os.path.exists(mid_path(video, label)): raise FileNotFoundError(f'{mid_path(video, label)}: run cluster_kaden_3fish_midlines.py first')
 rows = np.arange(len(frames_eod))
 if MAX_FRAMES: rows = rows[np.isin(frames_eod, np.unique(frames_eod)[:MAX_FRAMES])]
 frames = frames_eod[rows]

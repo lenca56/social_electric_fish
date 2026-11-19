@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=3fish_stage_midlines   # create a short name for your job
+#SBATCH --job-name=kaden_3fish_midlines   # create a short name for your job
 #SBATCH --nodes=1                # node count
 #SBATCH --ntasks=1               # total number of tasks across all nodes
 #SBATCH --cpus-per-task=4        # cpu-cores per task (worker processes)
@@ -10,10 +10,10 @@
 #SBATCH --mail-type=all          # send email on job start, end and fault
 #SBATCH --mail-user=cuturela@princeton.edu
 
-# Step 1 of 3 (cluster_3fish_common.py). Submit from the repository root:   sbatch cluster_3fish_stage_midlines.slurm
-# The 8 recordings with an EOD table (cluster_3fish_common.VIDEOS), only frames with an EOD (FRAMES=eod; FRAMES=all: every frame).
-#   MASK_STAGES=final sbatch --array=0-7 cluster_3fish_stage_midlines.slurm      final masks only: 8 tasks, one per recording
-#   sbatch cluster_3fish_stage_midlines.slurm                                    all 10 mask stages: 80 tasks
+# Step 1 of 3 (cluster_kaden_3fish_common.py). Submit from the repository root:   sbatch cluster_kaden_3fish_midlines.slurm
+# The 8 recordings with an EOD table (cluster_kaden_3fish_common.VIDEOS), only frames with an EOD (FRAMES=eod; FRAMES=all: every frame).
+#   MASK_STAGES=final sbatch --array=0-7 cluster_kaden_3fish_midlines.slurm      final masks only: 8 tasks, one per recording
+#   sbatch cluster_kaden_3fish_midlines.slurm                                    all 10 mask stages: 80 tasks
 
 echo "My SLURM_ARRAY_JOB_ID is $SLURM_ARRAY_JOB_ID."
 echo "My SLURM_ARRAY_TASK_ID is $SLURM_ARRAY_TASK_ID"
@@ -26,4 +26,4 @@ conda activate electric_fish     # python 3.11, numpy >= 2.4, pandas, scipy (clu
 export OMP_NUM_THREADS=1
 export PROJECT_DIR=$SLURM_SUBMIT_DIR
 
-python cluster_3fish_stage_midlines.py
+python cluster_kaden_3fish_midlines.py
