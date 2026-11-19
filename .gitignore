@@ -40,3 +40,7 @@ results/eod_assign_4fish_kaden/l2_distributions/denis_71/denis_71_l2_per_eod.csv
 !data/electrodes/electrode_locations_updated_3-fish.csv
 !data/electrodes/electrodes_signed_px_coord_3-fish.csv
 !results/eod_assignment_3_fish_silent/with_latest_run_tracking/mask_qc_good_frames.csv
+# per-video 3-fish geometry (tank_geometry_3fish.py), for the 3-fish jobs
+!data/electrodes/3-fish/
+!data/electrodes/3-fish/*/
+!data/electrodes/3-fish/*/*.csv

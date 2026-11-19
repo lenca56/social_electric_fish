@@ -32,9 +32,12 @@ VIDEOS = ['2024-10-14T15_47_02', '2024-10-14T16_07_02', '2024-10-14T16_47_02', '
 EMITTER = {'2024-10-15T14_12_25': 'C'}       # Kaden's C = ZEUS fish 0, the emitter of this control
 
 # geometry
-TANK_OUTLINE = 'data/electrodes/tank_outline_updated_3-fish.csv'          # wall polygon, video px (x = column, y = row)
-ELECTRODES = 'data/electrodes/electrode_locations_updated_3-fish.csv'     # my model: electrodes just inside the walls
-DENIS_ELECTRODES = 'data/electrodes/electrodes_signed_px_coord_3-fish.csv'  # Denis' pipeline: his original electrode layout
+# per video (the tank and camera moved between recordings; tank_geometry_3fish.py fits them and draws them for checking), video px
+GEOMETRY = 'data/electrodes/3-fish/{video}'
+TANK_OUTLINE = GEOMETRY + '/tank_outline.csv'                     # wall polygon (x = column, y = row)
+ELECTRODES = GEOMETRY + '/electrode_locations_updated.csv'        # my model: electrodes just inside the walls
+DENIS_ELECTRODES = GEOMETRY + '/electrodes_signed_px_coord.csv'   # Denis' pipeline: his clicked layout, moved with the tank
+BARRIERS = GEOMETRY + '/tank_barriers.csv'                        # the 4 plastic L-pieces, one row per arm (segment)
 
 # data and output
 MASK_RUN = 'data/3_fish_silent/masks/video{video}'
@@ -93,6 +96,17 @@ def nearer_pole(mids, plus, minus):
         dp = np.linalg.norm(xy[:, :, :, None] - plus[None, None, None], axis=-1).min(2)
         dm = np.linalg.norm(xy[:, :, :, None] - minus[None, None, None], axis=-1).min(2)
         out[s:s + 1000] = np.where(np.isfinite(dp) & np.isfinite(dm), dm < dp, 0)
+    return out
+
+
+def barrier_nodes(path, N):
+    '''(N, N) bool: grid nodes on the plastic L-pieces (as kaden_4fish_tank_model.barrier_nodes): each arm is sampled densely and
+       each sample marks its nearest node, so the removed nodes form an 8-connected line that no grid edge crosses.'''
+    out = np.zeros((N, N), bool); s = (N - 1) / (P - 1)
+    for _, r in pd.read_csv(path).iterrows():
+        n = int(np.ceil(np.hypot(r.x2 - r.x1, r.y2 - r.y1) * s * 4)) + 2
+        x, y = np.linspace(r.x1, r.x2, n) * s, np.linspace(r.y1, r.y2, n) * s
+        out[np.clip(np.rint(y).astype(int), 0, N - 1), np.clip(np.rint(x).astype(int), 0, N - 1)] = True
     return out
 
 

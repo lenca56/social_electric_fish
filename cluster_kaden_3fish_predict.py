@@ -6,13 +6,14 @@ MASK_STAGES=final: only the run's final masks, 8 x 5 = 40 tasks (recording r = t
 
 SETTINGS (default: my model at interior 1, 4, 16, 100 x water, and Denis' pipeline)
   mine   my 2D resistive field model (compute_electric_field.py): N_GRID x N_GRID grid over the 912 x 912 px frame, non-conductive
-         tank walls (TANK_OUTLINE), electrodes ELECTRODES; the other two fish as bodies from that stage's masks of the EOD's own
+         tank walls (TANK_OUTLINE) and the 4 plastic L-barriers (BARRIERS, with USE_BARRIERS), electrodes ELECTRODES, all per video
+         (tank_geometry_3fish.py); the other two fish as bodies from that stage's masks of the EOD's own
          frame: interior sigma x water, skin as resistive as SKIN_LAMBDA_CM of water (conductivities relative to water = 1); the
          emitter as unit point currents along its midline, sink at the tail tip. One sparse solve per fish and frame.
          model_raw = unit-current pair voltages V(+) - V(-), raw sign (model_sign -1); recorded = main phase (each pair's 25-sample
          trace demeaned, all pairs at the sample of the largest |V|), V
   denis  Denis' assign_eods (EODAssignment repo, DENIS_REPO; numba) with the midlines as his point currents (identity = letters,
-         no refractory step), his electrodes DENIS_ELECTRODES; needs all 3 midlines, else no prediction.
+         no refractory step), his electrodes DENIS_ELECTRODES of the video; needs all 3 midlines, else no prediction.
          model_raw = his predicted_PTP (model_sign +1); recorded = his recorded_PTP; also his similarity and own pick
 
 WHERE IT SAVES  results/eod_assignment_3_fish_silent/mask_stages/predictions/<setting>/<rec>/<NN_stage>.npz,
@@ -46,6 +47,7 @@ N_GRID = 150                  # grid nodes per side over the 912 x 912 px video 
 SKIN_LAMBDA_CM = 0.1          # skin as resistive as this many cm of water (skin thickness SKIN_CM = 0.005 cm)
 SINK_FRAC = 0.0               # current sink along the midline (0 = tail tip)
 PX_PER_CM = 14.2              # model scale (compute_electric_field.PX_PER_CM)
+USE_BARRIERS = True           # the 4 plastic L-pieces as non-conductive barriers (their grid nodes removed, like the walls)
 MINE_SIGN = -1                # constant sign of the unit-current model against the recorded main phase
 N_SAMPLES = 25                # samples per EOD trace in the EOD table
 
@@ -74,8 +76,9 @@ def check():
     print(T.groupby('video')[['eod_table', 'midlines', 'done']].sum().to_string())
     runnable = T[T.eod_table]
     print(f'\n{len(runnable)} tasks with an EOD table, {runnable.midlines.sum()} with their midlines (step 1), {T.done.sum()} done')
-    for f in (C.TANK_OUTLINE, C.ELECTRODES, C.DENIS_ELECTRODES):
-        if not os.path.exists(f): print('MISSING', f)
+    for v in C.VIDEOS:
+        for f in (C.TANK_OUTLINE, C.ELECTRODES, C.DENIS_ELECTRODES, C.BARRIERS):
+            if not os.path.exists(f.format(video=v)): print('MISSING', f.format(video=v), '(python tank_geometry_3fish.py)')
     if INCLUDE_DENIS:
         if not os.path.exists(os.path.join(DENIS_REPO, 'analysis/notebooks/silent_fish.py')): print('MISSING Denis repo', DENIS_REPO)
         try: import numba  # noqa: F401
@@ -90,8 +93,9 @@ J = JOBS.loc[idx]; video, label, stage, MODEL, SIGMA = J.video, J.label, J.stage
 path = out_path(J)
 HYPER = dict(model=MODEL, setting=J.setting, video=video, stage=label, task=int(idx), MAX_FRAMES=MAX_FRAMES, N_MIDLINE=C.N_MIDLINE,
              **(dict(INTERIOR_SIGMA=SIGMA, N_GRID=N_GRID, SKIN_LAMBDA_CM=SKIN_LAMBDA_CM, SINK_FRAC=SINK_FRAC, PX_PER_CM=PX_PER_CM,
-                     TANK_OUTLINE=C.TANK_OUTLINE, ELECTRODES=C.ELECTRODES, MODEL_SIGN=MINE_SIGN) if MODEL == 'mine'
-                else dict(DENIS_REPO=DENIS_REPO, ELECTRODES=C.DENIS_ELECTRODES, MODEL_SIGN=1)))
+                     TANK_OUTLINE=C.TANK_OUTLINE.format(video=video), ELECTRODES=C.ELECTRODES.format(video=video),
+                     BARRIERS=C.BARRIERS.format(video=video) if USE_BARRIERS else None, MODEL_SIGN=MINE_SIGN) if MODEL == 'mine'
+                else dict(DENIS_REPO=DENIS_REPO, ELECTRODES=C.DENIS_ELECTRODES.format(video=video), MODEL_SIGN=1)))
 
 
 # ===================================================================================================================== my model
@@ -116,9 +120,11 @@ def run_mine(rows, frames, mids):
     eods = pd.read_csv(C.EOD_TABLE.format(video=video), usecols=[f'electrode_{p}_time_{i}' for p in range(1, 11) for i in range(1, N_SAMPLES + 1)])
     V = recorded_pair_traces_all(eods.iloc[rows], list(range(1, 11)), N_SAMPLES); del eods
     recorded = V[np.arange(len(V)), :, np.abs(V).max(1).argmax(1)]; del V                     # (n, 10) main phase, V
-    pairs = load_electrode_pairs(C.ELECTRODES, C.P); assert [p for p, _, _ in pairs] == list(range(1, 11))
+    pairs = load_electrode_pairs(C.ELECTRODES.format(video=video), C.P); assert [p for p, _, _ in pairs] == list(range(1, 11))
+    inside = tank_inside(pd.read_csv(C.TANK_OUTLINE.format(video=video))[['x', 'y']].to_numpy(), N_GRID, C.P)
+    if USE_BARRIERS: inside &= ~C.barrier_nodes(C.BARRIERS.format(video=video), N_GRID)
     CTX = dict(masks=load_stage_masks(C.MASK_RUN.format(video=video), stage), pairs=pairs,
-               inside=tank_inside(pd.read_csv(C.TANK_OUTLINE)[['x', 'y']].to_numpy(), N_GRID, C.P),
+               inside=inside,
                mat=dict(materials(N_GRID, C.P, PX_PER_CM), g_interior=SIGMA, g_skin=1 / (SKIN_LAMBDA_CM / SKIN_CM + 1 / SIGMA)))
     has = np.isfinite(mids).all(axis=(2, 3)).any(1)                                           # some fish has a midline
     uniq, first = np.unique(frames[has], return_index=True)
@@ -135,7 +141,7 @@ def run_mine(rows, frames, mids):
     else:
         for j, w in enumerate(work, 1): collect(j, mine_solve_frame(w))
     model_raw = np.stack([U.get(int(k), np.full((3, 10), np.nan)) for k in frames])
-    return model_raw, recorded, MINE_SIGN, C.ELECTRODES, {}
+    return model_raw, recorded, MINE_SIGN, C.ELECTRODES.format(video=video), {}
 
 
 # ===================================================================================================================== Denis
@@ -157,7 +163,7 @@ def run_denis(rows, frames, mids):
     assert len(re.findall(r'\d{4}-\d{2}-\d{2}', str(csv.resolve()))) == 1, f'the path {csv.resolve()} must contain exactly one date'
     sf.midline_input(raw[has], cm[has]).to_csv(csv, index=False)
     print(f'  Denis: {has.sum()} / {len(raw)} EODs with all 3 midlines, {os.environ["NUMBA_NUM_THREADS"]} numba thread(s)', flush=True)
-    d = sf.run_pipeline(csv, Path(C.DENIS_ELECTRODES).resolve(), 3, midlines_cm=cm[has])
+    d = sf.run_pipeline(csv, Path(C.DENIS_ELECTRODES.format(video=video)).resolve(), 3, midlines_cm=cm[has])
     assert (d.Frame.to_numpy() == raw.Frame.to_numpy()[has]).all(), 'Denis output rows do not match the input EODs'
     shutil.rmtree(work)
     n = len(raw); model_raw = np.full((n, 3, 10), np.nan); recorded = np.full((n, 10), np.nan); sim = np.full((n, 3), np.nan)
@@ -166,7 +172,7 @@ def run_denis(rows, frames, mids):
         recorded[has] = np.stack(d['recorded_PTP'].to_numpy())
         sim[has] = np.stack([d[f'similarity_{f}'].to_numpy(float) for f in C.LETTERS], axis=1)
     pick_sim = np.full(n, '', object); pick_sim[has] = d.discharging_fish.to_numpy()
-    return model_raw, recorded, 1, C.DENIS_ELECTRODES, dict(similarity=sim, pick_similarity=pick_sim.astype(str))
+    return model_raw, recorded, 1, C.DENIS_ELECTRODES.format(video=video), dict(similarity=sim, pick_similarity=pick_sim.astype(str))
 
 
 # ===================================================================================================================== run

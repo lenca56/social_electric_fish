@@ -1,0 +1,9 @@
+piece,arm,x1,y1,x2,y2
+inner top-left,1,172.0,268.0,207.0,268.0
+inner top-left,2,172.0,268.0,172.0,310.0
+inner top-right,1,595.0,237.0,555.0,237.0
+inner top-right,2,595.0,237.0,595.0,273.0
+inner bottom-left,1,193.0,623.0,230.0,623.0
+inner bottom-left,2,193.0,623.0,193.0,563.0
+inner bottom-right,1,623.0,589.0,592.0,589.0
+inner bottom-right,2,623.0,589.0,623.0,543.0
