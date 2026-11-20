@@ -357,8 +357,10 @@ AMODAL_MIN = 0.99      # visible mask counted as inside its full-body mask when 
 
 
 def stage_label(stage):
-    """'body_masks' -> '4 body masks' (pipeline step number + name)"""
+    """'body_masks' -> '4 body masks' (pipeline step number + name); 'final' stays 'final'"""
     from io_utils import STAGES
+    if stage == "final":
+        return "final"
     return f"{STAGES.index(stage) + 1} {stage.replace('_', ' ')}"
 
 
@@ -383,7 +385,7 @@ def stage_quality(run_dir, stage, prev_stage=None, final_stage="disturbance"):
     vis = load_stage_masks(run_dir, stage, kind="visible")
     amo = load_stage_masks(run_dir, stage, kind="amodal")
     prev = load_stage_masks(run_dir, prev_stage) if prev_stage else None
-    fin = load_stage_masks(run_dir, final_stage)
+    fin = vis if final_stage == stage else load_stage_masks(run_dir, final_stage)
     rows, prev_vis = [], {}
     for k in range(len(vis)):
         cv, enc = vis.crops(k), vis.encoded(k)

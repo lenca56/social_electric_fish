@@ -27,6 +27,8 @@ FACTORS (per recording x stage x setting, without the ground truth)
 ACCURACY: % of EODs given to the emitter. The emitter is cluster_kaden_3fish_common.EMITTER[recording] where given, else inferred: the
 fish the shape_l2 rule picks most often on the 'predicted' EODs, pooled over every stage and setting of the recording (in a silent
 control nearly every EOD is the emitter's); emitter.csv lists the emitter, its source and that share. Three EOD sets:
+  Every set leaves out the double-detected EODs (DOUBLES, eod_double_detections_3fish.py: the extra member of two EODs < 7 ms apart),
+  which are also kept out of the factor fit.
   all        every EOD with a video frame (no pick counts as wrong)
   predicted  EODs where every fish has a prediction (all midlines at that stage)
   good       EODs on frames whose tracking is good: every fish passes the 4-fish mask QC on the final masks (GOOD_FRAMES,
@@ -70,6 +72,7 @@ FISH_LENGTHS = 'results/eod_assignment_3_fish_silent/fish_lengths/fish_lengths_3
 MIN_RATIOS = 50               # FISH_FACTORS = 'fit': fewer ratios for a fish: it gets the median over all ratios
 MIN_RATIOS_ELECTRODE = 10     # fewer least-squares terms for a signed electrode: the median of the fitted electrode factors
 GOOD_FRAMES = 'results/eod_assignment_3_fish_silent/mask_stages/mask_qc/mask_qc_good_frames.csv'   # video, frame (kaden_3fish_mask_qc.py)
+DOUBLES = 'results/eod_assignment_3_fish_silent/eod_intervals/double_detections_3fish.csv'   # video, eod_row: dropped everywhere
 OUT_ROOT = os.environ.get('OUT_ROOT', C.OUT)
 ORDER = [f'{p}{s}' for p in range(1, 11) for s in '+-']
 L = np.array(list(C.LETTERS))
@@ -131,6 +134,8 @@ def run_one(path):
     setting, video, stage = path.split(os.sep)[-3], path.split(os.sep)[-2], os.path.basename(path)[:-4]
     z = np.load(path); R, U, sign, pole = z['recorded'], z['model_raw'], float(z['model_sign']), z['nearer_pole']
     frames, rows = z['frames'], z['eod_rows']
+    D = pd.read_csv(DOUBLES) if os.path.exists(DOUBLES) else pd.DataFrame(columns=['video', 'eod_row'])
+    single = ~np.isin(rows, D.eod_row[D.video == video].to_numpy())                       # not a double detection
     zm = np.load(C.MIDLINES.replace(C.OUT, OUT_ROOT).format(video=video, stage=stage)); mf = zm['frames']
     j = np.clip(np.searchsorted(mf, frames), 0, len(mf) - 1); found = (mf[j] == frames) & (frames >= 0)
     mids = np.full((len(frames), 3, C.N_MIDLINE, 2), np.nan); mids[found] = zm['mids'][j[found]]
@@ -140,7 +145,7 @@ def run_one(path):
     a_law = None
     if FISH_FACTORS == 'length_law':
         a_law = law_factors(video, 'denis' if setting == 'denis' else 'mine')
-    a, E, tab = fit_factors(R, Pm, pole, S['shape_l2'], mids, a_law)
+    a, E, tab = fit_factors(np.where(single[:, None], R, np.nan), Pm, pole, S['shape_l2'], mids, a_law)   # no double detections
     V = a[None, :, None] * E[np.arange(10)[None, None, :], pole] * Pm                           # predicted volts
     S['voltage_l2'] = np.linalg.norm(R[:, None] - V, axis=2); S['voltage_cosine'] = cos(R[:, None], V)
     picks = {r: best(S[r], largest=r in ('cosine', 'voltage_cosine')) for r in S}
@@ -152,7 +157,7 @@ def run_one(path):
     # accuracy
     G = pd.read_csv(GOOD_FRAMES) if os.path.exists(GOOD_FRAMES) else pd.DataFrame(columns=['video', 'frame'])
     good = (frames >= 0) & np.isin(frames, G.frame[G.video == video].to_numpy())
-    subsets = {'all': frames >= 0, 'predicted': np.isfinite(Pm).all((1, 2)), 'good': good}
+    subsets = {'all': (frames >= 0) & single, 'predicted': np.isfinite(Pm).all((1, 2)) & single, 'good': good & single}
     acc = []
     for r, p in picks.items():
         for sub, k in subsets.items():

@@ -8,7 +8,8 @@ L2 of the emitter's prediction, one per rule (r = recorded 10 pairs, p = model_s
                                                                  Denis' peak-to-peak, so the two models' volts differ in what they measure)
   voltage cosine  sqrt(2 - 2 cos(r, V))
 Per recording: the median over its EODs; bars = median over the recordings, whiskers = 25th-75th percentile over the recordings.
-EOD sets: all = every EOD with a prediction for the emitter; good = those on mask-QC good frames (kaden_3fish_mask_qc.py).
+EOD sets: all = every EOD with a prediction for the emitter; good = those on mask-QC good frames (kaden_3fish_mask_qc.py); both
+without the double-detected EODs (eod_double_detections_3fish.py).
 
     python kaden_3fish_l2_plots.py
 Output in results/eod_assignment_3_fish_silent/mask_stages/assignment/: l2_emitter_per_recording_final.csv,
@@ -22,7 +23,7 @@ import matplotlib.pyplot as plt
 
 ROOT = os.path.dirname(os.path.abspath(__file__)); os.chdir(ROOT); sys.path.insert(0, ROOT)
 import cluster_kaden_3fish_common as C
-from kaden_3fish_assign_rules import RULES, GOOD_FRAMES
+from kaden_3fish_assign_rules import RULES, GOOD_FRAMES, DOUBLES
 
 STAGE = 'final'
 OUT = f'{C.OUT}/assignment'
@@ -34,7 +35,7 @@ RULE = {'shape_l2': 'shape L2 (patterns scaled to max |v| = 1)', 'cosine': 'cosi
         'voltage_l2': 'voltage L2 (V)', 'voltage_cosine': 'voltage cosine, as L2 of unit-norm patterns'}
 
 EM = pd.read_csv(f'{OUT}/emitter.csv').set_index('video').emitter
-G = pd.read_csv(GOOD_FRAMES)
+G = pd.read_csv(GOOD_FRAMES); DD = pd.read_csv(DOUBLES)
 rows = []
 for st in SETTINGS:
     for v in C.VIDEOS:
@@ -43,8 +44,9 @@ for st in SETTINGS:
         d = pd.read_csv(pk); e = EM[v]
         L = {'shape_l2': d[f'shape_l2_{e}'], 'cosine': np.sqrt(np.clip(2 - 2 * d[f'cosine_{e}'], 0, None)),
              'voltage_l2': d[f'voltage_l2_{e}'], 'voltage_cosine': np.sqrt(np.clip(2 - 2 * d[f'voltage_cosine_{e}'], 0, None))}
-        good = d.Frame.isin(G.frame[G.video == v]) & (d.Frame >= 0)
-        for sub, k in (('all', d.Frame >= 0), ('good', good)):
+        single = ~d.eod_row.isin(DD.eod_row[DD.video == v])                                # double detections left out
+        good = d.Frame.isin(G.frame[G.video == v]) & (d.Frame >= 0) & single
+        for sub, k in (('all', (d.Frame >= 0) & single), ('good', good)):
             for r in RULES:
                 x = np.asarray(L[r])[k.to_numpy()]; x = x[np.isfinite(x)]
                 rows.append(dict(setting=st, video=v, subset=sub, rule=r, n=len(x), median_l2=np.median(x) if len(x) else np.nan))

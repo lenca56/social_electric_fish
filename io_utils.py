@@ -11,7 +11,7 @@
   load_assignment(path)                        my model's assignment (eod_assignment_shape.csv)
   load_denis_assignment(summary, assigned)     Denis' pipeline's assignment, in the same form
 """
-import json, os, pickle, re
+import glob, json, os, pickle, re
 from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
@@ -153,10 +153,13 @@ STAGES = ('segment', 'identity', 'contact', 'body_masks', 'propagate', 'keypoint
 def stage_mask_file(run_dir, stage):
     '''File holding the masks of one stage of an efish4-track run (<out>/<video stem>), or None if the stage has not finished.
        Prefers the step pickle outputs/stages/NN_<stage>.pkl (written when the run ends), else work/<stage>/masks.json (written
-       as soon as the stage finishes; needs work/<stage>/DONE.json). stage 'final' = outputs/<video stem>.pkl.'''
+       as soon as the stage finishes; needs work/<stage>/DONE.json). stage 'final' = outputs/<video stem>.pkl, or the only
+       .pkl in outputs/ (a few 4-fish runs are named 2024-02-20T<t>_R2-035.pkl).'''
     if stage == 'final':
         p = os.path.join(run_dir, 'outputs', os.path.basename(os.path.normpath(run_dir)) + '.pkl')
-        return p if os.path.exists(p) else None
+        if os.path.exists(p): return p
+        alt = [q for q in glob.glob(os.path.join(run_dir, 'outputs', '*.pkl')) if not os.path.basename(q).startswith('._')]
+        return alt[0] if len(alt) == 1 else None
     if stage not in STAGES: raise ValueError(f"stage must be one of {STAGES} or 'final', not {stage!r}")
     pkl = os.path.join(run_dir, 'outputs', 'stages', f'{STAGES.index(stage) + 1:02d}_{stage}.pkl')
     if os.path.exists(pkl): return pkl
